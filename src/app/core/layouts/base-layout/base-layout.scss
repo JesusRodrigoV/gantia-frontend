@@ -1,0 +1,11 @@
+.dashboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--color-background);
+}
+
+main {
+  flex: 1;
+  overflow-y: auto;
+}

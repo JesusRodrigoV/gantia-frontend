@@ -1,0 +1,67 @@
+:host {
+  display: grid;
+  grid-template-columns: 7fr 3fr;
+  grid-template-rows: 1fr 1fr;
+  grid-template-areas:
+    'accel flex'
+    'gyro plan';
+  gap: 1.5rem;
+  padding: 1.5rem;
+  height: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+      'accel'
+      'gyro'
+      'flex'
+      'plan';
+  }
+}
+
+.accel-area {
+  grid-area: accel;
+}
+.gyro-area {
+  grid-area: gyro;
+}
+.flex-area {
+  grid-area: flex;
+}
+.plan-area {
+  grid-area: plan;
+}
+
+.panel {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-height: 0;
+}
+
+.panel-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin: 0 0 1rem 0;
+  font-weight: 700;
+  border-left: 3px solid #3b82f6;
+  padding-left: 0.75rem;
+}
+
+.chart-container,
+.visualizer-space,
+.plan-space {
+  flex: 1;
+  display: block;
+  width: 100%;
+  min-height: 0;
+}

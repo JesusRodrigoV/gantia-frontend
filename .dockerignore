@@ -1,0 +1,22 @@
+# Dependencias (no las copies, deja que Bun las instale dentro)
+node_modules
+.npm
+.bun
+
+dist
+out
+.angular
+
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+*.log
+
+.env
+.env.*
+
+Dockerfile
+docker-compose.yml
+.dockerignore

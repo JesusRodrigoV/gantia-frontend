@@ -1,0 +1,30 @@
+<header class="gantia-header">
+  <div class="header-container">
+    <div class="brand-group">
+      <a routerLink="/" class="logo-link" title="Inicio de Gantia">
+        <img
+          [ngSrc]="'/logos/logo.webp'"
+          height="55"
+          width="55"
+          alt="Logo de Gantia - Letra Gamma minúscula"
+          class="gantia-logo"
+          priority
+        />
+      </a>
+      <app-letras-gantia />
+    </div>
+
+    <nav class="main-nav">
+      <ul>
+        @for (link of links; track link.route) {
+          <li>
+            <a [routerLink]="link.route">{{ link.label }}</a>
+          </li>
+        }
+        <li>
+          <a routerLink="perfil" class="profile-link">Perfil</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
