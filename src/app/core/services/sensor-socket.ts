@@ -7,19 +7,19 @@ import { env } from '../../../environments/environment';
 })
 export class SensorSocket implements OnDestroy {
   private socket: WebSocket | null = null;
-  // private readonly WS_URL = `${env.apiUrl}/ws/dashboard?token=mi_llave_secreta_123`;
-  WS_URL = `${env.apiUrl}/ws/frontend`;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private destroyed = false;
+  private readonly WS_URL = `${env.apiUrl}/ws/frontend`;
 
   public readonly telemetry = signal<GloveTelemetry | null>(null);
   public readonly connectionStatus = signal<'disconnected' | 'connecting' | 'connected' | 'error'>(
     'disconnected',
   );
 
-  constructor() {
-    this.connect();
-  }
+  connect(): void {
+    if (this.destroyed || this.socket?.readyState === WebSocket.OPEN) return;
 
-  private connect(): void {
+    this.clearReconnectTimer();
     this.connectionStatus.set('connecting');
     this.socket = new WebSocket(this.WS_URL);
 
@@ -33,7 +33,9 @@ export class SensorSocket implements OnDestroy {
         if (data && typeof data.accel_x !== 'undefined') {
           this.telemetry.set(data);
         }
-      } catch (error) {}
+      } catch (error) {
+        console.warn('[SensorSocket] Failed to parse WebSocket message:', event.data);
+      }
     };
 
     this.socket.onerror = () => {
@@ -42,13 +44,30 @@ export class SensorSocket implements OnDestroy {
 
     this.socket.onclose = () => {
       this.connectionStatus.set('disconnected');
-      setTimeout(() => this.connect(), 5000);
+      if (!this.destroyed) {
+        this.reconnectTimer = setTimeout(() => this.connect(), 5000);
+      }
     };
   }
 
-  ngOnDestroy(): void {
+  disconnect(): void {
+    this.destroyed = true;
+    this.clearReconnectTimer();
     if (this.socket) {
+      this.socket.onclose = null;
       this.socket.close();
+      this.socket = null;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.disconnect();
+  }
+
+  private clearReconnectTimer(): void {
+    if (this.reconnectTimer !== null) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
     }
   }
 }

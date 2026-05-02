@@ -18,8 +18,4 @@ export class AuthService {
   login(credentials: AuthRequest): Observable<string> {
     return this.http.post<string>(`${this.baseUrl}/login`, credentials);
   }
-
-  refreshConfigs(): Observable<string> {
-    return this.http.post<string>(`${env.apiUrl}/refresh-configs`, {});
-  }
 }
