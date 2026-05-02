@@ -1,0 +1,11 @@
+:host{
+  display: flex;
+}
+
+.terminal-text {
+  align-items: flex-end;
+  font-size: 1.75rem;
+  font-weight: 400;
+  text-transform: uppercase; 
+  letter-spacing: 1px; 
+}

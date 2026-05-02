@@ -1,0 +1,71 @@
+:host {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.uplot-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+::ng-deep .uplot {
+  font-family: 'Cormorant Garamond', serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+::ng-deep .uplot .title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--p-surface-800);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+::ng-deep .uplot .legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-top: 0.5rem;
+  width: 100%;
+}
+
+::ng-deep .uplot .legend .series {
+  display: flex;
+  align-items: center;
+}
+
+::ng-deep .uplot .legend .ident {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+::ng-deep .uplot .legend .label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--p-surface-500);
+  font-weight: 600;
+}
+
+::ng-deep .uplot .legend .value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--p-primary-500);
+  margin-left: 0.4rem;
+  font-variant-numeric: tabular-nums;
+  min-width: 60px;
+  text-align: left;
+}

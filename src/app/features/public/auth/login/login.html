@@ -1,0 +1,50 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <app-letras-gantia />
+      <img [ngSrc]="'/logos/logo.webp'" height="85" width="85" alt="Logo de Gantia" priority />
+    </div>
+
+    <h1 class="auth-title">Inicio de Sesión</h1>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label for="username">Correo Electronico</label>
+        <input
+          type="text"
+          id="username"
+          formControlName="username"
+          placeholder="usuario@ejemplo.com"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" formControlName="password" class="form-control" />
+      </div>
+
+      @if (authStore.error()) {
+        <div class="auth-alert">
+          {{ authStore.error() }}
+        </div>
+      }
+
+      <button
+        type="submit"
+        class="btn-submit"
+        [disabled]="loginForm.invalid || authStore.isLoading()"
+      >
+        @if (authStore.isLoading()) {
+          <i class="bx bx-loader-alt bx-spin"></i>
+        } @else {
+          Iniciar Sesion
+        }
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <a routerLink="/auth/register">¿No tienes cuenta? Regístrate</a>
+    </div>
+  </div>
+</div>

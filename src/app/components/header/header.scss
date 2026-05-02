@@ -1,0 +1,107 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.gantia-header {
+  background-color: color-mix(in srgb, var(--p-surface-50) 85%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--p-surface-200);
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--p-surface-900) 10%, transparent);
+  border-radius: 25px;
+  position: sticky;
+  top: 1.5rem;
+  z-index: 1000;
+  width: calc(100% - 3rem);
+  max-width: 1200px;
+  margin: 1rem auto;
+
+  .header-container {
+    padding: 0 25px;
+    height: 65px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .brand-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  .main-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .logout-button {
+      height: 38px;
+      width: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      cursor: pointer;
+      color: var(--p-surface-800);
+      background-color: transparent;
+      border: 1px solid transparent;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 1.3rem;
+
+      &:hover {
+        color: var(--p-primary-500);
+        border-color: var(--p-surface-200);
+        background-color: var(--p-surface-100);
+      }
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+
+    a {
+      text-decoration: none;
+      color: var(--p-surface-800);
+      font-weight: 600;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: var(--p-primary-500);
+      }
+
+      &.profile-link {
+        border: 1px solid var(--p-surface-800);
+        padding: 8px 16px;
+        border-radius: 20px;
+
+        &:hover {
+          background-color: var(--p-surface-800);
+          color: var(--p-surface-0);
+        }
+      }
+    }
+  }
+}
