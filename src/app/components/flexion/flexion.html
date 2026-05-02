@@ -1,0 +1,31 @@
+<div class="flexion-container">
+  <div class="status-header">
+    <span class="status-label">Seguro Táctil</span>
+    <div class="status-indicator" [class.active]="isActive()">
+      <span class="dot"></span>
+      <span class="text">{{ isActive() ? 'TRANSMITIENDO' : 'BLOQUEADO' }}</span>
+    </div>
+  </div>
+
+  <div class="gauges-wrapper">
+    <div class="gauge-group">
+      <div class="gauge-info">
+        <span class="finger-name">Falange Índice</span>
+        <span class="finger-value">{{ flexIndex() }}</span>
+      </div>
+      <div class="gauge-track">
+        <div class="gauge-fill index-fill" [style.width.%]="flexIndex()"></div>
+      </div>
+    </div>
+
+    <div class="gauge-group">
+      <div class="gauge-info">
+        <span class="finger-name">Falange Media</span>
+        <span class="finger-value">{{ flexMiddle() }}</span>
+      </div>
+      <div class="gauge-track">
+        <div class="gauge-fill middle-fill" [style.width.%]="flexMiddle()"></div>
+      </div>
+    </div>
+  </div>
+</div>

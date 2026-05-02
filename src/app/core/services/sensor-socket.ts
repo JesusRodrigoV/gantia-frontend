@@ -7,7 +7,8 @@ import { env } from '../../../environments/environment';
 })
 export class SensorSocket implements OnDestroy {
   private socket: WebSocket | null = null;
-  private readonly WS_URL = `wss://${env.apiUrl}/ws/dashboard?token=mi_llave_secreta_123`;
+  // private readonly WS_URL = `${env.apiUrl}/ws/dashboard?token=mi_llave_secreta_123`;
+  WS_URL = `${env.apiUrl}/ws/frontend`;
 
   public readonly telemetry = signal<GloveTelemetry | null>(null);
   public readonly connectionStatus = signal<'disconnected' | 'connecting' | 'connected' | 'error'>(

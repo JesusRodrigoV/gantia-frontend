@@ -63,7 +63,7 @@ export class GyroscopeChart implements OnDestroy {
     const opts: uPlot.Options = {
       width: container.offsetWidth,
       height: container.offsetHeight,
-      title: 'Velocidad Angular',
+      title: 'Giroscopio',
       scales: {
         x: { time: true },
         y: { auto: true },

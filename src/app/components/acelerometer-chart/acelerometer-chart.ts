@@ -63,7 +63,7 @@ export class AcelerometerChart implements OnDestroy {
     const opts: uPlot.Options = {
       width: container.offsetWidth,
       height: container.offsetHeight,
-      title: 'Aceleración Lineal',
+      title: 'Acelerometro',
       scales: {
         x: { time: true },
         y: { auto: true },

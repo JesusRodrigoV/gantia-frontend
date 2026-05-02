@@ -24,7 +24,7 @@
 ::ng-deep .uplot .title {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #333333;
+  color: var(--p-surface-800);
   margin-bottom: 0.5rem;
   letter-spacing: 0.05em;
 }
@@ -56,14 +56,14 @@
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: #64748b;
+  color: var(--p-surface-500);
   font-weight: 600;
 }
 
 ::ng-deep .uplot .legend .value {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #0f4d92;
+  color: var(--p-primary-500);
   margin-left: 0.4rem;
   font-variant-numeric: tabular-nums;
   min-width: 60px;

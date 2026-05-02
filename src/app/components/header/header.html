@@ -15,14 +15,27 @@
     </div>
 
     <nav class="main-nav">
+      <app-rounded-button
+        class="theme-toggle"
+        (click)="themeService.toggleTheme()"
+        [icon]="themeService.isDarkMode() ? 'bx bx-sun' : 'bx bx-moon'"
+      />
       <ul>
         @for (link of links; track link.route) {
           <li>
             <a [routerLink]="link.route">{{ link.label }}</a>
           </li>
         }
-        <li>
+        <!-- <li>
           <a routerLink="perfil" class="profile-link">Perfil</a>
+        </li> -->
+        <li
+          (click)="authStore.logout()"
+          class="logout-button"
+          pTooltip="Cerrar Sesión"
+          tooltipPosition="bottom"
+        >
+          <i class="bx bx-log-out"></i>
         </li>
       </ul>
     </nav>
