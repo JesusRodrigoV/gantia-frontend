@@ -1,9 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600&display=swap');
+
+:root {
+  --font-ui: 'Cormorant Garamond', serif;
+  --font-label: 'Noto Sans', sans-serif;
+
+  --shadow-elevated: 8px 8px 16px color-mix(in srgb, var(--p-surface-900) 6%, transparent), -8px -8px 16px color-mix(in srgb, var(--p-surface-0) 80%, transparent);
+  --shadow-inset: inset 4px 4px 8px color-mix(in srgb, var(--p-surface-900) 6%, transparent), inset -4px -4px 8px color-mix(in srgb, var(--p-surface-0) 80%, transparent);
+  --shadow-elevated-sm: 4px 4px 8px color-mix(in srgb, var(--p-surface-900) 6%, transparent), -4px -4px 8px color-mix(in srgb, var(--p-surface-0) 80%, transparent);
+  --shadow-inset-sm: inset 2px 2px 4px color-mix(in srgb, var(--p-surface-900) 6%, transparent), inset -2px -2px 4px color-mix(in srgb, var(--p-surface-0) 80%, transparent);
+}
 
 html,
 body {
   margin: 0;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-ui);
   background-color: var(--p-surface-50);
   color: var(--p-surface-800);
 }

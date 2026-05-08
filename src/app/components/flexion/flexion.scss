@@ -40,7 +40,7 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: var(--p-red-500);
+  background-color: var(--p-surface-400);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -48,17 +48,17 @@
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 1px;
-  color: var(--p-red-500);
+  color: var(--p-surface-400);
   transition: color 0.3s ease;
 }
 
 .status-indicator.active .dot {
-  background-color: var(--p-green-500);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--p-green-500) 40%, transparent);
+  background-color: var(--p-primary-500);
+  box-shadow: var(--shadow-elevated-sm);
 }
 
 .status-indicator.active .text {
-  color: var(--p-green-500);
+  color: var(--p-primary-600);
 }
 
 .gauges-wrapper {
@@ -83,7 +83,7 @@
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--p-surface-800);
+  color: var(--p-surface-600);
   font-weight: 600;
 }
 
@@ -98,23 +98,25 @@
 
 .gauge-track {
   width: 100%;
-  height: 14px;
-  background-color: var(--p-surface-100);
-  border-radius: 7px;
+  height: 16px;
+  background-color: var(--p-surface-0);
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: inset 0 1px 3px color-mix(in srgb, var(--p-surface-900) 5%, transparent);
+  box-shadow: var(--shadow-inset-sm);
 }
 
 .gauge-fill {
   height: 100%;
-  border-radius: 7px;
+  border-radius: 8px;
   transition: width 0.05s linear;
 }
 
 .index-fill {
-  background-color: var(--p-primary-600);
+  background-color: var(--p-primary-500);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--p-primary-500) 40%, transparent);
 }
 
 .middle-fill {
-  background-color: var(--p-primary-400);
+  background-color: var(--p-primary-300);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--p-primary-300) 40%, transparent);
 }

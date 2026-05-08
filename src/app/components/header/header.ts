@@ -1,12 +1,12 @@
 import { NgOptimizedImage } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TooltipModule } from 'primeng/tooltip';
 import { LetrasGantia } from '@components/letras-gantia/letras-gantia';
 import { ThemeHandler } from '@core/services/theme-handler';
 import { SensorSocket } from '@core/services/sensor-socket';
 import { AuthStore } from '@core/stores/auth.store';
 import { RoundedButton } from '@shared/components/ui/rounded-button';
-import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-header',

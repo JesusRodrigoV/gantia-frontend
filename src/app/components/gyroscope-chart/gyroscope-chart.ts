@@ -5,6 +5,7 @@ const GYRO_CONFIG: SensorChartConfig = {
   title: 'Giroscopio',
   unitLabel: '°/s',
   seriesColors: ['#ff0000', '#2bff00', '#0080ff'],
+  seriesLabels: ['X', 'Y', 'Z'],
   extractValues: (t) => [t.gyro_x, t.gyro_y, t.gyro_z],
 };
 

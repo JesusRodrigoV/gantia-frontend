@@ -35,13 +35,13 @@
 }
 
 .panel {
-  background-color: var(--p-surface-0);
-  border: 1px solid var(--p-surface-200);
-  border-radius: 12px;
+  background-color: var(--p-surface-50);
+  border: none;
+  border-radius: 16px;
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 6px -1px color-mix(in srgb, var(--p-surface-900) 10%, transparent);
+  box-shadow: var(--shadow-inset);
   overflow: hidden;
   min-height: 0;
 }

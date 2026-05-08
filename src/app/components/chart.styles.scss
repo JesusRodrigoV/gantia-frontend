@@ -13,10 +13,10 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 1px solid var(--p-surface-200);
-  background: color-mix(in srgb, var(--p-surface-50) 80%, transparent);
-  backdrop-filter: blur(4px);
-  color: var(--p-surface-600);
+  border: none;
+  background: var(--p-surface-0);
+  box-shadow: var(--shadow-elevated-sm);
+  color: var(--p-surface-500);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -25,15 +25,12 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background: var(--p-surface-100);
     color: var(--p-primary-500);
-    border-color: var(--p-primary-200);
   }
 
   &.paused {
     color: var(--p-primary-500);
-    border-color: var(--p-primary-300);
-    background: color-mix(in srgb, var(--p-primary-50) 80%, transparent);
+    box-shadow: var(--shadow-inset-sm);
   }
 }
 
