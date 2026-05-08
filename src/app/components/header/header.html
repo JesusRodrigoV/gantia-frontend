@@ -15,6 +15,10 @@
     </div>
 
     <nav class="main-nav">
+      <div class="connection-status" [class]="'status-' + sensorSocket.connectionStatus()">
+        <span class="status-dot"></span>
+        <span class="status-label">{{ statusLabel() }}</span>
+      </div>
       <app-rounded-button
         class="theme-toggle"
         (click)="themeService.toggleTheme()"

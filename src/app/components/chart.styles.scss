@@ -5,6 +5,38 @@
   height: 100%;
 }
 
+.pause-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--p-surface-200);
+  background: color-mix(in srgb, var(--p-surface-50) 80%, transparent);
+  backdrop-filter: blur(4px);
+  color: var(--p-surface-600);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--p-surface-100);
+    color: var(--p-primary-500);
+    border-color: var(--p-primary-200);
+  }
+
+  &.paused {
+    color: var(--p-primary-500);
+    border-color: var(--p-primary-300);
+    background: color-mix(in srgb, var(--p-primary-50) 80%, transparent);
+  }
+}
+
 .uplot-container {
   position: absolute;
   top: 0;

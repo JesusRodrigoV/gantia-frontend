@@ -9,7 +9,9 @@ import {
   input,
   viewChild,
   OnDestroy,
+  signal,
 } from '@angular/core';
+import { NgClass } from '@angular/common';
 import uPlot from 'uplot';
 import { SensorSocket } from '@core/services/sensor-socket';
 import { GloveTelemetry } from '@core/models/glove-telemetry.model';
@@ -24,8 +26,18 @@ export interface SensorChartConfig {
 
 @Component({
   selector: 'app-sensor-chart',
-  imports: [],
-  template: `<div #chartContainer class="uplot-container"></div>`,
+  imports: [NgClass],
+  template: `
+    <button
+      class="pause-btn"
+      [ngClass]="{ paused: paused() }"
+      (click)="togglePause()"
+      [title]="paused() ? 'Reanudar' : 'Pausar'"
+    >
+      <i [class]="paused() ? 'bx bx-play' : 'bx bx-pause'"></i>
+    </button>
+    <div #chartContainer class="uplot-container"></div>
+  `,
   styleUrl: '../chart.styles.scss',
 })
 export class SensorChart implements OnDestroy {
@@ -40,6 +52,7 @@ export class SensorChart implements OnDestroy {
   private uplotInstance: uPlot | undefined;
   private readonly maxWindow = 1000;
   private plotData: [number[], number[], number[], number[]] = [[], [], [], []];
+  protected paused = signal(false);
 
   constructor() {
     afterNextRender(() => {
@@ -48,7 +61,7 @@ export class SensorChart implements OnDestroy {
 
     effect(() => {
       const telemetry = this.sensorSocket.telemetry();
-      if (telemetry) {
+      if (telemetry && !this.paused()) {
         const win = this.document.defaultView;
         if (win) {
           const timestamp = win.Date.now() / 1000;
@@ -57,6 +70,10 @@ export class SensorChart implements OnDestroy {
         }
       }
     });
+  }
+
+  protected togglePause(): void {
+    this.paused.update((v) => !v);
   }
 
   @HostListener('window:resize')

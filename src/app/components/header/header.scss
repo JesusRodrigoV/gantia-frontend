@@ -42,6 +42,50 @@
     align-items: center;
     gap: 1.5rem;
 
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--p-surface-200);
+      transition: all 0.3s ease;
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      &.status-connected {
+        color: var(--p-green-600);
+        border-color: var(--p-green-200);
+        .status-dot { background-color: var(--p-green-500); box-shadow: 0 0 6px var(--p-green-400); }
+      }
+
+      &.status-connecting {
+        color: var(--p-amber-600);
+        border-color: var(--p-amber-200);
+        .status-dot { background-color: var(--p-amber-500); animation: pulse 1s infinite; }
+      }
+
+      &.status-disconnected, &.status-error {
+        color: var(--p-red-600);
+        border-color: var(--p-red-200);
+        .status-dot { background-color: var(--p-red-500); }
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
     .theme-toggle {
       display: inline-flex;
       align-items: center;

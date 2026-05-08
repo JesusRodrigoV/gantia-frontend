@@ -12,6 +12,7 @@ import {
   withViewTransitions,
 } from '@angular/router';
 import { providePrimeNG } from 'primeng/config';
+import { MessageService } from 'primeng/api';
 import { routes } from './app.routes';
 import { CustomPreset } from '../theme/theme';
 import { ThemeHandler } from '@core/services/theme-handler';
@@ -38,6 +39,7 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
+    MessageService,
     provideAppInitializer(() => {
       inject(ThemeHandler);
     }),
