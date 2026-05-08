@@ -1,15 +1,16 @@
-import { Injectable, OnDestroy, signal } from '@angular/core';
+import { Injectable, OnDestroy, inject, signal } from '@angular/core';
 import { GloveTelemetry } from '@core/models/glove-telemetry.model';
 import { env } from '../../../environments/environment';
+import { AuthStore } from '@core/stores/auth.store';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SensorSocket implements OnDestroy {
+  private readonly authStore = inject(AuthStore);
   private socket: WebSocket | null = null;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private destroyed = false;
-  private readonly WS_URL = `${env.apiUrl}/ws/frontend`;
 
   public readonly telemetry = signal<GloveTelemetry | null>(null);
   public readonly connectionStatus = signal<'disconnected' | 'connecting' | 'connected' | 'error'>(
@@ -19,9 +20,16 @@ export class SensorSocket implements OnDestroy {
   connect(): void {
     if (this.destroyed || this.socket?.readyState === WebSocket.OPEN) return;
 
+    const token = this.authStore.token();
+    if (!token) {
+      console.warn('[SensorSocket] No hay token disponible');
+      this.connectionStatus.set('error');
+      return;
+    }
+
     this.clearReconnectTimer();
     this.connectionStatus.set('connecting');
-    this.socket = new WebSocket(this.WS_URL);
+    this.socket = new WebSocket(`${env.wsUrl}/ws/dashboard?token=${token}`);
 
     this.socket.onopen = () => {
       this.connectionStatus.set('connected');
