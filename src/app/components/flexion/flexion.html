@@ -1,30 +1,33 @@
 <div class="flexion-container">
   <div class="status-header">
     <span class="status-label">Seguro Táctil</span>
-    <div class="status-indicator" [class.active]="isActive()">
+    @let t = sensorSocket.telemetry();
+    <div class="status-indicator" [class.active]="t?.is_active">
       <span class="dot"></span>
-      <span class="text">{{ isActive() ? 'TRANSMITIENDO' : 'BLOQUEADO' }}</span>
+      <span class="text">{{ t?.is_active ? 'TRANSMITIENDO' : 'BLOQUEADO' }}</span>
     </div>
   </div>
 
   <div class="gauges-wrapper">
+    @let flex = t?.flex_index ?? 0;
+    @let middle = t?.flex_middle ?? 0;
     <div class="gauge-group">
       <div class="gauge-info">
         <span class="finger-name">Falange Índice</span>
-        <span class="finger-value">{{ flexIndex() }}</span>
+        <span class="finger-value">{{ flex }}</span>
       </div>
       <div class="gauge-track">
-        <div class="gauge-fill index-fill" [style.width.%]="flexIndex()"></div>
+        <div class="gauge-fill index-fill" [style.width.%]="flex"></div>
       </div>
     </div>
 
     <div class="gauge-group">
       <div class="gauge-info">
         <span class="finger-name">Falange Media</span>
-        <span class="finger-value">{{ flexMiddle() }}</span>
+        <span class="finger-value">{{ middle }}</span>
       </div>
       <div class="gauge-track">
-        <div class="gauge-fill middle-fill" [style.width.%]="flexMiddle()"></div>
+        <div class="gauge-fill middle-fill" [style.width.%]="middle"></div>
       </div>
     </div>
   </div>

@@ -3,6 +3,15 @@ export interface AuthRequest {
   password: string;
 }
 
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  user: {
+    id: string;
+    email: string;
+  };
+}
+
 export interface ValidationErrorDetail {
   loc: (string | number)[];
   msg: string;

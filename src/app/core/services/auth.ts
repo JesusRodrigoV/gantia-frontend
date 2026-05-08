@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { env } from '../../../environments/environment';
 import { inject, Injectable } from '@angular/core';
-import { AuthRequest } from '@core/models/auth.model';
+import { AuthRequest, AuthResponse } from '@core/models/auth.model';
 
 @Injectable({
   providedIn: 'root',
@@ -15,11 +15,7 @@ export class AuthService {
     return this.http.post<string>(`${this.baseUrl}/register`, credentials);
   }
 
-  login(credentials: AuthRequest): Observable<string> {
-    return this.http.post<string>(`${this.baseUrl}/login`, credentials);
-  }
-
-  refreshConfigs(): Observable<string> {
-    return this.http.post<string>(`${env.apiUrl}/refresh-configs`, {});
+  login(credentials: AuthRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.baseUrl}/login`, credentials);
   }
 }

@@ -17,20 +17,21 @@ export default class Login {
   router = inject(Router);
 
   loginForm = this.formBuilder.group({
-    username: ['', [Validators.required, Validators.email]],
+    email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
   });
 
   onSubmit(): void {
-    this.router.navigateByUrl('app');
-    //   const { username, password } = this.loginForm.getRawValue();
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
 
-    //   this.authStore.login({
-    //     email: username!,
-    //     password: password!,
-    //   });
-    // } else {
-    //   this.loginForm.markAllAsTouched();
-    // }
+    const { email, password } = this.loginForm.getRawValue();
+
+    this.authStore.login({
+      email: email!,
+      password: password!,
+    });
   }
 }

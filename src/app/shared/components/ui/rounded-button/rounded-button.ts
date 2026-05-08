@@ -5,7 +5,6 @@ import { ButtonModule } from 'primeng/button';
   selector: 'app-rounded-button',
   imports: [ButtonModule],
   templateUrl: './rounded-button.html',
-  styleUrl: './rounded-button.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoundedButton {

@@ -30,15 +30,20 @@ export const AuthStore = signalStore(
         tap(() => patchState(store, { isLoading: true, error: null })),
         switchMap((credentials) =>
           authService.login(credentials).pipe(
-            tap((token) => {
-              localStorage.setItem('token', token);
-              patchState(store, { token, isLoading: false });
+            tap((res) => {
+              localStorage.setItem('token', res.access_token);
+              patchState(store, { token: res.access_token, isLoading: false });
               router.navigateByUrl('/app/sensores');
             }),
             catchError((err) => {
+              const detail = err.error?.detail;
+              const message =
+                typeof detail === 'string'
+                  ? detail
+                  : detail?.[0]?.msg || 'Error de autenticación';
               patchState(store, {
                 isLoading: false,
-                error: err.error?.detail?.[0]?.msg || 'Error de autenticación',
+                error: message,
               });
               return of(null);
             }),
@@ -56,9 +61,14 @@ export const AuthStore = signalStore(
               router.navigateByUrl('/auth/login');
             }),
             catchError((err) => {
+              const detail = err.error?.detail;
+              const message =
+                typeof detail === 'string'
+                  ? detail
+                  : detail?.[0]?.msg || 'Error en el registro';
               patchState(store, {
                 isLoading: false,
-                error: err.error?.detail?.[0]?.msg || 'Error en el registro',
+                error: message,
               });
               return of(null);
             }),
