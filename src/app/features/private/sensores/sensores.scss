@@ -5,6 +5,41 @@
   box-sizing: border-box;
 }
 
+.view-container {
+  position: relative;
+  height: 100%;
+}
+
+.skeleton-layer,
+.panels-layer {
+  transition: opacity 0.35s ease;
+}
+
+.skeleton-layer {
+  opacity: 1;
+  pointer-events: auto;
+  position: absolute;
+  inset: 0;
+}
+
+.panels-layer {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+}
+
+.show-panels {
+  .skeleton-layer {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .panels-layer {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
 .swapy-container {
   display: grid;
   grid-template-columns: 7fr 3fr;
@@ -48,7 +83,7 @@
   overflow: hidden;
   min-height: 0;
   position: relative;
-  transition: box-shadow 0.3s ease;
+  transition: box-shadow 0.3s ease, opacity 0.2s ease, filter 0.2s ease;
 
   &::before {
     content: '';
@@ -79,24 +114,41 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: 1.5rem;
+  width: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: grab;
-  color: var(--p-surface-400);
-  font-size: 1rem;
-  transition: color 0.2s ease;
+  color: var(--p-surface-500);
+  font-size: 1.25rem;
+  background-color: color-mix(in srgb, var(--p-surface-500) 6%, transparent);
+  transition: color 0.2s ease, background-color 0.2s ease;
   border-radius: 16px 0 0 16px;
   z-index: 2;
 
   &:hover {
     color: var(--p-primary-500);
-    background-color: color-mix(in srgb, var(--p-primary-500) 5%, transparent);
+    background-color: color-mix(in srgb, var(--p-primary-500) 10%, transparent);
   }
 
   &:active {
     cursor: grabbing;
+  }
+}
+
+.is-swapping {
+  [data-swapy-item]:not([data-swapy-dragging]) {
+    opacity: 0.5;
+    filter: grayscale(0.3);
+  }
+
+  [data-swapy-item][data-swapy-dragging] {
+    z-index: 100;
+
+    .drag-handle {
+      color: var(--p-primary-500);
+      background-color: color-mix(in srgb, var(--p-primary-500) 20%, transparent);
+    }
   }
 }
 

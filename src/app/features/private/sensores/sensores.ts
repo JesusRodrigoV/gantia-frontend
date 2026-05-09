@@ -6,6 +6,7 @@ import {
   ElementRef,
   afterNextRender,
   OnDestroy,
+  signal,
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { AcelerometerChart } from '@components/acelerometer-chart';
@@ -26,8 +27,9 @@ const STORAGE_KEY = 'gantia-sensor-layout';
 })
 export default class Sensores implements OnDestroy {
   protected sensorSocket = inject(SensorSocket);
-  private swapyContainer = viewChild.required<ElementRef<HTMLElement>>('swapyContainer');
+  private swapyContainer = viewChild<ElementRef<HTMLElement>>('swapyContainer');
   private swapy: Swapy | null = null;
+  protected isSwapping = signal(false);
 
   protected orientation = computed(() => {
     const t = this.sensorSocket.telemetry();
@@ -66,7 +68,12 @@ export default class Sensores implements OnDestroy {
         dragAxis: 'both',
       });
 
+      this.swapy.onSwapStart(() => {
+        this.isSwapping.set(true);
+      });
+
       this.swapy.onSwapEnd(({ slotItemMap, hasChanged }) => {
+        this.isSwapping.set(false);
         if (hasChanged) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(slotItemMap.asArray));
         }

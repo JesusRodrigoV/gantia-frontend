@@ -1,94 +1,97 @@
-@if (connected()) {
-  <div #swapyContainer class="swapy-container">
-    <div data-swapy-slot="accel">
-      <div data-swapy-item="accel" class="panel">
-        <div class="drag-handle"><i class="bx bx-grip"></i></div>
-        <div class="chart-container">
-          <app-acelerometer-chart />
+<div class="view-container" [class.show-panels]="connected()" [class.is-swapping]="isSwapping()">
+  <div class="skeleton-layer">
+    <div class="skeleton-grid">
+      <p-skeleton class="panel" height="100%" />
+      <p-skeleton class="panel" height="100%" />
+      <p-skeleton class="panel" height="100%" />
+      <p-skeleton class="panel" height="100%" />
+    </div>
+  </div>
+  <div class="panels-layer">
+    <div #swapyContainer class="swapy-container">
+      <div data-swapy-slot="accel">
+        <div data-swapy-item="accel" class="panel">
+          <div class="drag-handle"><i class="bx bx-grip"></i></div>
+          <div class="chart-container">
+            <app-acelerometer-chart />
+          </div>
         </div>
       </div>
-    </div>
 
-    <div data-swapy-slot="gyro">
-      <div data-swapy-item="gyro" class="panel">
-        <div class="drag-handle"><i class="bx bx-grip"></i></div>
-        <div class="chart-container">
-          <app-gyroscope-chart />
+      <div data-swapy-slot="gyro">
+        <div data-swapy-item="gyro" class="panel">
+          <div class="drag-handle"><i class="bx bx-grip"></i></div>
+          <div class="chart-container">
+            <app-gyroscope-chart />
+          </div>
         </div>
       </div>
-    </div>
 
-    <div data-swapy-slot="flex">
-      <div data-swapy-item="flex" class="panel">
-        <div class="drag-handle"><i class="bx bx-grip"></i></div>
-        <h2 class="panel-title">Estado de Flexión</h2>
-        <div class="visualizer-space">
-          <app-flexion />
+      <div data-swapy-slot="flex">
+        <div data-swapy-item="flex" class="panel">
+          <div class="drag-handle"><i class="bx bx-grip"></i></div>
+          <h2 class="panel-title">Estado de Flexión</h2>
+          <div class="visualizer-space">
+            <app-flexion />
+          </div>
         </div>
       </div>
-    </div>
 
-    <div data-swapy-slot="plan">
-      <div data-swapy-item="plan" class="panel">
-        <div class="drag-handle"><i class="bx bx-grip"></i></div>
-        <h2 class="panel-title">Estado del Guante</h2>
-        <div class="info-space">
-          @let t = sensorSocket.telemetry();
-          @if (t) {
-            <div class="info-grid">
-              <div class="info-item">
-                <span class="info-label">Estado</span>
-                <span class="info-value" [class.active]="t.is_active">
-                  <span class="status-dot-sm" [class.dot-on]="t.is_active"></span>
-                  {{ t.is_active ? 'ACTIVO' : 'BLOQUEADO' }}
-                </span>
-              </div>
-
-              @let ori = orientation();
-              @if (ori) {
+      <div data-swapy-slot="plan">
+        <div data-swapy-item="plan" class="panel">
+          <div class="drag-handle"><i class="bx bx-grip"></i></div>
+          <h2 class="panel-title">Estado del Guante</h2>
+          <div class="info-space">
+            @let t = sensorSocket.telemetry();
+            @if (t) {
+              <div class="info-grid">
                 <div class="info-item">
-                  <span class="info-label">Inclinación</span>
-                  <span class="info-value">{{ ori.pitch | number:'1.1' }}°</span>
+                  <span class="info-label">Estado</span>
+                  <span class="info-value" [class.active]="t.is_active">
+                    <span class="status-dot-sm" [class.dot-on]="t.is_active"></span>
+                    {{ t.is_active ? 'ACTIVO' : 'BLOQUEADO' }}
+                  </span>
+                </div>
+
+                @let ori = orientation();
+                @if (ori) {
+                  <div class="info-item">
+                    <span class="info-label">Inclinación</span>
+                    <span class="info-value">{{ ori.pitch | number:'1.1' }}°</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">Balanceo</span>
+                    <span class="info-value">{{ ori.roll | number:'1.1' }}°</span>
+                  </div>
+                }
+
+                <div class="info-item">
+                  <span class="info-label">Índice</span>
+                  <span class="info-value">{{ t.flex_index }}%</span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label">Balanceo</span>
-                  <span class="info-value">{{ ori.roll | number:'1.1' }}°</span>
+                  <span class="info-label">Medio</span>
+                  <span class="info-value">{{ t.flex_middle }}%</span>
                 </div>
-              }
+              </div>
 
-              <div class="info-item">
-                <span class="info-label">Índice</span>
-                <span class="info-value">{{ t.flex_index }}%</span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">Medio</span>
-                <span class="info-value">{{ t.flex_middle }}%</span>
-              </div>
-            </div>
-
-            <div class="compass-wrapper">
-              <div class="compass-ring">
-                <div class="compass-dot" [style.transform]="'rotate(' + (orientation()?.roll ?? 0) + 'deg)'">
-                  <i class="bx bx-dot"></i>
-                </div>
-                <div class="compass-cross">
-                  <span class="cross-label top">N</span>
-                  <span class="cross-label right">E</span>
-                  <span class="cross-label bottom">S</span>
-                  <span class="cross-label left">O</span>
+              <div class="compass-wrapper">
+                <div class="compass-ring">
+                  <div class="compass-dot" [style.transform]="'rotate(' + (orientation()?.roll ?? 0) + 'deg)'">
+                    <i class="bx bx-dot"></i>
+                  </div>
+                  <div class="compass-cross">
+                    <span class="cross-label top">N</span>
+                    <span class="cross-label right">E</span>
+                    <span class="cross-label bottom">S</span>
+                    <span class="cross-label left">O</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          }
+            }
+          </div>
         </div>
       </div>
     </div>
   </div>
-} @else {
-  <div class="skeleton-grid">
-    <p-skeleton class="panel" height="100%" />
-    <p-skeleton class="panel" height="100%" />
-    <p-skeleton class="panel" height="100%" />
-    <p-skeleton class="panel" height="100%" />
-  </div>
-}
+</div>
