@@ -41,9 +41,9 @@ const SYNC_KEY = 'gantia-sensors';
 
     @if (lastValues(); as v) {
       <div class="last-values">
-        <span class="lv-item" [style.color]="config().seriesColors[0]">{{ seriesLabels()[0] }}: {{ v[0] | number:'1.1f' }}</span>
-        <span class="lv-item" [style.color]="config().seriesColors[1]">{{ seriesLabels()[1] }}: {{ v[1] | number:'1.1f' }}</span>
-        <span class="lv-item" [style.color]="config().seriesColors[2]">{{ seriesLabels()[2] }}: {{ v[2] | number:'1.1f' }}</span>
+        <span class="lv-item" [style.color]="config().seriesColors[0]">{{ seriesLabels()[0] }}: {{ v[0] | number:'1.1' }}</span>
+        <span class="lv-item" [style.color]="config().seriesColors[1]">{{ seriesLabels()[1] }}: {{ v[1] | number:'1.1' }}</span>
+        <span class="lv-item" [style.color]="config().seriesColors[2]">{{ seriesLabels()[2] }}: {{ v[2] | number:'1.1' }}</span>
       </div>
     }
 
