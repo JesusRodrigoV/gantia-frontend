@@ -1,23 +1,32 @@
-<section class="panel accel-area">
-  <div class="chart-container">
-    <app-acelerometer-chart />
-  </div>
-</section>
+@if (sensorSocket.connectionStatus() === 'connected' || sensorSocket.telemetry()) {
+  <section class="panel accel-area">
+    <div class="chart-container">
+      <app-acelerometer-chart />
+    </div>
+  </section>
 
-<section class="panel gyro-area">
-  <div class="chart-container">
-    <app-gyroscope-chart />
-  </div>
-</section>
+  <section class="panel gyro-area">
+    <div class="chart-container">
+      <app-gyroscope-chart />
+    </div>
+  </section>
 
-<section class="panel flex-area">
-  <h2 class="panel-title">Estado de Flexión</h2>
-  <div class="visualizer-space">
-    <app-flexion />
+  <section class="panel flex-area">
+    <h2 class="panel-title">Estado de Flexión</h2>
+    <div class="visualizer-space">
+      <app-flexion />
+    </div>
+  </section>
+} @else {
+  <div class="empty-state">
+    <div class="empty-dot" [class]="'dot-' + sensorSocket.connectionStatus()"></div>
+    <p class="empty-title">
+      @switch (sensorSocket.connectionStatus()) {
+        @case ('connecting') { Conectando al servidor... }
+        @case ('error') { Error de conexión }
+        @default { Esperando señal del guante }
+      }
+    </p>
+    <p class="empty-sub">Los sensores aparecerán automáticamente cuando el guante esté transmitiendo</p>
   </div>
-</section>
-
-<!-- <section class="panel plan-area">
-  <h2 class="panel-title">Planificación del Sistema</h2>
-  <div class="plan-space"></div>
-</section> -->
+}

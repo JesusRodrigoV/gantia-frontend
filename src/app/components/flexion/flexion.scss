@@ -108,7 +108,7 @@
 .gauge-fill {
   height: 100%;
   border-radius: 8px;
-  transition: width 0.05s linear;
+  transition: width 0.3s ease-out;
 }
 
 .index-fill {
@@ -119,4 +119,13 @@
 .middle-fill {
   background-color: var(--p-primary-300);
   box-shadow: 0 0 8px color-mix(in srgb, var(--p-primary-300) 40%, transparent);
+}
+
+.gauge-fill.glowing {
+  animation: glow-flash 0.3s ease-out;
+}
+
+@keyframes glow-flash {
+  0% { filter: brightness(1.6); }
+  100% { filter: brightness(1); }
 }

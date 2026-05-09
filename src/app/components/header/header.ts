@@ -1,7 +1,8 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmationService } from 'primeng/api';
 import { LetrasGantia } from '@components/letras-gantia/letras-gantia';
 import { ThemeHandler } from '@core/services/theme-handler';
 import { SensorSocket } from '@core/services/sensor-socket';
@@ -18,11 +19,37 @@ export class Header {
   themeService = inject(ThemeHandler);
   protected sensorSocket = inject(SensorSocket);
   protected authStore = inject(AuthStore);
+  protected scrolled = signal(false);
+  private confirmationService = inject(ConfirmationService);
+
   links=[
     {label: "Dashboard", route: "dashboard"},
     {label: "Sensores", route: "sensores"},
     // {label: "Dispositivos", route: "dispositivos"},
   ]
+
+  @HostListener('window:scroll')
+  onScroll(): void {
+    this.scrolled.set(window.scrollY > 20);
+  }
+
+  confirmLogout(event: Event): void {
+    this.confirmationService.confirm({
+      target: event.currentTarget as EventTarget,
+      message: '¿Estás seguro de que querés cerrar sesión?',
+      icon: 'bx bx-log-out',
+      rejectButtonProps: {
+        label: 'Cancelar',
+        severity: 'secondary',
+        outlined: true,
+      },
+      acceptButtonProps: {
+        label: 'Salir',
+        severity: 'danger',
+      },
+      accept: () => this.authStore.logout(),
+    });
+  }
 
   statusLabel(): string {
     const map: Record<string, string> = {

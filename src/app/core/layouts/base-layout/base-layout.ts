@@ -1,13 +1,14 @@
 import { Component, effect, inject, OnDestroy, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
+import { ConfirmPopup } from 'primeng/confirmpopup';
 import { Header } from '@components/header';
 import { SensorSocket } from '@core/services/sensor-socket';
 
 @Component({
   selector: 'app-base-layout',
-  imports: [Header, Toast, RouterOutlet],
+  imports: [Header, Toast, ConfirmPopup, RouterOutlet],
   templateUrl: './base-layout.html',
   styleUrl: './base-layout.scss',
 })

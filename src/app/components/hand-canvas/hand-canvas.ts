@@ -6,7 +6,9 @@ import {
   ElementRef,
   inject,
   viewChild,
+  signal,
 } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -17,14 +19,14 @@ import { HandOrientationTracker } from '@core/services/hand-orientation';
 
 @Component({
   selector: 'app-hand-canvas',
-  imports: [],
+  imports: [DecimalPipe],
   templateUrl: './hand-canvas.html',
   styleUrl: './hand-canvas.scss',
 })
 export default class HandCanvas {
   private window = inject(WINDOW);
   private destroyRef = inject(DestroyRef);
-  private sensorSocket = inject(SensorSocket);
+  protected sensorSocket = inject(SensorSocket);
   private themeHandler = inject(ThemeHandler);
   private orientationTracker = new HandOrientationTracker();
 
@@ -35,10 +37,12 @@ export default class HandCanvas {
   private camera: THREE.PerspectiveCamera | null = null;
   private handModel: THREE.Group | null = null;
   private orbit: OrbitControls | null = null;
+  protected modelLoaded = signal(false);
 
   private animationId: number | null = null;
   private lastTime = 0;
   private running = false;
+  private autoRotate = true;
 
   constructor() {
     afterNextRender({
@@ -76,6 +80,8 @@ export default class HandCanvas {
       container.appendChild(this.renderer.domElement);
 
       this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
+
+      this.orbit.addEventListener('start', () => { this.autoRotate = false; });
 
       this.setupLights();
       this.setupFloor();
@@ -140,6 +146,7 @@ export default class HandCanvas {
         this.handModel = gltf.scene;
         this.handModel.position.y = -1;
         this.scene!.add(this.handModel);
+        this.modelLoaded.set(true);
       },
       undefined,
       (error) => {
@@ -173,6 +180,10 @@ export default class HandCanvas {
     const now = performance.now();
     const dt = (now - this.lastTime) / 1000;
     this.lastTime = now;
+
+    if (this.autoRotate && this.handModel && !this.sensorSocket.telemetry()) {
+      this.handModel.rotation.y += dt * 0.4;
+    }
 
     const telemetry = this.sensorSocket.telemetry();
     if (telemetry && this.handModel) {

@@ -5,6 +5,27 @@
   height: 100%;
 }
 
+.last-values {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
+  display: flex;
+  gap: 0.75rem;
+  background-color: color-mix(in srgb, var(--p-surface-0) 70%, transparent);
+  backdrop-filter: blur(4px);
+  padding: 4px 10px;
+  border-radius: 8px;
+  box-shadow: var(--shadow-elevated-sm);
+}
+
+.lv-item {
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
 .pause-btn {
   position: absolute;
   top: 8px;

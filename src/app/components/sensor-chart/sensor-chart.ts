@@ -11,7 +11,7 @@ import {
   OnDestroy,
   signal,
 } from '@angular/core';
-import { NgClass } from '@angular/common';
+import { DecimalPipe, NgClass } from '@angular/common';
 import uPlot from 'uplot';
 import { SensorSocket } from '@core/services/sensor-socket';
 import { GloveTelemetry } from '@core/models/glove-telemetry.model';
@@ -24,9 +24,11 @@ export interface SensorChartConfig {
   extractValues: (telemetry: GloveTelemetry) => [number, number, number];
 }
 
+const SYNC_KEY = 'gantia-sensors';
+
 @Component({
   selector: 'app-sensor-chart',
-  imports: [NgClass],
+  imports: [NgClass, DecimalPipe],
   template: `
     <button
       class="pause-btn"
@@ -36,6 +38,15 @@ export interface SensorChartConfig {
     >
       <i [class]="paused() ? 'bx bx-play' : 'bx bx-pause'"></i>
     </button>
+
+    @if (lastValues(); as v) {
+      <div class="last-values">
+        <span class="lv-item" [style.color]="config().seriesColors[0]">{{ seriesLabels()[0] }}: {{ v[0] | number:'1.1f' }}</span>
+        <span class="lv-item" [style.color]="config().seriesColors[1]">{{ seriesLabels()[1] }}: {{ v[1] | number:'1.1f' }}</span>
+        <span class="lv-item" [style.color]="config().seriesColors[2]">{{ seriesLabels()[2] }}: {{ v[2] | number:'1.1f' }}</span>
+      </div>
+    }
+
     <div #chartContainer class="uplot-container"></div>
   `,
   styleUrl: '../chart.styles.scss',
@@ -48,6 +59,8 @@ export class SensorChart implements OnDestroy {
 
   private readonly sensorSocket = inject(SensorSocket);
   private readonly document = inject(DOCUMENT);
+  protected readonly seriesLabels = signal(['X', 'Y', 'Z']);
+  protected lastValues = signal<[number, number, number] | null>(null);
 
   private uplotInstance: uPlot | undefined;
   private readonly maxWindow = 1000;
@@ -65,8 +78,9 @@ export class SensorChart implements OnDestroy {
         const win = this.document.defaultView;
         if (win) {
           const timestamp = win.Date.now() / 1000;
-          const [x, y, z] = this.config().extractValues(telemetry);
-          this.ingestSocketData(timestamp, x, y, z);
+          const values = this.config().extractValues(telemetry);
+          this.lastValues.set(values);
+          this.ingestSocketData(timestamp, values[0], values[1], values[2]);
         }
       }
     });
@@ -90,17 +104,36 @@ export class SensorChart implements OnDestroy {
   private initializeChart(): void {
     const container = this.uplotContainer().nativeElement;
     const cfg = this.config();
-    const seriesLabels = cfg.seriesLabels ?? ['X', 'Y', 'Z'];
+    const labels = cfg.seriesLabels ?? ['X', 'Y', 'Z'];
+    this.seriesLabels.set(labels);
 
     const opts: uPlot.Options = {
       width: container.offsetWidth,
       height: container.offsetHeight,
       title: cfg.title,
+      cursor: {
+        show: true,
+        x: true,
+        y: true,
+        drag: { x: false, y: false },
+        sync: { key: SYNC_KEY },
+      },
       scales: {
         x: { time: true },
         y: { auto: true },
       },
-      axes: [{ space: 80 }, { label: cfg.unitLabel }],
+      axes: [
+        {
+          space: 80,
+          stroke: 'var(--p-surface-400)',
+          grid: { stroke: 'color-mix(in srgb, var(--p-surface-900) 6%, transparent)' },
+        },
+        {
+          label: cfg.unitLabel,
+          stroke: 'var(--p-surface-400)',
+          grid: { stroke: 'color-mix(in srgb, var(--p-surface-900) 6%, transparent)' },
+        },
+      ],
       series: [
         {
           value: (_, v) => {
@@ -113,9 +146,27 @@ export class SensorChart implements OnDestroy {
             );
           },
         },
-        { label: seriesLabels[0], stroke: cfg.seriesColors[0], width: 2 },
-        { label: seriesLabels[1], stroke: cfg.seriesColors[1], width: 2 },
-        { label: seriesLabels[2], stroke: cfg.seriesColors[2], width: 2 },
+        {
+          label: labels[0],
+          stroke: cfg.seriesColors[0],
+          width: 2,
+          fill: cfg.seriesColors[0] + '15',
+          points: { show: false },
+        },
+        {
+          label: labels[1],
+          stroke: cfg.seriesColors[1],
+          width: 2,
+          fill: cfg.seriesColors[1] + '15',
+          points: { show: false },
+        },
+        {
+          label: labels[2],
+          stroke: cfg.seriesColors[2],
+          width: 2,
+          fill: cfg.seriesColors[2] + '15',
+          points: { show: false },
+        },
       ],
     };
 

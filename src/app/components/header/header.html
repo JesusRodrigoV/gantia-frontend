@@ -1,4 +1,4 @@
-<header class="gantia-header">
+<header class="gantia-header" [class.scrolled]="scrolled()">
   <div class="header-container">
     <div class="brand-group">
       <a routerLink="/" class="logo-link" title="Inicio de Gantia">
@@ -38,7 +38,7 @@
           <a routerLink="perfil" class="profile-link">Perfil</a>
         </li> -->
         <li
-          (click)="authStore.logout()"
+          (click)="confirmLogout($event)"
           class="logout-button"
           pTooltip="Cerrar Sesión"
           tooltipPosition="bottom"

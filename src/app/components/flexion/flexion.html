@@ -14,20 +14,20 @@
     <div class="gauge-group">
       <div class="gauge-info">
         <span class="finger-name">Falange Índice</span>
-        <span class="finger-value">{{ flex }}</span>
+        <span class="finger-value">{{ displayIndex() }}</span>
       </div>
       <div class="gauge-track">
-        <div class="gauge-fill index-fill" [style.width.%]="flex"></div>
+        <div class="gauge-fill index-fill" [class.glowing]="glowingIndex()" [style.width.%]="flex"></div>
       </div>
     </div>
 
     <div class="gauge-group">
       <div class="gauge-info">
         <span class="finger-name">Falange Media</span>
-        <span class="finger-value">{{ middle }}</span>
+        <span class="finger-value">{{ displayMiddle() }}</span>
       </div>
       <div class="gauge-track">
-        <div class="gauge-fill middle-fill" [style.width.%]="middle"></div>
+        <div class="gauge-fill middle-fill" [class.glowing]="glowingMiddle()" [style.width.%]="middle"></div>
       </div>
     </div>
   </div>

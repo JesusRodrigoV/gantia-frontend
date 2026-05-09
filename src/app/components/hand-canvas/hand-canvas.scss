@@ -1,6 +1,82 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
 .canvas-container {
   width: 100%;
   height: 100%;
   display: block;
   overflow: hidden;
+  position: relative;
+}
+
+.skeleton-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background-color: var(--p-surface-50);
+  z-index: 5;
+}
+
+.skeleton-logo {
+  width: 64px;
+  height: 64px;
+  opacity: 0.4;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-text {
+  font-size: 0.85rem;
+  color: var(--p-surface-400);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.telemetry-overlay {
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  display: flex;
+  gap: 1rem;
+  pointer-events: none;
+}
+
+.overlay-item {
+  background-color: color-mix(in srgb, var(--p-surface-0) 70%, transparent);
+  backdrop-filter: blur(8px);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-elevated-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.overlay-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--p-surface-500);
+  font-weight: 600;
+}
+
+.overlay-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--p-primary-600);
+  font-variant-numeric: tabular-nums;
 }

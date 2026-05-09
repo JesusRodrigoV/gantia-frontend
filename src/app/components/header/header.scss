@@ -14,6 +14,11 @@
   width: calc(100% - 3rem);
   max-width: 1200px;
   margin: 1rem auto;
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+
+  &.scrolled {
+    box-shadow: var(--shadow-elevated), 0 4px 20px color-mix(in srgb, var(--p-primary-500) 10%, transparent);
+  }
 
   .header-container {
     padding: 0 25px;
@@ -41,8 +46,8 @@
     gap: 1.5rem;
 
     .connection-status {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -55,17 +60,19 @@
         height: 10px;
         border-radius: 50%;
         transition: background-color 0.3s ease;
+        position: relative;
+        z-index: 1;
       }
 
       &.status-connected {
         background-color: var(--p-surface-0);
-        box-shadow: var(--shadow-elevated-sm);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-500) 15%, transparent), var(--shadow-elevated-sm);
         .status-dot { background-color: var(--p-primary-500); }
       }
 
       &.status-connecting {
         background-color: var(--p-surface-0);
-        box-shadow: var(--shadow-elevated-sm);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-300) 15%, transparent), var(--shadow-elevated-sm);
         .status-dot {
           background-color: var(--p-primary-300);
           animation: pulse 1s infinite;
@@ -75,7 +82,7 @@
       &.status-disconnected, &.status-error {
         background-color: var(--p-surface-0);
         box-shadow: var(--shadow-inset-sm);
-        .status-dot { background-color: var(--p-surface-400); }
+        .status-dot { background-color: var(--p-surface-300); }
       }
     }
 

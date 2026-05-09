@@ -11,16 +11,19 @@ import {
   withInMemoryScrolling,
   withViewTransitions,
 } from '@angular/router';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { providePrimeNG } from 'primeng/config';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { routes } from './app.routes';
 import { CustomPreset } from '../theme/theme';
 import { ThemeHandler } from '@core/services/theme-handler';
+import { tokenInterceptor } from '@core/services/token.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
+    provideHttpClient(withInterceptors([tokenInterceptor])),
     provideRouter(
       routes,
       withComponentInputBinding(),
@@ -40,6 +43,7 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     MessageService,
+    ConfirmationService,
     provideAppInitializer(() => {
       inject(ThemeHandler);
     }),
