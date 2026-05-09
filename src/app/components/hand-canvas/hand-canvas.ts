@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
+import { Tooltip } from 'primeng/tooltip';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -19,7 +20,7 @@ import { HandOrientationTracker } from '@core/services/hand-orientation';
 
 @Component({
   selector: 'app-hand-canvas',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, Tooltip],
   templateUrl: './hand-canvas.html',
   styleUrl: './hand-canvas.scss',
 })
@@ -80,8 +81,14 @@ export default class HandCanvas {
       container.appendChild(this.renderer.domElement);
 
       this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
+      this.orbit.enableDamping = true;
+      this.orbit.dampingFactor = 0.08;
+      this.orbit.minDistance = 3;
+      this.orbit.maxDistance = 20;
 
       this.orbit.addEventListener('start', () => { this.autoRotate = false; });
+
+      this.renderer.domElement.addEventListener('dblclick', () => this.resetCamera());
 
       this.setupLights();
       this.setupFloor();
@@ -195,6 +202,14 @@ export default class HandCanvas {
     }
 
     this.renderer.render(this.scene, this.camera);
+  }
+
+  protected resetCamera() {
+    if (!this.camera || !this.orbit) return;
+    this.camera.position.set(5, 7, 5);
+    this.orbit.target.set(0, 0, 0);
+    this.orbit.update();
+    this.autoRotate = true;
   }
 
   private onWindowResize() {

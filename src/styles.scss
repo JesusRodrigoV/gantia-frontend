@@ -18,3 +18,29 @@ body {
   background-color: var(--p-surface-50);
   color: var(--p-surface-800);
 }
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--p-surface-300);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--p-surface-400);
+}
+
+.app-dark ::-webkit-scrollbar-thumb {
+  background: var(--p-surface-600);
+}
+
+.app-dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--p-surface-500);
+}

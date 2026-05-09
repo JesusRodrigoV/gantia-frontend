@@ -7,6 +7,12 @@
   }
 </div>
 
+@if (modelLoaded()) {
+  <button class="reset-btn" (click)="resetCamera()" pTooltip="Restablecer vista" tooltipPosition="left">
+    <i class="bx bx-target-lock"></i>
+  </button>
+}
+
 @let t = sensorSocket.telemetry();
 @if (t) {
   <div class="telemetry-overlay">
