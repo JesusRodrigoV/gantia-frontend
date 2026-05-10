@@ -284,6 +284,66 @@
   }
 }
 
+.error-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+
+  &.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.error-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: var(--p-surface-500);
+
+  .error-icon {
+    font-size: 3rem;
+    color: var(--p-red-400);
+  }
+
+  .error-message {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .retry-btn {
+    font-family: var(--font-ui);
+    padding: 10px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: var(--p-primary-600);
+    background-color: var(--p-surface-0);
+    box-shadow: var(--shadow-elevated-sm);
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: var(--shadow-elevated);
+      color: var(--p-primary-500);
+    }
+  }
+}
+
 .skeleton-grid {
   display: grid;
   grid-template-columns: 7fr 3fr;

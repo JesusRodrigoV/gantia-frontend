@@ -1,5 +1,10 @@
 <div #canvasContainer class="canvas-container">
-  @if (!modelLoaded()) {
+  @if (modelError()) {
+    <div class="error-loader">
+      <i class="bx bx-error-circle error-icon" aria-hidden="true"></i>
+      <p class="skeleton-text">No se pudo cargar el modelo 3D</p>
+    </div>
+  } @else if (!modelLoaded()) {
     <div class="skeleton-loader">
       <img [src]="'/logos/logo.webp'" alt="Cargando..." class="skeleton-logo" />
       <p class="skeleton-text">Cargando modelo 3D...</p>
@@ -9,7 +14,7 @@
 
 @if (modelLoaded()) {
   <button class="reset-btn" (click)="resetCamera()" pTooltip="Restablecer vista" tooltipPosition="left">
-    <i class="bx bx-target-lock"></i>
+    <i class="bx bx-target-lock" aria-hidden="true"></i>
   </button>
 }
 

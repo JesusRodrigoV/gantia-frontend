@@ -31,19 +31,20 @@
       <ul>
         @for (link of links; track link.route) {
           <li>
-            <a [routerLink]="link.route">{{ link.label }}</a>
+            <a [routerLink]="link.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ link.label }}</a>
           </li>
         }
-        <!-- <li>
-          <a routerLink="perfil" class="profile-link">Perfil</a>
-        </li> -->
         <li
           (click)="confirmLogout($event)"
+          (keydown)="confirmLogout($event)"
+          role="button"
+          tabindex="0"
+          aria-label="Cerrar sesión"
           class="logout-button"
           pTooltip="Cerrar Sesión"
           tooltipPosition="bottom"
         >
-          <i class="bx bx-log-out"></i>
+          <i class="bx bx-log-out" aria-hidden="true"></i>
         </li>
       </ul>
     </nav>

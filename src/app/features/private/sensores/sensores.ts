@@ -40,7 +40,11 @@ export default class Sensores implements OnDestroy {
   });
 
   protected connected = computed(
-    () => this.sensorSocket.connectionStatus() === 'connected' || !!this.sensorSocket.telemetry(),
+    () => this.sensorSocket.connectionStatus() === 'connected' && !!this.sensorSocket.telemetry(),
+  );
+
+  protected wsError = computed(
+    () => this.sensorSocket.connectionStatus() === 'error' && !this.sensorSocket.telemetry(),
   );
 
   constructor() {

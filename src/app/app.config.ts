@@ -1,7 +1,7 @@
 import {
   ApplicationConfig,
   inject,
-  provideAppInitializer,
+  provideEnvironmentInitializer,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
@@ -44,7 +44,7 @@ export const appConfig: ApplicationConfig = {
     }),
     MessageService,
     ConfirmationService,
-    provideAppInitializer(() => {
+    provideEnvironmentInitializer(() => {
       inject(ThemeHandler);
     }),
   ],

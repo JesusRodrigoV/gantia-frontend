@@ -18,7 +18,8 @@ export class SensorSocket implements OnDestroy {
   );
 
   connect(): void {
-    if (this.destroyed || this.socket?.readyState === WebSocket.OPEN) return;
+    this.destroyed = false;
+    if (this.socket?.readyState === WebSocket.OPEN) return;
 
     const token = this.authStore.token();
     if (!token) {
@@ -48,10 +49,12 @@ export class SensorSocket implements OnDestroy {
 
     this.socket.onerror = () => {
       this.connectionStatus.set('error');
+      this.telemetry.set(null);
     };
 
     this.socket.onclose = () => {
       this.connectionStatus.set('disconnected');
+      this.telemetry.set(null);
       if (!this.destroyed) {
         this.reconnectTimer = setTimeout(() => this.connect(), 5000);
       }

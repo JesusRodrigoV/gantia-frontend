@@ -8,7 +8,7 @@ import {
   viewChild,
   signal,
 } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, DOCUMENT } from '@angular/common';
 import { Tooltip } from 'primeng/tooltip';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -26,6 +26,7 @@ import { HandOrientationTracker } from '@core/services/hand-orientation';
 })
 export default class HandCanvas {
   private window = inject(WINDOW);
+  private readonly document = inject(DOCUMENT);
   private destroyRef = inject(DestroyRef);
   protected sensorSocket = inject(SensorSocket);
   private themeHandler = inject(ThemeHandler);
@@ -39,6 +40,7 @@ export default class HandCanvas {
   private handModel: THREE.Group | null = null;
   private orbit: OrbitControls | null = null;
   protected modelLoaded = signal(false);
+  protected modelError = signal(false);
 
   private animationId: number | null = null;
   private lastTime = 0;
@@ -108,6 +110,17 @@ export default class HandCanvas {
     const resizeHandler = this.onWindowResize.bind(this);
     this.window.addEventListener('resize', resizeHandler);
 
+    const visibilityHandler = () => {
+      if (this.document.hidden) {
+        this.running = false;
+      } else {
+        this.running = true;
+        this.lastTime = performance.now();
+        this.animate();
+      }
+    };
+    this.document.addEventListener('visibilitychange', visibilityHandler);
+
     this.destroyRef.onDestroy(() => {
       this.running = false;
       if (this.animationId !== null) {
@@ -115,6 +128,7 @@ export default class HandCanvas {
         this.animationId = null;
       }
       this.window.removeEventListener('resize', resizeHandler);
+      this.document.removeEventListener('visibilitychange', visibilityHandler);
       this.disposeAll();
     });
   }
@@ -158,6 +172,7 @@ export default class HandCanvas {
       undefined,
       (error) => {
         console.error('[HandCanvas] Failed to load hand model:', error);
+        this.modelError.set(true);
       },
     );
   }

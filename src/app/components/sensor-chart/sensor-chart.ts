@@ -36,8 +36,15 @@ const SYNC_KEY = 'gantia-sensors';
       (click)="togglePause()"
       [title]="paused() ? 'Reanudar' : 'Pausar'"
     >
-      <i [class]="paused() ? 'bx bx-play' : 'bx bx-pause'"></i>
+      <i [class]="paused() ? 'bx bx-play' : 'bx bx-pause'" aria-hidden="true"></i>
     </button>
+
+    @if (!lastValues()) {
+      <div class="empty-state">
+        <i class="bx bx-line-chart" aria-hidden="true"></i>
+        <span>Esperando datos...</span>
+      </div>
+    }
 
     @if (lastValues(); as v) {
       <div class="last-values">
@@ -180,10 +187,11 @@ export class SensorChart implements OnDestroy {
     this.plotData[3].push(z);
 
     if (this.plotData[0].length > this.maxWindow) {
-      this.plotData[0].shift();
-      this.plotData[1].shift();
-      this.plotData[2].shift();
-      this.plotData[3].shift();
+      const excess = this.plotData[0].length - this.maxWindow;
+      this.plotData[0].splice(0, excess);
+      this.plotData[1].splice(0, excess);
+      this.plotData[2].splice(0, excess);
+      this.plotData[3].splice(0, excess);
     }
 
     if (this.uplotInstance) {

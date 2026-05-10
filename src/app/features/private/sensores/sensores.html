@@ -1,4 +1,11 @@
 <div class="view-container" [class.show-panels]="connected()" [class.is-swapping]="isSwapping()">
+  <div class="error-layer" [class.show]="wsError()">
+    <div class="error-state">
+      <i class="bx bx-wifi-off error-icon" aria-hidden="true"></i>
+      <p class="error-message">No se puede conectar al servidor</p>
+      <button class="retry-btn" (click)="sensorSocket.connect()">Reintentar</button>
+    </div>
+  </div>
   <div class="skeleton-layer">
     <div class="skeleton-grid">
       <p-skeleton class="panel" height="100%" />
@@ -11,7 +18,7 @@
     <div #swapyContainer class="swapy-container">
       <div data-swapy-slot="accel">
         <div data-swapy-item="accel" class="panel">
-          <div class="drag-handle"><i class="bx bx-grip"></i></div>
+          <div class="drag-handle" tabindex="0" role="button" aria-label="Arrastrar para reordenar"><i class="bx bx-grip" aria-hidden="true"></i></div>
           <div class="chart-container">
             <app-acelerometer-chart />
           </div>
@@ -20,7 +27,7 @@
 
       <div data-swapy-slot="gyro">
         <div data-swapy-item="gyro" class="panel">
-          <div class="drag-handle"><i class="bx bx-grip"></i></div>
+          <div class="drag-handle" tabindex="0" role="button" aria-label="Arrastrar para reordenar"><i class="bx bx-grip" aria-hidden="true"></i></div>
           <div class="chart-container">
             <app-gyroscope-chart />
           </div>
@@ -29,7 +36,7 @@
 
       <div data-swapy-slot="flex">
         <div data-swapy-item="flex" class="panel">
-          <div class="drag-handle"><i class="bx bx-grip"></i></div>
+          <div class="drag-handle" tabindex="0" role="button" aria-label="Arrastrar para reordenar"><i class="bx bx-grip" aria-hidden="true"></i></div>
           <h2 class="panel-title">Estado de Flexión</h2>
           <div class="visualizer-space">
             <app-flexion />
@@ -39,7 +46,7 @@
 
       <div data-swapy-slot="plan">
         <div data-swapy-item="plan" class="panel">
-          <div class="drag-handle"><i class="bx bx-grip"></i></div>
+          <div class="drag-handle" tabindex="0" role="button" aria-label="Arrastrar para reordenar"><i class="bx bx-grip" aria-hidden="true"></i></div>
           <h2 class="panel-title">Estado del Guante</h2>
           <div class="info-space">
             @let t = sensorSocket.telemetry();
@@ -78,7 +85,7 @@
               <div class="compass-wrapper">
                 <div class="compass-ring">
                   <div class="compass-dot" [style.transform]="'rotate(' + (orientation()?.roll ?? 0) + 'deg)'">
-                    <i class="bx bx-dot"></i>
+                    <i class="bx bx-dot" aria-hidden="true"></i>
                   </div>
                   <div class="compass-cross">
                     <span class="cross-label top">N</span>

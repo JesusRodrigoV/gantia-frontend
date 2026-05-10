@@ -26,6 +26,28 @@
   z-index: 5;
 }
 
+.error-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background-color: var(--p-surface-50);
+  z-index: 5;
+
+  .error-icon {
+    font-size: 3rem;
+    color: var(--p-red-400);
+  }
+
+  .skeleton-text {
+    animation: none;
+    color: var(--p-surface-500);
+  }
+}
+
 .skeleton-logo {
   width: 64px;
   height: 64px;

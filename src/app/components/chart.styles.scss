@@ -55,6 +55,25 @@
   }
 }
 
+.empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--p-surface-400);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  z-index: 5;
+
+  i {
+    font-size: 1.5rem;
+  }
+}
+
 .uplot-container {
   position: absolute;
   top: 0;

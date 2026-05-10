@@ -17,6 +17,14 @@
           placeholder="usuario@ejemplo.com"
           class="form-control"
         />
+        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+          @if (registerForm.get('email')?.errors?.['required']) {
+            <small class="field-error" role="alert">El correo es obligatorio</small>
+          }
+          @if (registerForm.get('email')?.errors?.['email']) {
+            <small class="field-error" role="alert">Formato de correo inválido</small>
+          }
+        }
       </div>
 
       <div class="form-group">
@@ -28,6 +36,14 @@
           placeholder="Mínimo 6 caracteres"
           class="form-control"
         />
+        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+          @if (registerForm.get('password')?.errors?.['required']) {
+            <small class="field-error" role="alert">La contraseña es obligatoria</small>
+          }
+          @if (registerForm.get('password')?.errors?.['minlength']) {
+            <small class="field-error" role="alert">Mínimo 6 caracteres</small>
+          }
+        }
       </div>
 
       <div class="form-group">
@@ -38,10 +54,15 @@
           formControlName="confirmPassword"
           class="form-control"
         />
+        @if (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) {
+          @if (registerForm.get('confirmPassword')?.errors?.['required']) {
+            <small class="field-error" role="alert">Confirmar la contraseña es obligatorio</small>
+          }
+        }
       </div>
 
       @if (authStore.error()) {
-        <div class="auth-alert">
+        <div class="auth-alert" role="alert">
           {{ authStore.error() }}
         </div>
       }
@@ -49,7 +70,7 @@
       @if (
         registerForm.hasError('passwordsMismatch') && registerForm.get('confirmPassword')?.touched
       ) {
-        <div class="auth-alert">Las contraseñas no coinciden</div>
+        <div class="auth-alert" role="alert">Las contraseñas no coinciden</div>
       }
 
       <button
@@ -58,7 +79,7 @@
         [disabled]="registerForm.invalid || authStore.isLoading()"
       >
         @if (authStore.isLoading()) {
-          <i class="bx bx-loader-alt bx-spin"></i>
+          <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
         } @else {
           Crear Cuenta
         }

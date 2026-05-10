@@ -120,6 +120,13 @@
   }
 }
 
+.field-error {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: var(--p-red-500);
+  margin: 0;
+}
+
 .auth-alert {
   font-family: var(--font-ui);
   padding: 12px;

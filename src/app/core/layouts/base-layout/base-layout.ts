@@ -1,6 +1,6 @@
 import { Component, effect, inject, OnDestroy, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 import { ConfirmPopup } from 'primeng/confirmpopup';
 import { Header } from '@components/header';

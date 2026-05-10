@@ -1,6 +1,6 @@
 import { NgOptimizedImage } from '@angular/common';
 import { Component, inject, signal, HostListener } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService } from 'primeng/api';
 import { LetrasGantia } from '@components/letras-gantia/letras-gantia';
@@ -11,7 +11,7 @@ import { RoundedButton } from '@shared/components/ui/rounded-button';
 
 @Component({
   selector: 'app-header',
-  imports: [NgOptimizedImage, LetrasGantia, RouterLink, RoundedButton, TooltipModule],
+  imports: [NgOptimizedImage, LetrasGantia, RouterLink, RouterLinkActive, RoundedButton, TooltipModule],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
@@ -25,7 +25,6 @@ export class Header {
   links=[
     {label: "Dashboard", route: "dashboard"},
     {label: "Sensores", route: "sensores"},
-    // {label: "Dispositivos", route: "dispositivos"},
   ]
 
   @HostListener('window:scroll')
@@ -34,6 +33,7 @@ export class Header {
   }
 
   confirmLogout(event: Event): void {
+    if (event instanceof KeyboardEvent && event.key !== 'Enter' && event.key !== ' ') return;
     this.confirmationService.confirm({
       target: event.currentTarget as EventTarget,
       message: '¿Estás seguro de que querés cerrar sesión?',

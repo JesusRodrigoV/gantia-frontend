@@ -141,6 +141,10 @@
         color: var(--p-primary-500);
       }
 
+      &.active {
+        color: var(--p-primary-500);
+      }
+
       &.profile-link {
         border: 1px solid var(--p-surface-300);
         padding: 8px 16px;
