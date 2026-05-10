@@ -17,7 +17,7 @@ export class HandOrientationTracker {
   private yaw = 0;
 
   update(telemetry: GloveTelemetry, dt: number): HandOrientation | null {
-    if (!telemetry.is_active) return null;
+    if (!telemetry.button_pressed) return null;
 
     const accelPitch = Math.atan2(
       telemetry.accel_y,

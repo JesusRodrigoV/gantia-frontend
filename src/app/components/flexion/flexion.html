@@ -2,9 +2,9 @@
   <div class="status-header">
     <span class="status-label">Seguro Táctil</span>
     @let t = sensorSocket.telemetry();
-    <div class="status-indicator" [class.active]="t?.is_active">
+    <div class="status-indicator" [class.active]="t?.button_pressed">
       <span class="dot"></span>
-      <span class="text">{{ t?.is_active ? 'TRANSMITIENDO' : 'BLOQUEADO' }}</span>
+      <span class="text">{{ t?.button_pressed ? 'TRANSMITIENDO' : 'BLOQUEADO' }}</span>
     </div>
   </div>
 

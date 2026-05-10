@@ -1,5 +1,5 @@
 export interface GloveTelemetry {
-  is_active: boolean;
+  button_pressed: number;
   flex_index: number;
   flex_middle: number;
   accel_x: number;
