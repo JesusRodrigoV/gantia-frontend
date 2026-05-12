@@ -29,12 +29,24 @@ export const routes: Routes = [
     loadComponent: () => import('./core/layouts/base-layout/base-layout'),
     children: [
       {
-        path: 'dashboard',
+        path: 'sensores',
         loadComponent: () => import('./components/hand-canvas/hand-canvas'),
       },
       {
-        path: 'sensores',
+        path: 'dashboard',
         loadComponent: () => import('./features/private/sensores/sensores'),
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/private/settings/settings'),
+      },
+      {
+        path: 'config',
+        loadComponent: () => import('./features/private/config/config'),
+      },
+      {
+        path: 'history',
+        loadComponent: () => import('./features/private/history/history'),
       },
       {
         path: '',

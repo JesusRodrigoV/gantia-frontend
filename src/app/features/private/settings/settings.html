@@ -1,0 +1,42 @@
+<div class="settings-page">
+  <p-toast />
+
+  <div class="settings-header">
+    <i class="bx bx-cog" aria-hidden="true"></i>
+    <h1>Ajustes del Guante</h1>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-grid">
+      <p-skeleton class="skeleton-card" height="120px" />
+    </div>
+  } @else {
+    <div class="settings-card">
+      <h2 class="card-title">Mouse</h2>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">
+            <i class="bx bx-reflect-horizontal" aria-hidden="true"></i>
+            <span>Invertir balanceo</span>
+          </div>
+          <p class="setting-desc">Invierte el eje de balanceo (roll) del movimiento del mouse</p>
+        </div>
+        <p-toggleswitch [(ngModel)]="invertRoll" (onChange)="onRollChange()" />
+      </div>
+
+      <div class="setting-divider"></div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">
+            <i class="bx bx-reflect-vertical" aria-hidden="true"></i>
+            <span>Invertir inclinación</span>
+          </div>
+          <p class="setting-desc">Invierte el eje de inclinación (pitch) del movimiento del mouse</p>
+        </div>
+        <p-toggleswitch [(ngModel)]="invertPitch" (onChange)="onPitchChange()" />
+      </div>
+    </div>
+  }
+</div>

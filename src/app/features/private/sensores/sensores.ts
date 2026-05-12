@@ -8,12 +8,13 @@ import {
   OnDestroy,
   signal,
 } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, DatePipe } from '@angular/common';
 import { AcelerometerChart } from '@components/acelerometer-chart';
 import { Flexion } from '@components/flexion';
 import { GyroscopeChart } from '@components/gyroscope-chart';
 import { Skeleton } from 'primeng/skeleton';
 import { SensorSocket } from '@core/services/sensor-socket';
+import { getActionLabel } from '@core/models/glove-telemetry.model';
 import { createSwapy } from 'swapy';
 import type { Swapy } from 'swapy';
 
@@ -21,7 +22,7 @@ const STORAGE_KEY = 'gantia-sensor-layout';
 
 @Component({
   selector: 'app-sensores',
-  imports: [GyroscopeChart, AcelerometerChart, Flexion, DecimalPipe, Skeleton],
+  imports: [GyroscopeChart, AcelerometerChart, Flexion, DecimalPipe, DatePipe, Skeleton],
   templateUrl: './sensores.html',
   styleUrl: './sensores.scss',
 })
@@ -38,6 +39,10 @@ export default class Sensores implements OnDestroy {
     const roll = Math.atan2(t.accel_y, t.accel_z) * (180 / Math.PI);
     return { pitch, roll };
   });
+
+  protected mouseModeActive = computed(() => this.sensorSocket.mouseModeActive());
+
+  protected recentActions = computed(() => this.sensorSocket.recentActions());
 
   protected connected = computed(
     () => this.sensorSocket.connectionStatus() === 'connected' && !!this.sensorSocket.telemetry(),
@@ -84,6 +89,8 @@ export default class Sensores implements OnDestroy {
       });
     });
   }
+
+  protected getActionLabel = getActionLabel;
 
   ngOnDestroy() {
     this.swapy?.destroy();

@@ -1,7 +1,9 @@
 import { Injectable, OnDestroy, inject, signal } from '@angular/core';
-import { GloveTelemetry } from '@core/models/glove-telemetry.model';
+import { GloveTelemetry, ActionEvent, isActionMessage } from '@core/models/glove-telemetry.model';
 import { env } from '../../../environments/environment';
 import { AuthStore } from '@core/stores/auth.store';
+
+const MAX_RECENT_ACTIONS = 30;
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +18,11 @@ export class SensorSocket implements OnDestroy {
   public readonly connectionStatus = signal<'disconnected' | 'connecting' | 'connected' | 'error'>(
     'disconnected',
   );
+  public readonly actionEvent = signal<ActionEvent | null>(null);
+  public readonly recentActions = signal<ActionEvent[]>([]);
+
+  private lastMouseModeValue: unknown = null;
+  public readonly mouseModeActive = signal(false);
 
   connect(): void {
     this.destroyed = false;
@@ -38,9 +45,26 @@ export class SensorSocket implements OnDestroy {
 
     this.socket.onmessage = (event: MessageEvent) => {
       try {
-        const data = JSON.parse(event.data) as GloveTelemetry;
+        const data = JSON.parse(event.data);
+
+        if (isActionMessage(data)) {
+          this.actionEvent.set(data);
+
+          this.recentActions.update(prev => [data, ...prev].slice(0, MAX_RECENT_ACTIONS));
+
+          if (data.action === 'mouse_mode') {
+            const newVal = data.action_value;
+            if (newVal !== this.lastMouseModeValue) {
+              this.lastMouseModeValue = newVal;
+              this.mouseModeActive.set(newVal === true || newVal === 'ON');
+            }
+          }
+
+          return;
+        }
+
         if (data && typeof data.accel_x !== 'undefined') {
-          this.telemetry.set(data);
+          this.telemetry.set(data as GloveTelemetry);
         }
       } catch (error) {
         console.warn('[SensorSocket] Failed to parse WebSocket message:', event.data);

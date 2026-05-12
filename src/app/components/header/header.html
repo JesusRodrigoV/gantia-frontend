@@ -23,6 +23,11 @@
       >
         <span class="status-dot"></span>
       </div>
+      @if (mouseModeActive()) {
+        <div class="mm-header-indicator" pTooltip="Mouse Mode Activado" tooltipPosition="bottom">
+          <i class="bx bx-mouse" aria-hidden="true"></i>
+        </div>
+      }
       <app-rounded-button
         class="theme-toggle"
         (click)="themeService.toggleTheme()"

@@ -1,0 +1,208 @@
+<div class="config-page">
+  <p-toast />
+
+  <div class="config-header">
+    <i class="bx bx-cog" aria-hidden="true"></i>
+    <h1>Configuración</h1>
+    <button class="btn-action" (click)="syncFromSupabase()" [style.marginLeft]="'auto'">
+      <i class="bx bx-cloud-download" aria-hidden="true"></i>
+      {{ syncing() ? 'Sincronizando...' : 'Sincronizar' }}
+    </button>
+  </div>
+
+  <section class="config-section">
+    <div class="section-header">
+      <h2>Gestos</h2>
+      <div class="section-actions">
+        <button class="btn-action" (click)="openCreateDialog()">
+          <i class="bx bx-plus" aria-hidden="true"></i> Añadir
+        </button>
+        <button class="btn-action" (click)="refreshConfigs()">
+          <i class="bx bx-refresh" aria-hidden="true"></i> Recargar
+        </button>
+      </div>
+    </div>
+
+    @if (gestureLoading()) {
+      <div class="loading-section">
+        <p-skeleton height="180px" borderRadius="12px" />
+      </div>
+    } @else if (gestureError()) {
+      <div class="state-box error">
+        <i class="bx bx-wifi-off"></i>
+        <p>No se pudo conectar al servidor</p>
+        <button class="btn-retry" (click)="refreshConfigs()">Reintentar</button>
+      </div>
+    } @else if (gestureConfigs().length === 0) {
+      <div class="state-box empty">
+        <i class="bx bx-gesture"></i>
+        <p>No hay configuraciones de gestos</p>
+        <button class="btn-action" (click)="openCreateDialog()">Crear primera</button>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="config-table">
+          <thead>
+            <tr>
+              <th>Movimiento</th>
+              <th>Orientación</th>
+              <th>Índice</th>
+              <th>Medio</th>
+              <th>Acción</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (cfg of gestureConfigs(); track cfg.id) {
+              <tr>
+                <td><span class="badge">{{ getMovementLabel(cfg.movement) }}</span></td>
+                <td>{{ getOrientationLabel(cfg.orientation) }}</td>
+                <td>{{ getFlexStateLabel(cfg.index_state) }}</td>
+                <td>{{ getFlexStateLabel(cfg.middle_state) }}</td>
+                <td><span class="action-tag">{{ getActionLabel(cfg.action_key) }}</span></td>
+                <td class="row-actions">
+                  <button class="btn-icon" title="Editar" (click)="openEditDialog(cfg)">
+                    <i class="bx bx-pencil"></i>
+                  </button>
+                  <button class="btn-icon danger" title="Eliminar" (click)="deleteGesture(cfg.id)">
+                    <i class="bx bx-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <section class="config-section">
+    <div class="section-header">
+      <h2>Calibración</h2>
+      <div class="section-actions">
+        <button class="btn-action" (click)="refreshCalibration()">
+          <i class="bx bx-refresh" aria-hidden="true"></i> Recargar
+        </button>
+      </div>
+    </div>
+
+    @if (calibrationLoading()) {
+      <div class="loading-section">
+        <p-skeleton height="120px" borderRadius="12px" />
+      </div>
+    } @else if (calibrationError()) {
+      <div class="state-box error">
+        <i class="bx bx-wifi-off"></i>
+        <p>No se pudo conectar al servidor</p>
+        <button class="btn-retry" (click)="refreshCalibration()">Reintentar</button>
+      </div>
+    } @else if (calibration().length === 0) {
+      <div class="state-box empty">
+        <i class="bx bx-adjust"></i>
+        <p>No hay datos de calibración</p>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="config-table">
+          <thead>
+            <tr>
+              <th>Sensor</th>
+              <th>Mínimo</th>
+              <th>Máximo</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entry of calibration(); track entry.sensor_name) {
+              <tr>
+                <td><strong>{{ entry.sensor_name }}</strong></td>
+                <td>
+                  <input
+                    class="cal-input"
+                    type="number"
+                    [(ngModel)]="entry.min_value"
+                    (ngModelChange)="updateCalibration(entry)"
+                  />
+                </td>
+                <td>
+                  <input
+                    class="cal-input"
+                    type="number"
+                    [(ngModel)]="entry.max_value"
+                    (ngModelChange)="updateCalibration(entry)"
+                  />
+                </td>
+                <td><i class="bx bx-check" style="color: var(--p-primary-500);"></i></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</div>
+
+@if (dialogOpen()) {
+  <div class="modal-overlay" (click)="closeDialog()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editingId() ? 'Editar' : 'Añadir' }} Configuración de Gesto</h3>
+        <button class="btn-icon" (click)="closeDialog()"><i class="bx bx-x"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <label class="form-field">
+          <span>Movimiento</span>
+          <select [(ngModel)]="form().movement" class="form-select">
+            @for (m of movements; track m) {
+              <option [value]="m">{{ m }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="form-field">
+          <span>Orientación</span>
+          <select [(ngModel)]="form().orientation" class="form-select">
+            @for (o of orientations; track o) {
+              <option [value]="o">{{ o }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="form-field">
+          <span>Estado del Índice</span>
+          <select [(ngModel)]="form().index_state" class="form-select">
+            @for (s of flexStates; track s) {
+              <option [value]="s">{{ s === 0 ? 'Abierto' : s === 1 ? 'Parcial' : 'Flexionado' }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="form-field">
+          <span>Estado del Medio</span>
+          <select [(ngModel)]="form().middle_state" class="form-select">
+            @for (s of flexStates; track s) {
+              <option [value]="s">{{ s === 0 ? 'Abierto' : s === 1 ? 'Parcial' : 'Flexionado' }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="form-field">
+          <span>Acción</span>
+          <select [(ngModel)]="form().action_key" class="form-select">
+            @for (a of actions; track a) {
+              <option [value]="a">{{ a }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeDialog()">Cancelar</button>
+        <button class="btn-save" (click)="saveGesture()" [disabled]="saving()">
+          {{ saving() ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

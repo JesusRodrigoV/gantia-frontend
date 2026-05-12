@@ -1,5 +1,5 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, inject, signal, HostListener } from '@angular/core';
+import { Component, inject, signal, computed, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService } from 'primeng/api';
@@ -20,11 +20,15 @@ export class Header {
   protected sensorSocket = inject(SensorSocket);
   protected authStore = inject(AuthStore);
   protected scrolled = signal(false);
+  protected mouseModeActive = computed(() => this.sensorSocket.mouseModeActive());
   private confirmationService = inject(ConfirmationService);
 
   links=[
     {label: "Dashboard", route: "dashboard"},
     {label: "Sensores", route: "sensores"},
+    {label: "Historial", route: "history"},
+    {label: "Ajustes", route: "settings"},
+    {label: "Config", route: "config"},
   ]
 
   @HostListener('window:scroll')

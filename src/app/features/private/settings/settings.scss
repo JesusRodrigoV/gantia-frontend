@@ -1,0 +1,96 @@
+:host {
+  display: block;
+  height: 100%;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.settings-page {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+
+  i {
+    font-size: 1.75rem;
+    color: var(--p-primary-500);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--p-surface-700);
+  }
+}
+
+.loading-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .skeleton-card {
+    border-radius: 16px;
+  }
+}
+
+.settings-card {
+  background-color: var(--p-surface-50);
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: var(--shadow-inset);
+}
+
+.card-title {
+  margin: 0 0 1.25rem 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--p-primary-600);
+  font-weight: 700;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.setting-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.setting-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--p-surface-700);
+
+  i {
+    font-size: 1.15rem;
+    color: var(--p-primary-500);
+  }
+}
+
+.setting-desc {
+  margin: 0.25rem 0 0 1.65rem;
+  font-size: 0.78rem;
+  color: var(--p-surface-500);
+  line-height: 1.4;
+}
+
+.setting-divider {
+  height: 1px;
+  background-color: var(--p-surface-200);
+  margin: 0.5rem 0;
+}

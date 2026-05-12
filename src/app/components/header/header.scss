@@ -86,6 +86,26 @@
       }
     }
 
+    .mm-header-indicator {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: default;
+      font-size: 1.15rem;
+      color: var(--p-primary-500);
+      background-color: var(--p-surface-0);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-500) 20%, transparent), var(--shadow-elevated-sm);
+      animation: mm-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes mm-pulse {
+      0%, 100% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-500) 20%, transparent), var(--shadow-elevated-sm); }
+      50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--p-primary-500) 12%, transparent), var(--shadow-elevated-sm); }
+    }
+
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.3; }
