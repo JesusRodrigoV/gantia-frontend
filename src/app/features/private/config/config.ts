@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, computed, effect, OnDestroy, EffectRef } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, PercentPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Skeleton } from 'primeng/skeleton';
 import { Toast } from 'primeng/toast';
@@ -19,7 +19,7 @@ import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-config',
-  imports: [FormsModule, Skeleton, Toast, DecimalPipe],
+  imports: [FormsModule, Skeleton, Toast, DecimalPipe, PercentPipe],
   providers: [MessageService],
   templateUrl: './config.html',
   styleUrl: './config.scss',

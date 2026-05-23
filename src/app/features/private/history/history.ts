@@ -43,6 +43,8 @@ export default class History {
   private plot: uPlot | null = null;
   private chartContainer: HTMLElement | null = null;
 
+  protected readonly getActionLabel = getActionLabel;
+
   constructor() {
     afterNextRender(() => {
       this.initChart();

@@ -222,6 +222,7 @@ export default class HandCanvas {
     loader.load(
       '/hand/scene.gltf',
       (gltf) => {
+        if (!this.scene) return;
         this.handModel = gltf.scene;
         this.handModel.position.y = -1;
         this.scene!.add(this.handModel);

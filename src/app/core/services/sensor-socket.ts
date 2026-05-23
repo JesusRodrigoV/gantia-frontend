@@ -56,8 +56,8 @@ export class SensorSocket implements OnDestroy {
       return;
     }
 
-    if (isTokenExpired(token)) {
-      console.warn('[SensorSocket] Token expirado, redirigiendo a login');
+    if (!this.authStore.isAuthenticated() || isTokenExpired(token)) {
+      console.warn('[SensorSocket] Token expirado o sesión cerrada, redirigiendo a login');
       this.authStore.logout();
       return;
     }
@@ -110,7 +110,7 @@ export class SensorSocket implements OnDestroy {
       this.telemetry.set(null);
       this.dataFlowing.set(false);
       if (this.dataTimeout) clearTimeout(this.dataTimeout);
-      if (!this.destroyed) {
+      if (!this.destroyed && this.authStore.isAuthenticated()) {
         const token = this.authStore.token();
         if (token && isTokenExpired(token)) {
           console.warn('[SensorSocket] Token expirado, redirigiendo a login');
