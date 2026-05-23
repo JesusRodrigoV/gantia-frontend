@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthStore } from '@core/stores/auth.store';
 
+const AUTH_ROUTES = ['/auth/login', '/auth/register'];
+
 export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const authStore = inject(AuthStore);
@@ -20,7 +22,10 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   return next(cloned).pipe(
     catchError((err) => {
       if (err instanceof HttpErrorResponse && err.status === 401) {
-        authStore.logout();
+        const isAuthRoute = AUTH_ROUTES.some((r) => router.url.startsWith(r));
+        if (!isAuthRoute) {
+          authStore.logout();
+        }
       }
       return throwError(() => err);
     }),
