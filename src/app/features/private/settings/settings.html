@@ -91,7 +91,7 @@
                       (input)="updateSensitivity(key, $any($event.target).valueAsNumber || $any($event.target).value)"
                       class="sens-range"
                     />
-                    <span class="sens-value">{{ s[key] | number:'1.2f' }}</span>
+                    <span class="sens-value">{{ s[key] | number:'1.2-2' }}</span>
                   </div>
                 } @else {
                   <p-inputNumber

@@ -109,12 +109,12 @@
           @for (r of readings(); track r.id) {
             <tr>
               <td class="cell-time">{{ r.created_at | date:'dd/MM/yyyy HH:mm:ss' }}</td>
-              <td>{{ r.accel_x | number:'1.2f' }}</td>
-              <td>{{ r.accel_y | number:'1.2f' }}</td>
-              <td>{{ r.accel_z | number:'1.2f' }}</td>
-              <td>{{ r.gyro_x | number:'1.1f' }}</td>
-              <td>{{ r.gyro_y | number:'1.1f' }}</td>
-              <td>{{ r.gyro_z | number:'1.1f' }}</td>
+              <td>{{ r.accel_x | number:'1.2-2' }}</td>
+              <td>{{ r.accel_y | number:'1.2-2' }}</td>
+              <td>{{ r.accel_z | number:'1.2-2' }}</td>
+              <td>{{ r.gyro_x | number:'1.1-1' }}</td>
+              <td>{{ r.gyro_y | number:'1.1-1' }}</td>
+              <td>{{ r.gyro_z | number:'1.1-1' }}</td>
               <td>{{ r.flex_index }}</td>
               <td>{{ r.flex_middle }}</td>
               <td>
