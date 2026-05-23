@@ -1,38 +1,48 @@
 <div class="history-page">
   <div class="history-header">
     <i class="bx bx-line-chart" aria-hidden="true"></i>
-    <h1>Historial de Lecturas</h1>
+    <h1>Historial</h1>
   </div>
 
-  <div class="filters-card">
-    <div class="filter-row">
-      <label class="filter-field">
-        <span>Desde</span>
-        <input type="datetime-local" [(ngModel)]="since" class="filter-input" />
-      </label>
-      <label class="filter-field">
-        <span>Hasta</span>
-        <input type="datetime-local" [(ngModel)]="until" class="filter-input" />
-      </label>
-      <label class="filter-field filter-limit">
-        <span>Límite</span>
-        <select [(ngModel)]="limit" class="filter-select">
-          <option [value]="50">50</option>
-          <option [value]="200">200</option>
-          <option [value]="500">500</option>
-          <option [value]="1000">1000</option>
-        </select>
-      </label>
-      <div class="filter-actions">
-        <button class="btn-action" (click)="setDefaultToday()">Últimas 6h</button>
-        <button class="btn-action primary" (click)="search()">
-          <i class="bx bx-search" aria-hidden="true"></i> Buscar
-        </button>
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="tab() === 'readings'" (click)="switchTab('readings')">
+      <i class="bx bx-line-chart"></i> Lecturas
+    </button>
+    <button class="tab-btn" [class.active]="tab() === 'actions'" (click)="switchTab('actions')">
+      <i class="bx bx-history"></i> Acciones
+    </button>
+  </div>
+
+  @if (tab() === 'readings') {
+    <div class="filters-card">
+      <div class="filter-row">
+        <label class="filter-field">
+          <span>Desde</span>
+          <input type="datetime-local" [(ngModel)]="since" class="filter-input" />
+        </label>
+        <label class="filter-field">
+          <span>Hasta</span>
+          <input type="datetime-local" [(ngModel)]="until" class="filter-input" />
+        </label>
+        <label class="filter-field filter-limit">
+          <span>Límite</span>
+          <select [(ngModel)]="limit" class="filter-select">
+            <option [value]="50">50</option>
+            <option [value]="200">200</option>
+            <option [value]="500">500</option>
+            <option [value]="1000">1000</option>
+          </select>
+        </label>
+        <div class="filter-actions">
+          <button class="btn-action" (click)="setDefaultToday()">Últimas 6h</button>
+          <button class="btn-action primary" (click)="search()">
+            <i class="bx bx-search" aria-hidden="true"></i> Buscar
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  @if (loading()) {
+    @if (loading()) {
     <div class="loading-section">
       <p-skeleton height="300px" borderRadius="12px" />
     </div>
@@ -50,6 +60,33 @@
   } @else if (readings().length > 0) {
     <div class="summary">
       Mostrando <strong>{{ readings().length }}</strong> de <strong>{{ total() }}</strong> registros
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-tabs">
+        <button
+          class="chart-tab"
+          [class.active]="chartType() === 'accel'"
+          (click)="changeChartType('accel')"
+        >
+          <i class="bx bx-move"></i> Acelerómetro
+        </button>
+        <button
+          class="chart-tab"
+          [class.active]="chartType() === 'gyro'"
+          (click)="changeChartType('gyro')"
+        >
+          <i class="bx bx-revision"></i> Giroscopio
+        </button>
+        <button
+          class="chart-tab"
+          [class.active]="chartType() === 'flex'"
+          (click)="changeChartType('flex')"
+        >
+          <i class="bx bx-handicap"></i> Flexión
+        </button>
+      </div>
+      <div id="history-chart" class="chart-container"></div>
     </div>
 
     <div class="table-wrap">
@@ -95,5 +132,76 @@
       <i class="bx bx-calendar"></i>
       <p>Seleccioná un rango de fechas y presioná Buscar</p>
     </div>
+  }
+  }
+
+  @if (tab() === 'actions') {
+    <div class="filters-card">
+      <div class="filter-row">
+        <label class="filter-field filter-limit">
+          <span>Límite</span>
+          <select [(ngModel)]="actionsLimit" class="filter-select">
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+            <option [value]="200">200</option>
+          </select>
+        </label>
+        <div class="filter-actions">
+          <button class="btn-action primary" (click)="loadActions()">
+            <i class="bx bx-refresh" aria-hidden="true"></i> Cargar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    @if (actionsLoading()) {
+      <div class="loading-section">
+        <p-skeleton height="200px" borderRadius="12px" />
+      </div>
+    } @else if (actionsError()) {
+      <div class="state-box error">
+        <i class="bx bx-wifi-off"></i>
+        <p>No se pudieron cargar las acciones</p>
+        <button class="btn-action" (click)="loadActions()">Reintentar</button>
+      </div>
+    } @else if (actions().length === 0) {
+      <div class="state-box empty">
+        <i class="bx bx-data"></i>
+        <p>No hay acciones registradas</p>
+      </div>
+    } @else {
+      <div class="summary">
+        Mostrando <strong>{{ actions().length }}</strong> de <strong>{{ actionsTotal() }}</strong> acciones
+      </div>
+      <div class="table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Acción</th>
+              <th>Valor</th>
+              <th>Destino</th>
+              <th>Resultado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entry of actions(); track entry.timestamp) {
+              <tr>
+                <td class="cell-time">{{ formatActionTimestamp(entry.timestamp) }}</td>
+                <td><span class="action-tag">{{ getActionLabel(entry.action) }}</span></td>
+                <td class="cell-value">{{ formatActionValue(entry) }}</td>
+                <td>{{ entry.target }}</td>
+                <td>
+                  <span class="status-badge" [class.active]="entry.result === 'ok'">
+                    {{ entry.result }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
   }
 </div>

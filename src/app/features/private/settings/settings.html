@@ -12,6 +12,28 @@
     </div>
   } @else {
     <div class="settings-card">
+      <h2 class="card-title">Dispositivo de control</h2>
+      <p class="card-desc">Selecciona a que dispositivo se envian las acciones del guante</p>
+
+      <div class="target-options">
+        @for (opt of targetOptions; track opt.value) {
+          <label class="target-option" [class.selected]="selectedTarget() === opt.value">
+            <p-radioButton
+              [name]="'target'"
+              [value]="opt.value"
+              [(ngModel)]="selectedTarget"
+              (ngModelChange)="onTargetChange(opt.value)"
+            />
+            <div class="target-info">
+              <span class="target-label">{{ opt.label }}</span>
+              <span class="target-desc">{{ opt.desc }}</span>
+            </div>
+          </label>
+        }
+      </div>
+    </div>
+
+    <div class="settings-card">
       <h2 class="card-title">Mouse</h2>
 
       <div class="setting-row">
@@ -31,12 +53,62 @@
         <div class="setting-info">
           <div class="setting-label">
             <i class="bx bx-reflect-vertical" aria-hidden="true"></i>
-            <span>Invertir inclinación</span>
+            <span>Invertir inclinacion</span>
           </div>
-          <p class="setting-desc">Invierte el eje de inclinación (pitch) del movimiento del mouse</p>
+          <p class="setting-desc">Invierte el eje de inclinacion (pitch) del movimiento del mouse</p>
         </div>
         <p-toggleswitch [(ngModel)]="invertPitch" (onChange)="onPitchChange()" />
       </div>
+    </div>
+
+    <div class="settings-card">
+      <h2 class="card-title">Sensibilidad</h2>
+      <p class="card-desc">Ajusta la sensibilidad del reconocimiento de gestos y el comportamiento del mouse</p>
+
+      @if (sensLoading()) {
+        <p-skeleton height="200px" borderRadius="12px" />
+      } @else if (sens(); as s) {
+        @for (group of sensGroups; track group.label) {
+          <div class="sens-group">
+            <h3 class="sens-group-title">{{ group.label }}</h3>
+            @for (key of group.keys; track key) {
+              @let f = getField(key);
+              <div class="setting-row">
+                <div class="setting-info">
+                  <div class="setting-label">
+                    <span>{{ f.label }}</span>
+                  </div>
+                  <p class="setting-desc">{{ f.desc }}</p>
+                </div>
+                @if (isRangeField(key)) {
+                  <div class="sens-range-wrap">
+                    <input
+                      type="range"
+                      [min]="f.min"
+                      [max]="f.max"
+                      [step]="f.step"
+                      [value]="s[key]"
+                      (input)="updateSensitivity(key, +($event.target as HTMLInputElement).value)"
+                      class="sens-range"
+                    />
+                    <span class="sens-value">{{ s[key] | number:'1.2f' }}</span>
+                  </div>
+                } @else {
+                  <p-inputNumber
+                    [inputId]="key"
+                    [min]="f.min"
+                    [max]="f.max"
+                    [step]="f.step"
+                    [(ngModel)]="s[key]"
+                    (onInput)="updateSensitivity(key, $event.value ?? f.min)"
+                    [style]="{width: '90px'}"
+                  />
+                }
+              </div>
+            }
+          </div>
+        }
+      }
     </div>
   }
 </div>

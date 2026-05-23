@@ -13,4 +13,8 @@ export class ConfigService {
   refreshFromSupabase(): Observable<{ status: string }> {
     return this.http.post<{ status: string }>(`${this.baseUrl}/refresh-configs`, {});
   }
+
+  resetToDefaults(): Observable<{ status: string; message: string }> {
+    return this.http.post<{ status: string; message: string }>(`${this.baseUrl}/config/reset`, {});
+  }
 }

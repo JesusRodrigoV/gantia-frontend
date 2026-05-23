@@ -7,12 +7,15 @@ import {
   afterNextRender,
   OnDestroy,
   signal,
+  effect,
 } from '@angular/core';
-import { DecimalPipe, DatePipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { AcelerometerChart } from '@components/acelerometer-chart';
 import { Flexion } from '@components/flexion';
 import { GyroscopeChart } from '@components/gyroscope-chart';
 import { Skeleton } from 'primeng/skeleton';
+import { Toast } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { SensorSocket } from '@core/services/sensor-socket';
 import { getActionLabel } from '@core/models/glove-telemetry.model';
 import { createSwapy } from 'swapy';
@@ -22,15 +25,18 @@ const STORAGE_KEY = 'gantia-sensor-layout';
 
 @Component({
   selector: 'app-sensores',
-  imports: [GyroscopeChart, AcelerometerChart, Flexion, DecimalPipe, DatePipe, Skeleton],
+  imports: [GyroscopeChart, AcelerometerChart, Flexion, DecimalPipe, Skeleton, Toast],
   templateUrl: './sensores.html',
   styleUrl: './sensores.scss',
+  providers: [MessageService],
 })
 export default class Sensores implements OnDestroy {
   protected sensorSocket = inject(SensorSocket);
+  private messageService = inject(MessageService);
   private swapyContainer = viewChild<ElementRef<HTMLElement>>('swapyContainer');
   private swapy: Swapy | null = null;
   protected isSwapping = signal(false);
+  private lastActionIndex = 0;
 
   protected orientation = computed(() => {
     const t = this.sensorSocket.telemetry();
@@ -87,6 +93,25 @@ export default class Sensores implements OnDestroy {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(slotItemMap.asArray));
         }
       });
+    });
+
+    effect(() => {
+      const actions = this.sensorSocket.recentActions();
+      if (actions.length > this.lastActionIndex && actions.length > 0) {
+        const latest = actions[0];
+        if (latest.action !== 'mouse_mode') {
+          const label = getActionLabel(latest.action);
+          this.messageService.add({
+            severity: 'info',
+            summary: 'Gesto detectado',
+            detail: label,
+            life: 2000,
+            icon: 'bx bx-flash',
+            key: 'gesture-toast',
+          });
+        }
+        this.lastActionIndex = actions.length;
+      }
     });
   }
 

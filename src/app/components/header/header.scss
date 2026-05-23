@@ -64,10 +64,29 @@
         z-index: 1;
       }
 
+      .flow-ring {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 2px solid var(--p-primary-500);
+        opacity: 0;
+        z-index: 0;
+      }
+
       &.status-connected {
         background-color: var(--p-surface-0);
         box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-500) 15%, transparent), var(--shadow-elevated-sm);
         .status-dot { background-color: var(--p-primary-500); }
+
+        &.data-flowing {
+          .status-dot {
+            animation: data-pulse 1.5s ease-in-out infinite;
+          }
+          .flow-ring {
+            animation: flow-expand 1.5s ease-out infinite;
+          }
+        }
       }
 
       &.status-connecting {
@@ -83,6 +102,28 @@
         background-color: var(--p-surface-0);
         box-shadow: var(--shadow-inset-sm);
         .status-dot { background-color: var(--p-surface-300); }
+      }
+    }
+
+    .client-indicators {
+      display: flex;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      background-color: var(--p-surface-100);
+      box-shadow: var(--shadow-inset-sm);
+
+      .client-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--p-surface-300);
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+
+        &.connected {
+          background-color: var(--p-primary-500);
+          box-shadow: 0 0 4px color-mix(in srgb, var(--p-primary-500) 40%, transparent);
+        }
       }
     }
 
@@ -109,6 +150,16 @@
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.3; }
+    }
+
+    @keyframes data-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.3); }
+    }
+
+    @keyframes flow-expand {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(2.8); opacity: 0; }
     }
 
     .theme-toggle {

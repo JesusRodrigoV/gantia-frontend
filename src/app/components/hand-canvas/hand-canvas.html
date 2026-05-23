@@ -12,10 +12,26 @@
   }
 </div>
 
+<p-toast position="top-right" key="hand-toast" />
+
 @if (modelLoaded()) {
   <button class="reset-btn" (click)="resetCamera()" pTooltip="Restablecer vista" tooltipPosition="left">
     <i class="bx bx-target-lock" aria-hidden="true"></i>
   </button>
+}
+
+@if (isTransmitting()) {
+  <div class="transmit-badge">
+    <span class="transmit-dot"></span>
+    <span>TRANSMITIENDO</span>
+  </div>
+}
+
+@if (lastGestureLabel()) {
+  <div class="last-gesture">
+    <i class="bx bx-flash" aria-hidden="true"></i>
+    <span>{{ lastGestureLabel() }}</span>
+  </div>
 }
 
 @let t = sensorSocket.telemetry();

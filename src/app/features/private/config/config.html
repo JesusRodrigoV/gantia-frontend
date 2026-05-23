@@ -4,16 +4,220 @@
   <div class="config-header">
     <i class="bx bx-cog" aria-hidden="true"></i>
     <h1>Configuración</h1>
-    <button class="btn-action" (click)="syncFromSupabase()" [style.marginLeft]="'auto'">
+    <button class="btn-action" (click)="syncFromSupabase()">
       <i class="bx bx-cloud-download" aria-hidden="true"></i>
       {{ syncing() ? 'Sincronizando...' : 'Sincronizar' }}
     </button>
+    <button class="btn-action danger" (click)="resetToDefaults()" [disabled]="resettando()">
+      <i class="bx bx-reset"></i>
+      {{ resettando() ? 'Reseteando...' : 'Reset' }}
+    </button>
   </div>
+
+  <section class="config-section test-section" [class.active-test]="testMode()">
+    <div class="section-header">
+      <h2><i class="bx bx-test-tube"></i> Modo Prueba</h2>
+      <div class="section-actions">
+        @if (testMode()) {
+          <button class="btn-action danger" (click)="stopTestMode()">
+            <i class="bx bx-stop" aria-hidden="true"></i> Detener
+          </button>
+        } @else {
+          <button class="btn-action" (click)="startTestMode()">
+            <i class="bx bx-play" aria-hidden="true"></i> Iniciar prueba
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (testMode()) {
+      <div class="test-grid">
+        <div class="test-panel">
+          <h3>Señal en vivo</h3>
+          @let t = testTelemetry();
+          @if (t) {
+            <div class="live-data">
+              <div class="data-row">
+                <span class="data-label">Botón</span>
+                <span class="data-value" [class.on]="t.button_pressed">
+                  {{ t.button_pressed ? 'ON' : 'OFF' }}
+                </span>
+              </div>
+              <div class="data-row">
+                <span class="data-label">Flex Índice</span>
+                <span class="data-value">{{ t.flex_index }}</span>
+              </div>
+              <div class="data-row">
+                <span class="data-label">Flex Medio</span>
+                <span class="data-value">{{ t.flex_middle }}</span>
+              </div>
+              <div class="data-row">
+                <span class="data-label">Acelerómetro</span>
+                <span class="data-value">{{ t.accel_x | number:'1.0' }} {{ t.accel_y | number:'1.0' }} {{ t.accel_z | number:'1.0' }}</span>
+              </div>
+              <div class="data-row">
+                <span class="data-label">Giroscopio</span>
+                <span class="data-value">{{ t.gyro_x | number:'1.0' }} {{ t.gyro_y | number:'1.0' }} {{ t.gyro_z | number:'1.0' }}</span>
+              </div>
+            </div>
+          } @else {
+            <div class="test-empty">Esperando datos del guante...</div>
+          }
+        </div>
+
+        <div class="test-panel">
+          <h3>Gestos detectados</h3>
+          @if (testActions().length === 0) {
+            <div class="test-empty">Hacé gestos con el guante...</div>
+          } @else {
+            <div class="gesture-log">
+              @for (g of testActions(); track $index) {
+                <div class="gesture-entry">
+                  <span class="gesture-time">{{ g.time }}</span>
+                  <span class="gesture-name">{{ g.action }}</span>
+                </div>
+              }
+            </div>
+          }
+      </div>
+    </div>
+  </div>
+}
+
+@if (learnOpen()) {
+  <div class="modal-overlay" (click)="closeLearnWizard()">
+    <div class="modal-content learn-wizard" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="bx bx-gesture"></i> Aprender gesto nuevo</h3>
+        <button class="btn-icon" (click)="closeLearnWizard()"><i class="bx bx-x"></i></button>
+      </div>
+
+      <div class="wizard-steps">
+        <div class="wizard-step-indicator" [class.active]="learnStep() >= 1" [class.done]="learnStep() > 1">
+          <span class="step-num">1</span>
+          <span class="step-label">Inicio</span>
+        </div>
+        <div class="wizard-connector" [class.done]="learnStep() > 1"></div>
+        <div class="wizard-step-indicator" [class.active]="learnStep() >= 2" [class.done]="learnStep() > 2">
+          <span class="step-num">2</span>
+          <span class="step-label">Muestra 1</span>
+        </div>
+        <div class="wizard-connector" [class.done]="learnStep() > 2"></div>
+        <div class="wizard-step-indicator" [class.active]="learnStep() >= 3" [class.done]="learnStep() > 3">
+          <span class="step-num">3</span>
+          <span class="step-label">Muestra 2</span>
+        </div>
+        <div class="wizard-connector" [class.done]="learnStep() > 3"></div>
+        <div class="wizard-step-indicator" [class.active]="learnStep() >= 4" [class.done]="learnStep() > 4">
+          <span class="step-num">4</span>
+          <span class="step-label">Guardar</span>
+        </div>
+      </div>
+
+      <div class="wizard-body">
+        @if (learnStep() === 1) {
+          <div class="learn-step-content">
+            <div class="learn-instruction">
+              <i class="bx bx-run"></i>
+              <p><strong>Preparate para enseñar un gesto nuevo</strong></p>
+              <p class="learn-hint">Vas a realizar el mismo gesto 3 veces seguidas para que el sistema lo aprenda</p>
+            </div>
+            <div class="learn-info">
+              <div class="learn-info-row">
+                <i class="bx bx-handicap"></i>
+                <span>Flex Índice: <strong>{{ learnLiveFlexIndex() }}</strong></span>
+              </div>
+              <div class="learn-info-row">
+                <i class="bx bx-handicap"></i>
+                <span>Flex Medio: <strong>{{ learnLiveFlexMiddle() }}</strong></span>
+              </div>
+            </div>
+            <button class="btn-action primary full-width" (click)="learnStart()">
+              <i class="bx bx-play"></i> Empezar
+            </button>
+          </div>
+        } @else if (learnStep() >= 2 && learnStep() <= 3) {
+          <div class="learn-step-content">
+            <div class="learn-instruction">
+              <i class="bx bx-handicap"></i>
+              <p><strong>Hacé el gesto {{ learnSamplesCollected() < 1 ? 'por primera vez' : 'de nuevo' }}</strong></p>
+              <p class="learn-hint">Realizá el gesto con el guante y presioná "Capturar"</p>
+            </div>
+            <div class="learn-sample-count">
+              <span>Muestras: </span>
+              <strong>{{ learnSamplesCollected() }} / 3</strong>
+            </div>
+            <div class="learn-live">
+              <span>Flex Índice: {{ learnLiveFlexIndex() }}</span>
+              <span>Flex Medio: {{ learnLiveFlexMiddle() }}</span>
+            </div>
+            <button class="btn-action primary full-width" (click)="learnCapture()">
+              <i class="bx bx-camera"></i> Capturar muestra
+            </button>
+          </div>
+        } @else if (learnStep() === 4) {
+          @let analysis = learnAnalysis();
+          <div class="learn-step-content">
+            <div class="learn-instruction">
+              <i class="bx bx-check-double"></i>
+              <p><strong>Gesto analizado</strong></p>
+              <p class="learn-hint">Revisá los valores detectados y asignale una acción</p>
+            </div>
+            @if (analysis) {
+              <div class="learn-analysis">
+                <div class="learn-analysis-row">
+                  <span>Movimiento</span>
+                  <strong>{{ getMovementLabel(analysis.movement) }}</strong>
+                </div>
+                <div class="learn-analysis-row">
+                  <span>Orientación</span>
+                  <strong>{{ getOrientationLabel(analysis.orientation) }}</strong>
+                </div>
+                <div class="learn-analysis-row">
+                  <span>Índice</span>
+                  <strong>{{ getFlexStateLabel(analysis.index_state) }}</strong>
+                </div>
+                <div class="learn-analysis-row">
+                  <span>Medio</span>
+                  <strong>{{ getFlexStateLabel(analysis.middle_state) }}</strong>
+                </div>
+                <div class="learn-analysis-row">
+                  <span>Confianza</span>
+                  <strong>{{ analysis.confidence | percent }}</strong>
+                </div>
+              </div>
+            }
+            <label class="form-field">
+              <span>Acción a ejecutar</span>
+              <select [(ngModel)]="learnActionKey" class="form-select">
+                @for (a of actions; track a) {
+                  <option [value]="a">{{ getActionLabel(a) }}</option>
+                }
+              </select>
+            </label>
+            <div class="learn-actions">
+              <button class="btn-action full-width" (click)="learnStep.set(2)">
+                <i class="bx bx-revision"></i> Rehacer
+              </button>
+              <button class="btn-action primary full-width" (click)="learnSave()" [disabled]="learnSaving()">
+                <i class="bx bx-save"></i> {{ learnSaving() ? 'Guardando...' : 'Guardar gesto' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
+  </section>
 
   <section class="config-section">
     <div class="section-header">
       <h2>Gestos</h2>
       <div class="section-actions">
+        <button class="btn-action" (click)="openLearnWizard()">
+          <i class="bx bx-gesture"></i> Aprender
+        </button>
         <button class="btn-action" (click)="openCreateDialog()">
           <i class="bx bx-plus" aria-hidden="true"></i> Añadir
         </button>
@@ -132,7 +336,11 @@
                     (ngModelChange)="updateCalibration(entry)"
                   />
                 </td>
-                <td><i class="bx bx-check" style="color: var(--p-primary-500);"></i></td>
+                <td class="row-actions">
+                  <button class="btn-icon" title="Calibrar con wizard" (click)="openCalibWizard(entry.sensor_name)">
+                    <i class="bx bx-wand"></i>
+                  </button>
+                </td>
               </tr>
             }
           </tbody>
@@ -202,6 +410,107 @@
         <button class="btn-save" (click)="saveGesture()" [disabled]="saving()">
           {{ saving() ? 'Guardando...' : 'Guardar' }}
         </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (calibWizardOpen()) {
+  <div class="modal-overlay" (click)="closeCalibWizard()">
+    <div class="modal-content calib-wizard" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>
+          <i class="bx bx-wand"></i>
+          Calibrar {{ calibSensor() === 'index_finger' ? 'Índice' : 'Medio' }}
+        </h3>
+        <button class="btn-icon" (click)="closeCalibWizard()"><i class="bx bx-x"></i></button>
+      </div>
+
+      <div class="wizard-steps">
+        <div class="wizard-step-indicator" [class.active]="calibStep() >= 1" [class.done]="calibStep() > 1">
+          <span class="step-num">1</span>
+          <span class="step-label">Mínimo</span>
+        </div>
+        <div class="wizard-connector" [class.done]="calibStep() > 1"></div>
+        <div class="wizard-step-indicator" [class.active]="calibStep() >= 2" [class.done]="calibStep() > 2">
+          <span class="step-num">2</span>
+          <span class="step-label">Máximo</span>
+        </div>
+        <div class="wizard-connector" [class.done]="calibStep() > 2"></div>
+        <div class="wizard-step-indicator" [class.active]="calibStep() >= 3">
+          <span class="step-num">3</span>
+          <span class="step-label">Guardar</span>
+        </div>
+      </div>
+
+      <div class="wizard-body">
+        @if (calibStep() === 1) {
+          <div class="calib-step-content">
+            <div class="calib-instruction">
+              <i class="bx bx-handicap"></i>
+              <p><strong>Abre completamente el dedo {{ calibSensor() === 'index_finger' ? 'índice' : 'medio' }}</strong></p>
+              <p class="calib-hint">Mantenlo así unos segundos hasta que el valor se estabilice</p>
+            </div>
+            <div class="calib-live-value">
+              <span class="calib-label">Valor actual</span>
+              <span class="calib-number">{{ calibLiveValue() }}</span>
+            </div>
+            <button class="btn-action primary full-width" (click)="captureCalibMin()">
+              <i class="bx bx-check"></i> Registrar mínimo ({{ calibLiveValue() }})
+            </button>
+          </div>
+        } @else if (calibStep() === 2) {
+          <div class="calib-step-content">
+            <div class="calib-instruction">
+              <i class="bx bx-handicap"></i>
+              <p><strong>Flexiona completamente el dedo {{ calibSensor() === 'index_finger' ? 'índice' : 'medio' }}</strong></p>
+              <p class="calib-hint">Dobla el dedo al maximo y mantenlo</p>
+            </div>
+            <div class="calib-live-value">
+              <span class="calib-label">Valor actual</span>
+              <span class="calib-number">{{ calibLiveValue() }}</span>
+            </div>
+            <div class="calib-recorded">
+              Mínimo registrado: <strong>{{ calibMinValue() }}</strong>
+            </div>
+            <button class="btn-action primary full-width" (click)="captureCalibMax()">
+              <i class="bx bx-check"></i> Registrar máximo ({{ calibLiveValue() }})
+            </button>
+          </div>
+        } @else {
+          <div class="calib-step-content">
+            <div class="calib-instruction">
+              <i class="bx bx-check-double"></i>
+              <p><strong>Resumen de calibración</strong></p>
+            </div>
+            <div class="calib-summary">
+              <div class="calib-summary-row">
+                <span>Sensor</span>
+                <strong>{{ calibSensor() === 'index_finger' ? 'Índice' : 'Medio' }}</strong>
+              </div>
+              <div class="calib-summary-row">
+                <span>Mínimo</span>
+                <strong class="min-val">{{ calibMinValue() }}</strong>
+              </div>
+              <div class="calib-summary-row">
+                <span>Máximo</span>
+                <strong class="max-val">{{ calibMaxValue() }}</strong>
+              </div>
+              <div class="calib-summary-row">
+                <span>Rango</span>
+                <strong>{{ (calibMaxValue() ?? 0) - (calibMinValue() ?? 0) }}</strong>
+              </div>
+            </div>
+            <div class="calib-actions">
+              <button class="btn-action full-width" (click)="calibStep.set(1)">
+                <i class="bx bx-revision"></i> Empezar de nuevo
+              </button>
+              <button class="btn-action primary full-width" (click)="saveCalibration()" [disabled]="calibSaving()">
+                <i class="bx bx-save"></i> {{ calibSaving() ? 'Guardando...' : 'Guardar calibración' }}
+              </button>
+            </div>
+          </div>
+        }
       </div>
     </div>
   </div>

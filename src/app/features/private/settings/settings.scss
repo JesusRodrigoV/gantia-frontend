@@ -55,6 +55,53 @@
   font-weight: 700;
 }
 
+.card-desc {
+  margin: -0.75rem 0 1.25rem;
+  font-size: 0.8rem;
+  color: var(--p-surface-500);
+  line-height: 1.4;
+}
+
+.target-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.target-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background-color: var(--p-surface-0);
+  box-shadow: var(--shadow-inset-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &.selected {
+    background-color: color-mix(in srgb, var(--p-primary-500) 8%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--p-primary-500) 20%, transparent);
+  }
+
+  .target-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .target-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--p-surface-700);
+  }
+
+  .target-desc {
+    font-size: 0.72rem;
+    color: var(--p-surface-500);
+  }
+}
+
 .setting-row {
   display: flex;
   align-items: center;
@@ -93,4 +140,44 @@
   height: 1px;
   background-color: var(--p-surface-200);
   margin: 0.5rem 0;
+}
+
+.sens-group {
+  margin-bottom: 0.75rem;
+
+  &:not(:first-of-type) {
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--p-surface-200);
+  }
+}
+
+.sens-group-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--p-surface-500);
+  font-weight: 600;
+}
+
+.sens-range-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 160px;
+}
+
+.sens-range {
+  flex: 1;
+  accent-color: var(--p-primary-500);
+  cursor: pointer;
+}
+
+.sens-value {
+  min-width: 3rem;
+  text-align: right;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--p-surface-600);
+  font-variant-numeric: tabular-nums;
 }

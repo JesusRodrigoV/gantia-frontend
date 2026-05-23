@@ -7,9 +7,12 @@ import {
   inject,
   viewChild,
   signal,
+  computed,
 } from '@angular/core';
 import { DecimalPipe, DOCUMENT } from '@angular/common';
 import { Tooltip } from 'primeng/tooltip';
+import { Toast } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -17,12 +20,14 @@ import { WINDOW } from '@core/window.token';
 import { SensorSocket } from '@core/services/sensor-socket';
 import { ThemeHandler } from '@core/services/theme-handler';
 import { HandOrientationTracker } from '@core/services/hand-orientation';
+import { getActionLabel } from '@core/models/glove-telemetry.model';
 
 @Component({
   selector: 'app-hand-canvas',
-  imports: [DecimalPipe, Tooltip],
+  imports: [DecimalPipe, Tooltip, Toast],
   templateUrl: './hand-canvas.html',
   styleUrl: './hand-canvas.scss',
+  providers: [MessageService],
 })
 export default class HandCanvas {
   private window = inject(WINDOW);
@@ -30,6 +35,7 @@ export default class HandCanvas {
   private destroyRef = inject(DestroyRef);
   protected sensorSocket = inject(SensorSocket);
   private themeHandler = inject(ThemeHandler);
+  private messageService = inject(MessageService);
   private orientationTracker = new HandOrientationTracker();
 
   private canvasRef = viewChild.required<ElementRef<HTMLDivElement>>('canvasContainer');
@@ -47,6 +53,19 @@ export default class HandCanvas {
   private running = false;
   private autoRotate = true;
 
+  private transmitLight: THREE.PointLight | null = null;
+  private gestureRing: THREE.Mesh | null = null;
+  private gestureFlash: number = 0;
+  private prevActionCount = 0;
+  private handMaterials: THREE.Material[] = [];
+  private baseEmissive = new THREE.Color(0x000000);
+
+  protected lastGestureLabel = signal('');
+  protected isTransmitting = computed(() => {
+    const t = this.sensorSocket.telemetry();
+    return t?.button_pressed === 1;
+  });
+
   constructor() {
     afterNextRender({
       write: () => {
@@ -59,6 +78,26 @@ export default class HandCanvas {
 
       if (this.scene) {
         queueMicrotask(() => this.updateEnvironmentColors());
+      }
+    });
+
+    effect(() => {
+      const actions = this.sensorSocket.recentActions();
+      if (actions.length > this.prevActionCount && actions.length > 0) {
+        const latest = actions[0];
+        const label = getActionLabel(latest.action);
+        this.lastGestureLabel.set(label);
+        if (latest.action !== 'mouse_mode') {
+          this.messageService.add({
+            severity: 'info',
+            summary: 'Gesto detectado',
+            detail: label,
+            life: 2000,
+            icon: 'bx bx-flash',
+            key: 'hand-toast',
+          });
+        }
+        this.prevActionCount = actions.length;
       }
     });
   }
@@ -142,6 +181,25 @@ export default class HandCanvas {
     const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
     directionalLight.position.set(0, 5, 0);
     this.scene.add(directionalLight);
+
+    this.transmitLight = new THREE.PointLight(0x4f46e5, 0, 8, 2);
+    this.transmitLight.position.set(0, 2, 3);
+    this.scene.add(this.transmitLight);
+  }
+
+  private setupGestureRing() {
+    if (!this.scene) return;
+
+    const ringGeo = new THREE.TorusGeometry(2.5, 0.03, 16, 64);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0x4f46e5,
+      transparent: true,
+      opacity: 0,
+    });
+    this.gestureRing = new THREE.Mesh(ringGeo, ringMat);
+    this.gestureRing.rotation.x = Math.PI / 2;
+    this.gestureRing.position.y = 0.5;
+    this.scene.add(this.gestureRing);
   }
 
   private setupFloor() {
@@ -167,6 +225,20 @@ export default class HandCanvas {
         this.handModel = gltf.scene;
         this.handModel.position.y = -1;
         this.scene!.add(this.handModel);
+
+        this.handModel.traverse((child) => {
+          if (child instanceof THREE.Mesh && child.material) {
+            const mats = Array.isArray(child.material) ? child.material : [child.material];
+            for (const mat of mats) {
+              if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhysicalMaterial) {
+                this.handMaterials.push(mat);
+                this.baseEmissive.copy(mat.emissive);
+              }
+            }
+          }
+        });
+
+        this.setupGestureRing();
         this.modelLoaded.set(true);
       },
       undefined,
@@ -214,6 +286,45 @@ export default class HandCanvas {
         this.handModel.rotation.set(orientation.pitch, orientation.yaw, orientation.roll, 'XYZ');
         this.handModel.scale.set(1, orientation.scaleY, 1);
       }
+
+      const isTransmitting = telemetry.button_pressed === 1;
+      if (this.transmitLight) {
+        const pulse = isTransmitting ? (Math.sin(now * 0.005) * 0.3 + 0.7) : 0;
+        this.transmitLight.intensity = THREE.MathUtils.lerp(this.transmitLight.intensity, pulse, 0.1);
+        this.transmitLight.color.setHSL(0.65, 0.8, isTransmitting ? 0.5 : 0.2);
+      }
+
+      const flexIntensity = (telemetry.flex_index + telemetry.flex_middle) / 200;
+      for (const mat of this.handMaterials) {
+        if (mat instanceof THREE.MeshStandardMaterial) {
+          const targetEmissive = isTransmitting ? 0.15 + flexIntensity * 0.2 : 0;
+          const r = this.baseEmissive.r + (0.2 - this.baseEmissive.r) * targetEmissive;
+          const g = this.baseEmissive.g + (0.15 - this.baseEmissive.g) * targetEmissive;
+          const b = this.baseEmissive.b + (0.8 - this.baseEmissive.b) * targetEmissive;
+          mat.emissive.setRGB(r, g, b);
+        }
+      }
+    }
+
+    if (this.gestureRing) {
+      const actionCount = this.sensorSocket.recentActions().length;
+      if (actionCount > this.prevActionCount) {
+        this.gestureFlash = 1.0;
+        this.prevActionCount = actionCount;
+      }
+      this.prevActionCount = actionCount;
+
+      if (this.gestureFlash > 0) {
+        this.gestureFlash = Math.max(0, this.gestureFlash - dt * 2.5);
+        const flash = this.gestureFlash;
+        const ringMat = this.gestureRing.material as THREE.MeshBasicMaterial;
+        ringMat.opacity = flash * 0.8;
+        const scale = 1 + (1 - flash) * 0.5;
+        this.gestureRing.scale.set(scale, 1, scale);
+        ringMat.color.setHSL(0.7 - flash * 0.2, 0.9, 0.5 + flash * 0.3);
+      } else {
+        (this.gestureRing.material as THREE.MeshBasicMaterial).opacity = 0;
+      }
     }
 
     this.renderer.render(this.scene, this.camera);
@@ -244,9 +355,16 @@ export default class HandCanvas {
       this.renderer.dispose();
       this.renderer = null;
     }
+    if (this.gestureRing) {
+      this.gestureRing.geometry.dispose();
+      (this.gestureRing.material as THREE.Material).dispose();
+      this.gestureRing = null;
+    }
+    this.handMaterials = [];
     this.scene = null;
     this.camera = null;
     this.handModel = null;
     this.orbit = null;
+    this.transmitLight = null;
   }
 }

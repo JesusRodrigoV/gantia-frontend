@@ -29,12 +29,12 @@ export const routes: Routes = [
     loadComponent: () => import('./core/layouts/base-layout/base-layout'),
     children: [
       {
-        path: 'sensores',
-        loadComponent: () => import('./components/hand-canvas/hand-canvas'),
-      },
-      {
         path: 'dashboard',
         loadComponent: () => import('./features/private/sensores/sensores'),
+      },
+      {
+        path: 'visualizador',
+        loadComponent: () => import('./components/hand-canvas/hand-canvas'),
       },
       {
         path: 'settings',
@@ -49,19 +49,22 @@ export const routes: Routes = [
         loadComponent: () => import('./features/private/history/history'),
       },
       {
+        path: 'not-found',
+        loadComponent: () => import('./features/not-found/not-found'),
+      },
+      {
         path: '',
-        redirectTo: 'sensores',
+        redirectTo: 'dashboard',
         pathMatch: 'full',
       },
     ],
   },
   {
-    path: '',
-    redirectTo: 'auth/login',
-    pathMatch: 'full',
+    path: 'not-found',
+    loadComponent: () => import('./features/not-found/not-found'),
   },
   {
     path: '**',
-    redirectTo: 'auth/login',
+    redirectTo: 'not-found',
   },
 ];

@@ -1,7 +1,7 @@
 <header class="gantia-header" [class.scrolled]="scrolled()">
   <div class="header-container">
     <div class="brand-group">
-      <a routerLink="/" class="logo-link" title="Inicio de Gantia">
+      <a routerLink="/app" class="logo-link" title="Inicio de Gantia">
         <img
           [ngSrc]="'/logos/logo.webp'"
           height="55"
@@ -18,10 +18,20 @@
       <div
         class="connection-status"
         [class]="'status-' + sensorSocket.connectionStatus()"
+        [class.data-flowing]="sensorSocket.dataFlowing()"
         [pTooltip]="statusLabel()"
         tooltipPosition="bottom"
       >
         <span class="status-dot"></span>
+        @if (sensorSocket.dataFlowing()) {
+          <span class="flow-ring"></span>
+        }
+      </div>
+      <div class="client-indicators" [pTooltip]="clientTooltip()" tooltipPosition="bottom">
+        @let cs = clientStatus.status();
+        <span class="client-dot" [class.connected]="cs.glove" title="Guante"></span>
+        <span class="client-dot" [class.connected]="cs.agent" title="Agente"></span>
+        <span class="client-dot" [class.connected]="cs.pico_w" title="Pico W"></span>
       </div>
       @if (mouseModeActive()) {
         <div class="mm-header-indicator" pTooltip="Mouse Mode Activado" tooltipPosition="bottom">
@@ -36,7 +46,7 @@
       <ul>
         @for (link of links; track link.route) {
           <li>
-            <a [routerLink]="link.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ link.label }}</a>
+            <a [routerLink]="link.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}">{{ link.label }}</a>
           </li>
         }
         <li

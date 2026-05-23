@@ -33,7 +33,7 @@ export const AuthStore = signalStore(
             tap((res) => {
               localStorage.setItem('token', res.access_token);
               patchState(store, { token: res.access_token, isLoading: false });
-              router.navigateByUrl('/app/sensores');
+              router.navigateByUrl('/app/dashboard');
             }),
             catchError((err) => {
               const detail = err.error?.detail;

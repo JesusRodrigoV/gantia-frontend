@@ -234,3 +234,115 @@
     color: var(--p-primary-600);
   }
 }
+
+.chart-card {
+  background-color: var(--p-surface-50);
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow-inset);
+  margin-bottom: 1.25rem;
+}
+
+.chart-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.chart-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  color: var(--p-surface-500);
+  background-color: var(--p-surface-0);
+  box-shadow: var(--shadow-elevated-sm);
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  i {
+    font-size: 0.95rem;
+  }
+
+  &:hover {
+    color: var(--p-primary-500);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  &.active {
+    color: white;
+    background-color: var(--p-primary-500);
+    box-shadow: var(--shadow-elevated);
+  }
+}
+
+.chart-container {
+  width: 100%;
+  min-height: 280px;
+}
+
+.uplot {
+  font-family: var(--font-ui);
+}
+
+.tab-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  color: var(--p-surface-500);
+  background-color: var(--p-surface-50);
+  box-shadow: var(--shadow-inset);
+  transition: all 0.2s ease;
+
+  i {
+    font-size: 1.05rem;
+  }
+
+  &:hover {
+    color: var(--p-primary-500);
+  }
+
+  &.active {
+    color: white;
+    background-color: var(--p-primary-500);
+    box-shadow: var(--shadow-elevated);
+  }
+}
+
+.cell-value {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.75rem;
+  color: var(--p-surface-500);
+}
+
+.action-tag {
+  display: inline-block;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background-color: color-mix(in srgb, var(--p-primary-500) 10%, transparent);
+  color: var(--p-primary-600);
+}
