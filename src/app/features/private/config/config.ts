@@ -494,6 +494,20 @@ export default class Config implements OnInit, OnDestroy {
     const key = sensor.sensor_name;
     const existing = this.debounceTimers.get(key);
     if (existing) clearTimeout(existing);
+
+    if (sensor.min_value >= sensor.max_value) {
+      this.calibration.update(list =>
+        list.map(c => c.sensor_name === sensor.sensor_name ? { ...c } : c),
+      );
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Valores inválidos',
+        detail: 'El valor máximo debe ser mayor que el mínimo',
+        life: 3000,
+      });
+      return;
+    }
+
     this.debounceTimers.set(key, setTimeout(() => {
       this.debounceTimers.delete(key);
       this.calibrationService.update(sensor.sensor_name, {
