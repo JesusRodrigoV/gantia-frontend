@@ -1,4 +1,3 @@
-<p-toast position="top-right" key="gesture-toast" />
 <div class="view-container" [class.show-panels]="hasTelemetry()" [class.is-swapping]="isSwapping()">
   <div class="error-layer" [class.show]="wsError()">
     <div class="error-state">
@@ -15,7 +14,6 @@
   } @else {
     <div class="skeleton-layer">
       <div class="skeleton-grid">
-        <p-skeleton class="panel" height="100%" />
         <p-skeleton class="panel" height="100%" />
         <p-skeleton class="panel" height="100%" />
         <p-skeleton class="panel" height="100%" />
@@ -120,49 +118,7 @@
         </div>
       </div>
 
-      <div data-swapy-slot="activity">
-        <div data-swapy-item="activity" class="panel">
-          <div class="drag-handle" tabindex="0" role="button" aria-label="Arrastrar para reordenar"><i class="bx bx-grip" aria-hidden="true"></i></div>
-          <h2 class="panel-title">
-            Actividad Reciente
-            @if (recentActions().length > 0) {
-              <span class="action-count">{{ recentActions().length }}</span>
-            }
-          </h2>
-          <div class="action-log">
-            @if (recentActions().length === 0) {
-              <div class="action-empty">Esperando gestos...</div>
-            }
-            @for (ev of recentActions(); track $index) {
-              <div class="action-item" [class.is-mouse-mode]="ev.action === 'mouse_mode'">
-                <span class="action-icon">
-                  @switch (ev.action) {
-                    @case ('mouse_mode') { <i class="bx bx-mouse"></i> }
-                    @case ('volume_up') { <i class="bx bx-volume-full"></i> }
-                    @case ('volume_down') { <i class="bx bx-volume-low"></i> }
-                    @case ('mute') { <i class="bx bx-volume-mute"></i> }
-                    @case ('play_pause') { <i class="bx bx-play"></i> }
-                    @case ('next') { <i class="bx bx-skip-next"></i> }
-                    @case ('prev') { <i class="bx bx-skip-previous"></i> }
-                    @case ('scroll_up') { <i class="bx bx-up-arrow-alt"></i> }
-                    @case ('scroll_down') { <i class="bx bx-down-arrow-alt"></i> }
-                    @case ('back') { <i class="bx bx-arrow-back"></i> }
-                    @case ('forward') { <i class="bx bx-arrow-forward"></i> }
-                    @case ('brightness_up') { <i class="bx bx-sun"></i> }
-                    @case ('brightness_down') { <i class="bx bx-moon"></i> }
-                    @case ('show_desktop') { <i class="bx bx-desktop"></i> }
-                    @case ('open_browser') { <i class="bx bx-globe"></i> }
-                    @case ('left_click') { <i class="bx bx-pointer-left"></i> }
-                    @case ('right_click') { <i class="bx bx-pointer-right"></i> }
-                    @default { <i class="bx bx-flash"></i> }
-                  }
-                </span>
-                <span class="action-name">{{ getActionLabel(ev.action) }}</span>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
+
     </div>
   </div>
 </div>
