@@ -1,5 +1,5 @@
 <p-toast position="top-right" key="gesture-toast" />
-<div class="view-container" [class.show-panels]="connected()" [class.is-swapping]="isSwapping()">
+<div class="view-container" [class.show-panels]="hasTelemetry()" [class.is-swapping]="isSwapping()">
   <div class="error-layer" [class.show]="wsError()">
     <div class="error-state">
       <i class="bx bx-wifi-off error-icon" aria-hidden="true"></i>
@@ -7,16 +7,29 @@
       <button class="retry-btn" (click)="sensorSocket.connect()">Reintentar</button>
     </div>
   </div>
-  <div class="skeleton-layer">
-    <div class="skeleton-grid">
-      <p-skeleton class="panel" height="100%" />
-      <p-skeleton class="panel" height="100%" />
-      <p-skeleton class="panel" height="100%" />
-      <p-skeleton class="panel" height="100%" />
-      <p-skeleton class="panel" height="100%" />
+  @if (waitingForDevice()) {
+    <div class="waiting-layer">
+      <i class="bx bx-signal-4 waiting-icon" aria-hidden="true"></i>
+      <p class="waiting-message">Conectado al servidor<br/>Esperando datos del guante...</p>
     </div>
-  </div>
+  } @else {
+    <div class="skeleton-layer">
+      <div class="skeleton-grid">
+        <p-skeleton class="panel" height="100%" />
+        <p-skeleton class="panel" height="100%" />
+        <p-skeleton class="panel" height="100%" />
+        <p-skeleton class="panel" height="100%" />
+        <p-skeleton class="panel" height="100%" />
+      </div>
+    </div>
+  }
   <div class="panels-layer">
+    @if (showDisconnectedOverlay()) {
+      <div class="reconnecting-banner">
+        <i class="bx bx-wifi-off" aria-hidden="true"></i>
+        <span>Reconectando...</span>
+      </div>
+    }
     <div #swapyContainer class="swapy-container">
       <div data-swapy-slot="accel">
         <div data-swapy-item="accel" class="panel">

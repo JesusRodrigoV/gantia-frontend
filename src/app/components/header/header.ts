@@ -63,10 +63,15 @@ export class Header {
   statusLabel(): string {
     const conn = this.sensorSocket.connectionStatus();
     const flowing = this.sensorSocket.dataFlowing();
+    const waiting = this.sensorSocket.waitingForDevice();
     const map: Record<string, string> = {
-      connected: flowing ? 'Guante conectado — recibiendo datos' : 'Conectado — sin datos',
-      connecting: 'Conectando al guante...',
-      disconnected: 'Sin conexion al guante',
+      connected: flowing
+        ? 'Guante conectado — recibiendo datos'
+        : waiting
+          ? 'Conectado al servidor — esperando guante'
+          : 'Conectado — sin datos',
+      connecting: 'Conectando al servidor...',
+      disconnected: 'Sin conexion',
       error: 'Error de conexion',
     };
     return map[conn] ?? 'Desconectado';

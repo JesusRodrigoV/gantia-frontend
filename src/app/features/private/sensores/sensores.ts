@@ -50,8 +50,12 @@ export default class Sensores implements OnDestroy {
 
   protected recentActions = computed(() => this.sensorSocket.recentActions());
 
-  protected connected = computed(
-    () => this.sensorSocket.connectionStatus() === 'connected' && !!this.sensorSocket.telemetry(),
+  protected hasTelemetry = computed(() => !!this.sensorSocket.telemetry());
+
+  protected waitingForDevice = computed(() => this.sensorSocket.waitingForDevice());
+
+  protected showDisconnectedOverlay = computed(
+    () => this.sensorSocket.connectionStatus() === 'disconnected' && !!this.sensorSocket.telemetry(),
   );
 
   protected wsError = computed(
