@@ -243,15 +243,14 @@ export default class HandCanvas {
         this.setupGestureRing();
         this.modelLoaded.set(true);
       },
-      undefined,
-      (error) => {
-        console.error('[HandCanvas] Failed to load hand model:', error);
-        this.modelError.set(true);
-      },
       (progress) => {
         if (progress.total > 0) {
           this.loadProgress.set(Math.round((progress.loaded / progress.total) * 100));
         }
+      },
+      (error) => {
+        console.error('[HandCanvas] Failed to load hand model:', error);
+        this.modelError.set(true);
       },
     );
   }
