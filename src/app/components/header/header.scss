@@ -113,6 +113,10 @@
       background-color: var(--p-surface-100);
       box-shadow: var(--shadow-inset-sm);
 
+      &.loading {
+        animation: pulse 1s infinite;
+      }
+
       .client-dot {
         width: 8px;
         height: 8px;

@@ -35,8 +35,13 @@
         </label>
         <div class="filter-actions">
           <button class="btn-action" (click)="setDefaultToday()">Últimas 6h</button>
-          <button class="btn-action primary" (click)="search()">
-            <i class="bx bx-search" aria-hidden="true"></i> Buscar
+          <button class="btn-action primary" (click)="search()" [disabled]="loading()">
+            @if (loading()) {
+              <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
+            } @else {
+              <i class="bx bx-search" aria-hidden="true"></i>
+            }
+            Buscar
           </button>
         </div>
       </div>
@@ -148,8 +153,13 @@
           </select>
         </label>
         <div class="filter-actions">
-          <button class="btn-action primary" (click)="loadActions()">
-            <i class="bx bx-refresh" aria-hidden="true"></i> Cargar
+          <button class="btn-action primary" (click)="loadActions()" [disabled]="actionsLoading()">
+            @if (actionsLoading()) {
+              <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
+            } @else {
+              <i class="bx bx-refresh" aria-hidden="true"></i>
+            }
+            Cargar
           </button>
         </div>
       </div>

@@ -2,14 +2,22 @@
   <p-toast />
 
   <div class="config-header">
-    <i class="bx bx-cog" aria-hidden="true"></i>
-    <h1>Configuración</h1>
-    <button class="btn-action" (click)="syncFromSupabase()">
-      <i class="bx bx-cloud-download" aria-hidden="true"></i>
+    <i class="bx bx-gesture" aria-hidden="true"></i>
+    <h1>Gestos</h1>
+    <button class="btn-action" (click)="syncFromSupabase()" [disabled]="syncing()">
+      @if (syncing()) {
+        <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
+      } @else {
+        <i class="bx bx-cloud-download" aria-hidden="true"></i>
+      }
       {{ syncing() ? 'Sincronizando...' : 'Sincronizar' }}
     </button>
     <button class="btn-action danger" (click)="resetToDefaults()" [disabled]="resettando()">
-      <i class="bx bx-reset"></i>
+      @if (resettando()) {
+        <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
+      } @else {
+        <i class="bx bx-reset"></i>
+      }
       {{ resettando() ? 'Reseteando...' : 'Reset' }}
     </button>
   </div>
@@ -200,7 +208,12 @@
                 <i class="bx bx-revision"></i> Rehacer
               </button>
               <button class="btn-action primary full-width" (click)="learnSave()" [disabled]="learnSaving()">
-                <i class="bx bx-save"></i> {{ learnSaving() ? 'Guardando...' : 'Guardar gesto' }}
+                @if (learnSaving()) {
+                  <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
+                } @else {
+                  <i class="bx bx-save"></i>
+                }
+                {{ learnSaving() ? 'Guardando...' : 'Guardar gesto' }}
               </button>
             </div>
           </div>
@@ -267,7 +280,7 @@
                   <button class="btn-icon" title="Editar" (click)="openEditDialog(cfg)">
                     <i class="bx bx-pencil"></i>
                   </button>
-                  <button class="btn-icon danger" title="Eliminar" (click)="deleteGesture(cfg.id)">
+                  <button class="btn-icon danger" title="Eliminar" (click)="deleteGesture($event, cfg.id)">
                     <i class="bx bx-trash"></i>
                   </button>
                 </td>
@@ -407,6 +420,11 @@
       <div class="modal-footer">
         <button class="btn-cancel" (click)="closeDialog()">Cancelar</button>
         <button class="btn-save" (click)="saveGesture()" [disabled]="saving()">
+          @if (saving()) {
+            <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
+          } @else {
+            <i class="bx bx-save"></i>
+          }
           {{ saving() ? 'Guardando...' : 'Guardar' }}
         </button>
       </div>
@@ -505,7 +523,12 @@
                 <i class="bx bx-revision"></i> Empezar de nuevo
               </button>
               <button class="btn-action primary full-width" (click)="saveCalibration()" [disabled]="calibSaving()">
-                <i class="bx bx-save"></i> {{ calibSaving() ? 'Guardando...' : 'Guardar calibración' }}
+                @if (calibSaving()) {
+                  <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
+                } @else {
+                  <i class="bx bx-save"></i>
+                }
+                {{ calibSaving() ? 'Guardando...' : 'Guardar calibración' }}
               </button>
             </div>
           </div>

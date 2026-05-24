@@ -44,3 +44,19 @@ body {
 .app-dark ::-webkit-scrollbar-thumb:hover {
   background: var(--p-surface-500);
 }
+
+/* View Transitions API — route animations */
+::view-transition-old(root) {
+  animation: 0.2s ease-out both vt-fade-out;
+}
+::view-transition-new(root) {
+  animation: 0.25s ease-out both vt-fade-in;
+}
+@keyframes vt-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+:focus-visible {
+  outline: 2px solid var(--p-primary-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

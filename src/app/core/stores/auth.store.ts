@@ -2,6 +2,7 @@ import { computed, inject } from '@angular/core';
 import { signalStore, patchState, withMethods, withState, withComputed } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap, catchError, of } from 'rxjs';
+import { MessageService } from 'primeng/api';
 import { AuthService } from '../services/auth';
 import { Router } from '@angular/router';
 import { AuthRequest } from '@core/models/auth.model';
@@ -24,7 +25,7 @@ export const AuthStore = signalStore(
   withComputed((state) => ({
     isAuthenticated: computed(() => !!state.token()),
   })),
-  withMethods((store, authService = inject(AuthService), router = inject(Router)) => ({
+  withMethods((store, authService = inject(AuthService), router = inject(Router), messageService = inject(MessageService)) => ({
     login: rxMethod<AuthRequest>(
       pipe(
         tap(() => patchState(store, { isLoading: true, error: null })),
@@ -33,6 +34,7 @@ export const AuthStore = signalStore(
             tap((res) => {
               localStorage.setItem('token', res.access_token);
               patchState(store, { token: res.access_token, isLoading: false });
+              messageService.add({ severity: 'success', summary: 'Bienvenido', detail: 'Inicio de sesión exitoso', life: 2000 });
               router.navigateByUrl('/app/dashboard');
             }),
             catchError((err) => {
@@ -58,6 +60,7 @@ export const AuthStore = signalStore(
           authService.register(credentials).pipe(
             tap(() => {
               patchState(store, { isLoading: false });
+              messageService.add({ severity: 'success', summary: 'Registrado', detail: 'Tu cuenta se creó correctamente. Ahora iniciá sesión.', life: 4000 });
               router.navigateByUrl('/auth/login');
             }),
             catchError((err) => {

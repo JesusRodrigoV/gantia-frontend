@@ -33,7 +33,7 @@ export class Header {
     {label: "Visualizador", route: "visualizador"},
     {label: "Historial", route: "history"},
     {label: "Ajustes", route: "settings"},
-    {label: "Config", route: "config"},
+    {label: "Gestos", route: "config"},
   ]
 
   @HostListener('window:scroll')
@@ -78,6 +78,7 @@ export class Header {
   }
 
   clientTooltip(): string {
+    if (this.clientStatus.isLoading()) return 'Verificando estado...';
     const s = this.clientStatus.status();
     const targetLabel = this.picoTargetLabel();
     const parts: string[] = [];

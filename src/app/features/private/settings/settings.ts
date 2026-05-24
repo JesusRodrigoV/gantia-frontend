@@ -82,7 +82,7 @@ export default class Settings implements OnInit {
     this.loadSensitivity();
   }
 
-  private loadSensitivity(): void {
+  protected loadSensitivity(): void {
     this.sensLoading.set(true);
     this.sensitivityService.getSettings().pipe(finalize(() => this.sensLoading.set(false))).subscribe({
       next: (s) => this.sens.set(s),

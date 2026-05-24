@@ -14,6 +14,12 @@
   text-align: center;
   max-width: 400px;
   padding: 2rem;
+  animation: nf-enter 0.4s ease-out both;
+}
+
+@keyframes nf-enter {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .error-code {
@@ -59,5 +65,10 @@ p {
     background-color: var(--p-primary-600);
     box-shadow: var(--shadow-elevated);
     transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-inset-sm);
   }
 }

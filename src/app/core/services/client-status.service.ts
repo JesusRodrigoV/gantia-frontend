@@ -17,6 +17,8 @@ export class ClientStatusService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = env.apiUrl;
 
+  public readonly isLoading = signal(true);
+  public readonly error = signal<string | null>(null);
   public readonly status = signal<ClientStatus>({
     glove: false,
     agent: false,
@@ -25,15 +27,32 @@ export class ClientStatusService {
   });
 
   constructor() {
+    let isFirst = true;
     interval(5000)
       .pipe(
         startWith(0),
         switchMap(() =>
           this.http.get<ClientStatus>(`${this.baseUrl}/clients`).pipe(
-            catchError(() => of({ glove: false, agent: false, pico_w: false, dashboard_count: 0 })),
+            catchError((err) => {
+              if (isFirst) {
+                isFirst = false;
+                this.isLoading.set(false);
+              }
+              this.error.set(err.statusText || 'Error al verificar estado');
+              return of(null as unknown as ClientStatus);
+            }),
           ),
         ),
       )
-      .subscribe((data) => this.status.set(data));
+      .subscribe((data) => {
+        if (isFirst) {
+          isFirst = false;
+          this.isLoading.set(false);
+        }
+        if (data) {
+          this.error.set(null);
+          this.status.set(data);
+        }
+      });
   }
 }

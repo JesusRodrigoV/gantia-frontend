@@ -3,7 +3,7 @@ import { DecimalPipe, PercentPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Skeleton } from 'primeng/skeleton';
 import { Toast } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { GestureConfigService } from '@core/services/gesture-config.service';
 import { CalibrationService } from '@core/services/calibration.service';
 import { ConfigService } from '@core/services/config.service';
@@ -30,6 +30,7 @@ export default class Config implements OnInit, OnDestroy {
   private readonly configService = inject(ConfigService);
   private readonly learningService = inject(LearningService);
   private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
   private readonly sensorSocket = inject(SensorSocket);
   private readonly debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -426,23 +427,29 @@ export default class Config implements OnInit, OnDestroy {
     });
   }
 
-  deleteGesture(id: string): void {
-    this.gestureService.delete(id).subscribe({
-      next: () => {
-        this.gestureConfigs.update(list => list.filter(g => g.id !== id));
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Eliminado',
-          detail: 'Configuración de gesto eliminada',
-          life: 2000,
-        });
-      },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo eliminar la configuración',
-          life: 4000,
+  deleteGesture(event: Event, id: string): void {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: '¿Eliminar esta configuración de gesto?',
+      accept: () => {
+        this.gestureService.delete(id).subscribe({
+          next: () => {
+            this.gestureConfigs.update(list => list.filter(g => g.id !== id));
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Eliminado',
+              detail: 'Configuración de gesto eliminada',
+              life: 2000,
+            });
+          },
+          error: () => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'No se pudo eliminar la configuración',
+              life: 4000,
+            });
+          },
         });
       },
     });
