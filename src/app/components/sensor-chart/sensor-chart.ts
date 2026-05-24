@@ -186,7 +186,7 @@ export class SensorChart implements OnDestroy {
     this.plotData[2].push(y);
     this.plotData[3].push(z);
 
-    if (this.plotData[0].length > this.maxWindow) {
+    if (this.plotData[0].length > this.maxWindow * 2) {
       const excess = this.plotData[0].length - this.maxWindow;
       this.plotData[0].splice(0, excess);
       this.plotData[1].splice(0, excess);

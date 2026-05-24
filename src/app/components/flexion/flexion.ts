@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { gsap } from 'gsap';
 import { SensorSocket } from '@core/services/sensor-socket';
 
@@ -10,6 +10,7 @@ import { SensorSocket } from '@core/services/sensor-socket';
 })
 export class Flexion {
   protected readonly sensorSocket = inject(SensorSocket);
+  private readonly destroyRef = inject(DestroyRef);
   protected glowingIndex = signal(false);
   protected glowingMiddle = signal(false);
   protected displayIndex = signal(0);
@@ -26,8 +27,10 @@ export class Flexion {
         const from = this.displayIndex();
         this.prevIndex = t.flex_index;
         this.glowingIndex.set(true);
-        setTimeout(() => this.glowingIndex.set(false), 300);
+        const indexTimer = setTimeout(() => this.glowingIndex.set(false), 300);
+        this.destroyRef.onDestroy(() => clearTimeout(indexTimer));
         const proxy = { val: from };
+        gsap.killTweensOf(proxy);
         gsap.to(proxy, {
           val: t.flex_index,
           duration: 0.2,
@@ -42,8 +45,10 @@ export class Flexion {
         const from = this.displayMiddle();
         this.prevMiddle = t.flex_middle;
         this.glowingMiddle.set(true);
-        setTimeout(() => this.glowingMiddle.set(false), 300);
+        const middleTimer = setTimeout(() => this.glowingMiddle.set(false), 300);
+        this.destroyRef.onDestroy(() => clearTimeout(middleTimer));
         const proxy = { val: from };
+        gsap.killTweensOf(proxy);
         gsap.to(proxy, {
           val: t.flex_middle,
           duration: 0.2,

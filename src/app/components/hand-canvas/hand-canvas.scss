@@ -46,6 +46,48 @@
     animation: none;
     color: var(--p-surface-500);
   }
+
+  .retry-btn {
+    font-family: var(--font-ui);
+    padding: 10px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: var(--p-primary-600);
+    background-color: var(--p-surface-0);
+    box-shadow: var(--shadow-elevated-sm);
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: var(--shadow-elevated);
+      color: var(--p-primary-500);
+    }
+  }
+}
+
+.progress-track {
+  width: 200px;
+  height: 4px;
+  border-radius: 2px;
+  background-color: var(--p-surface-200);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--p-primary-500), var(--p-primary-300));
+  border-radius: 2px;
+  transition: width 0.2s ease;
+}
+
+.progress-pct {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--p-primary-600);
 }
 
 .skeleton-logo {

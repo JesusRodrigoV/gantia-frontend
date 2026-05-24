@@ -20,6 +20,8 @@ import { AuthStore } from '@core/stores/auth.store';
 export default class Register {
   private readonly formBuilder = inject(FormBuilder);
   public readonly authStore = inject(AuthStore);
+  showPassword = false;
+  showConfirmPassword = false;
 
   registerForm = this.formBuilder.group(
     {

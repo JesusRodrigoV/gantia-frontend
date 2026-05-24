@@ -1,5 +1,6 @@
-import { Component, effect, inject, OnDestroy, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, DestroyRef, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { RouterOutlet, Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 import { ConfirmPopup } from 'primeng/confirmpopup';
@@ -15,9 +16,19 @@ import { SensorSocket } from '@core/services/sensor-socket';
 export default class BaseLayout implements OnInit, OnDestroy {
   private readonly sensorSocket = inject(SensorSocket);
   private readonly messageService = inject(MessageService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  protected routeLoading = signal(false);
   private lastStatus = '';
 
   constructor() {
+    this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(event => {
+      if (event instanceof NavigationStart) this.routeLoading.set(true);
+      if (event instanceof NavigationEnd || event instanceof NavigationCancel || event instanceof NavigationError) {
+        this.routeLoading.set(false);
+      }
+    });
+
     effect(() => {
       const status = this.sensorSocket.connectionStatus();
       if (status === this.lastStatus) return;

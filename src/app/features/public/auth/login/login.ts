@@ -15,6 +15,7 @@ export default class Login {
   private readonly formBuilder = inject(FormBuilder);
   public readonly authStore = inject(AuthStore);
   router = inject(Router);
+  showPassword = false;
 
   loginForm = this.formBuilder.group({
     email: ['', [Validators.required, Validators.email]],

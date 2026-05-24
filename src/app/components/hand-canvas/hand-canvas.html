@@ -3,11 +3,18 @@
     <div class="error-loader">
       <i class="bx bx-error-circle error-icon" aria-hidden="true"></i>
       <p class="skeleton-text">No se pudo cargar el modelo 3D</p>
+      <button class="retry-btn" (click)="retryLoad()">Reintentar</button>
     </div>
   } @else if (!modelLoaded()) {
     <div class="skeleton-loader">
       <img [src]="'/logos/logo.webp'" alt="Cargando..." class="skeleton-logo" />
       <p class="skeleton-text">Cargando modelo 3D...</p>
+      @if (loadProgress() > 0) {
+        <div class="progress-track">
+          <div class="progress-fill" [style.width.%]="loadProgress()"></div>
+        </div>
+        <span class="progress-pct">{{ loadProgress() }}%</span>
+      }
     </div>
   }
 </div>

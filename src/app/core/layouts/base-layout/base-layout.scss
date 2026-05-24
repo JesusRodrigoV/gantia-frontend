@@ -9,3 +9,19 @@ main {
   flex: 1;
   overflow-y: auto;
 }
+
+.route-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  height: 3px;
+  background: linear-gradient(90deg, var(--p-primary-500), var(--p-primary-300));
+  animation: route-load 1s ease-in-out infinite;
+}
+
+@keyframes route-load {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}

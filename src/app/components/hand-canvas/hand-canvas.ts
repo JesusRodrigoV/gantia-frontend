@@ -47,6 +47,7 @@ export default class HandCanvas {
   private orbit: OrbitControls | null = null;
   protected modelLoaded = signal(false);
   protected modelError = signal(false);
+  protected loadProgress = signal(0);
 
   private animationId: number | null = null;
   private lastTime = 0;
@@ -247,6 +248,11 @@ export default class HandCanvas {
         console.error('[HandCanvas] Failed to load hand model:', error);
         this.modelError.set(true);
       },
+      (progress) => {
+        if (progress.total > 0) {
+          this.loadProgress.set(Math.round((progress.loaded / progress.total) * 100));
+        }
+      },
     );
   }
 
@@ -351,7 +357,14 @@ export default class HandCanvas {
     this.renderer.setSize(width, height);
   }
 
+  protected retryLoad(): void {
+    this.modelError.set(false);
+    this.loadProgress.set(0);
+    this.loadHandModel();
+  }
+
   private disposeAll() {
+    this.orbit?.dispose();
     if (this.renderer) {
       this.renderer.dispose();
       this.renderer = null;

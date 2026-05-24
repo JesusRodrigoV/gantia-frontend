@@ -92,17 +92,25 @@
                       class="sens-range"
                     />
                     <span class="sens-value">{{ s[key] | number:'1.2-2' }}</span>
+                    @if (savingKeys().has(key)) {
+                      <i class="bx bx-loader-alt bx-spin saving-spin"></i>
+                    }
                   </div>
                 } @else {
-                  <p-inputNumber
-                    [inputId]="key"
-                    [min]="f.min"
-                    [max]="f.max"
-                    [step]="f.step"
-                    [(ngModel)]="s[key]"
-                    (onInput)="updateSensitivity(key, $event.value ?? f.min)"
-                    [style]="{width: '90px'}"
-                  />
+                  <div class="sens-input-wrap">
+                    <p-inputNumber
+                      [inputId]="key"
+                      [min]="f.min"
+                      [max]="f.max"
+                      [step]="f.step"
+                      [(ngModel)]="s[key]"
+                      (onInput)="updateSensitivity(key, $event.value ?? f.min)"
+                      [style]="{width: '90px'}"
+                    />
+                    @if (savingKeys().has(key)) {
+                      <i class="bx bx-loader-alt bx-spin saving-spin"></i>
+                    }
+                  </div>
                 }
               </div>
             }

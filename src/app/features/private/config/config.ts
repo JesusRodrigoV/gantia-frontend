@@ -109,6 +109,8 @@ export default class Config implements OnInit, OnDestroy {
     this.testEffectCleanup?.destroy();
     this.calibEffectCleanup?.destroy();
     this.learnEffectCleanup?.destroy();
+    this.debounceTimers.forEach(t => clearTimeout(t));
+    this.debounceTimers.clear();
   }
 
   openLearnWizard(): void {

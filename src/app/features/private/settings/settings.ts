@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
@@ -20,7 +20,7 @@ import { finalize } from 'rxjs';
   styleUrl: './settings.scss',
   providers: [MessageService],
 })
-export default class Settings implements OnInit {
+export default class Settings implements OnInit, OnDestroy {
   private readonly mouseConfigService = inject(MouseConfigService);
   private readonly picoTargetService = inject(PicoTargetService);
   private readonly sensitivityService = inject(SensitivityService);
@@ -32,6 +32,7 @@ export default class Settings implements OnInit {
   protected invertPitch = false;
 
   protected sens = signal<SensitivitySettings | null>(null);
+  protected savingKeys = signal<Set<string>>(new Set());
   private readonly sensTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   protected readonly sensFields: { key: keyof SensitivitySettings; label: string; desc: string; min: number; max: number; step: number }[] = [
@@ -109,13 +110,16 @@ export default class Settings implements OnInit {
     const current = this.sens();
     if (!current) return;
     this.sens.set({ ...current, [key]: value });
+    this.savingKeys.update(s => new Set(s).add(key));
 
     const existing = this.sensTimers.get(key);
     if (existing) clearTimeout(existing);
     this.sensTimers.set(key, setTimeout(() => {
       this.sensTimers.delete(key);
       this.sensitivityService.updateSettings({ [key]: value }).subscribe({
+        next: () => this.savingKeys.update(s => { s.delete(key); return new Set(s); }),
         error: () => {
+          this.savingKeys.update(s => { s.delete(key); return new Set(s); });
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
@@ -172,6 +176,11 @@ export default class Settings implements OnInit {
         });
       },
     });
+  }
+
+  ngOnDestroy(): void {
+    this.sensTimers.forEach(t => clearTimeout(t));
+    this.sensTimers.clear();
   }
 
   onTargetChange(target: PicoTarget): void {

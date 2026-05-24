@@ -181,3 +181,14 @@
   color: var(--p-surface-600);
   font-variant-numeric: tabular-nums;
 }
+
+.sens-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.saving-spin {
+  font-size: 0.8rem;
+  color: var(--p-primary-500);
+}

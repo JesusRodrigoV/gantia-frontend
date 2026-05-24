@@ -5,6 +5,18 @@
   box-sizing: border-box;
 }
 
+.history-table tbody tr {
+  animation: row-fade 0.35s ease-out both;
+  @for $i from 1 through 15 {
+    &:nth-child(#{$i}) { animation-delay: #{$i * 0.03}s; }
+  }
+}
+
+@keyframes row-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .history-page {
   max-width: 1060px;
   margin: 0 auto;

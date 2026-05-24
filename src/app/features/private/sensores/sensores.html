@@ -22,6 +22,12 @@
     </div>
   }
   <div class="panels-layer">
+    @if (dataStale()) {
+      <div class="stale-banner">
+        <i class="bx bx-time" aria-hidden="true"></i>
+        <span>Datos desactualizados — esperando señal...</span>
+      </div>
+    }
     @if (showDisconnectedOverlay()) {
       <div class="reconnecting-banner">
         <i class="bx bx-wifi-off" aria-hidden="true"></i>

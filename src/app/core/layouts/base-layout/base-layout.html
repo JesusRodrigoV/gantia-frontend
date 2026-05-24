@@ -2,6 +2,9 @@
   <app-header />
   <p-toast />
   <p-confirmpopup />
+  @if (routeLoading()) {
+    <div class="route-loader"></div>
+  }
   <main >
     <router-outlet />
   </main>
