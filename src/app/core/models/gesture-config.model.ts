@@ -1,3 +1,5 @@
+export const CONTEXTS = ['GLOBAL', 'AUDIO', 'PRESENTATION', 'WORK'] as const;
+
 export const MOVEMENTS = ['NONE', 'SWIPE_UP', 'SWIPE_DOWN', 'SWIPE_LEFT', 'SWIPE_RIGHT', 'TWIST'] as const;
 export const ORIENTATIONS = ['ANY', 'PALM_UP', 'PALM_DOWN', 'UP', 'DOWN', 'NEUTRAL'] as const;
 export const FLEX_STATES = [0, 1, 2] as const;
@@ -9,6 +11,17 @@ export const ACTIONS = [
   'next_slide', 'prev_slide', 'start_present',
   'left_click', 'right_click',
 ] as const;
+
+export const CONTEXT_LABELS: Record<string, string> = {
+  GLOBAL: 'Global',
+  AUDIO: 'Audio',
+  PRESENTATION: 'Presentación',
+  WORK: 'Trabajo',
+};
+
+export function getContextLabel(c: string): string {
+  return CONTEXT_LABELS[c] ?? c;
+}
 
 export const MOVEMENT_LABELS: Record<string, string> = {
   NONE: 'Ninguno',
@@ -53,6 +66,7 @@ export interface GestureConfig {
   index_state: number;
   middle_state: number;
   action_key: string;
+  context: string;
 }
 
 export type GestureConfigForm = Omit<GestureConfig, 'id'>;

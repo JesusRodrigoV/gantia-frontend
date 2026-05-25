@@ -239,6 +239,21 @@
       </div>
     </div>
 
+    <div class="context-tabs">
+      <button
+        class="context-tab"
+        [class.active]="activeContextTab() === 'ALL'"
+        (click)="activeContextTab.set('ALL')"
+      >Todos</button>
+      @for (c of contexts; track c) {
+        <button
+          class="context-tab"
+          [class.active]="activeContextTab() === c"
+          (click)="activeContextTab.set(c)"
+        >{{ getContextLabel(c) }}</button>
+      }
+    </div>
+
     @if (gestureLoading()) {
       <div class="loading-section">
         <p-skeleton height="180px" borderRadius="12px" />
@@ -255,6 +270,12 @@
         <p>No hay configuraciones de gestos</p>
         <button class="btn-action" (click)="openCreateDialog()">Crear primera</button>
       </div>
+    } @else if (filteredConfigs().length === 0) {
+      <div class="state-box empty">
+        <i class="bx bx-filter"></i>
+        <p>No hay gestos en el modo <strong>{{ getContextLabel(activeContextTab()) }}</strong></p>
+        <button class="btn-action" (click)="openCreateDialog()">Crear gesto en este modo</button>
+      </div>
     } @else {
       <div class="table-wrap">
         <table class="config-table">
@@ -265,17 +286,19 @@
               <th>Índice</th>
               <th>Medio</th>
               <th>Acción</th>
+              <th>Contexto</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            @for (cfg of gestureConfigs(); track cfg.id) {
+            @for (cfg of filteredConfigs(); track cfg.id) {
               <tr>
                 <td><span class="badge">{{ getMovementLabel(cfg.movement) }}</span></td>
                 <td>{{ getOrientationLabel(cfg.orientation) }}</td>
                 <td>{{ getFlexStateLabel(cfg.index_state) }}</td>
                 <td>{{ getFlexStateLabel(cfg.middle_state) }}</td>
                 <td><span class="action-tag">{{ getActionLabel(cfg.action_key) }}</span></td>
+                <td><span class="context-tag" [class]="'ctx-' + cfg.context.toLowerCase()">{{ getContextLabel(cfg.context) }}</span></td>
                 <td class="row-actions">
                   <button class="btn-icon" title="Editar" (click)="openEditDialog(cfg)">
                     <i class="bx bx-pencil"></i>
@@ -412,6 +435,15 @@
           <select [(ngModel)]="form().action_key" class="form-select">
             @for (a of actions; track a) {
               <option [value]="a">{{ a }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="form-field">
+          <span>Contexto</span>
+          <select [(ngModel)]="form().context" class="form-select">
+            @for (c of contexts; track c) {
+              <option [value]="c">{{ getContextLabel(c) }}</option>
             }
           </select>
         </label>

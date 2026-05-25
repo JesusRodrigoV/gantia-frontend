@@ -88,6 +88,67 @@
   }
 }
 
+.context-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.context-tab {
+  padding: 0.35rem 0.85rem;
+  border: 2px solid var(--p-surface-200);
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  color: var(--p-surface-500);
+  background-color: transparent;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &:hover {
+    border-color: var(--p-primary-300);
+    color: var(--p-primary-600);
+  }
+
+  &.active {
+    border-color: var(--p-primary-500);
+    color: var(--p-primary-600);
+    background-color: color-mix(in srgb, var(--p-primary-500) 8%, transparent);
+  }
+}
+
+.context-tag {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+
+  &.ctx-global {
+    background-color: color-mix(in srgb, var(--p-surface-500) 12%, transparent);
+    color: var(--p-surface-600);
+  }
+
+  &.ctx-audio {
+    background-color: color-mix(in srgb, var(--p-cyan-500) 12%, transparent);
+    color: var(--p-cyan-600);
+  }
+
+  &.ctx-presentation {
+    background-color: color-mix(in srgb, var(--p-amber-500) 12%, transparent);
+    color: var(--p-amber-600);
+  }
+
+  &.ctx-work {
+    background-color: color-mix(in srgb, var(--p-purple-500) 12%, transparent);
+    color: var(--p-purple-600);
+  }
+}
+
 .loading-section {
   display: flex;
   flex-direction: column;

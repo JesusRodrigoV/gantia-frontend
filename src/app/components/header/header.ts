@@ -10,6 +10,7 @@ import { ClientStatusService } from '@core/services/client-status.service';
 import { PicoTargetService } from '@core/services/pico-target.service';
 import { AuthStore } from '@core/stores/auth.store';
 import { RoundedButton } from '@shared/components/ui/rounded-button';
+import { getContextLabel } from '@core/models/gesture-config.model';
 
 @Component({
   selector: 'app-header',
@@ -25,6 +26,8 @@ export class Header {
   protected authStore = inject(AuthStore);
   protected scrolled = signal(false);
   protected mouseModeActive = computed(() => this.sensorSocket.mouseModeActive());
+  protected currentMode = computed(() => this.sensorSocket.currentMode());
+  protected readonly getContextLabel = getContextLabel;
   protected picoTargetLabel = computed(() => this.picoTarget.targetLabel());
   private confirmationService = inject(ConfirmationService);
 

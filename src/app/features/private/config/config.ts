@@ -10,8 +10,8 @@ import { ConfigService } from '@core/services/config.service';
 import { SensorSocket } from '@core/services/sensor-socket';
 import { LearningService, LearnAnalysis } from '@core/services/learning.service';
 import {
-  GestureConfig, GestureConfigForm, MOVEMENTS, ORIENTATIONS, FLEX_STATES, ACTIONS,
-  getMovementLabel, getOrientationLabel, getFlexStateLabel,
+  GestureConfig, GestureConfigForm, CONTEXTS, MOVEMENTS, ORIENTATIONS, FLEX_STATES, ACTIONS,
+  getMovementLabel, getOrientationLabel, getFlexStateLabel, getContextLabel,
 } from '@core/models/gesture-config.model';
 import { getActionLabel } from '@core/models/glove-telemetry.model';
 import { CalibrationEntry } from '@core/models/calibration.model';
@@ -50,6 +50,7 @@ export default class Config implements OnInit, OnDestroy {
     index_state: 0,
     middle_state: 0,
     action_key: 'play_pause',
+    context: 'GLOBAL',
   });
   protected saving = signal(false);
   protected syncing = signal(false);
@@ -66,6 +67,7 @@ export default class Config implements OnInit, OnDestroy {
   protected calibLiveValue = signal(0);
   protected calibSaving = signal(false);
 
+  protected readonly contexts = CONTEXTS;
   protected readonly movements = MOVEMENTS;
   protected readonly orientations = ORIENTATIONS;
   protected readonly flexStates = FLEX_STATES;
@@ -73,7 +75,15 @@ export default class Config implements OnInit, OnDestroy {
   protected readonly getMovementLabel = getMovementLabel;
   protected readonly getOrientationLabel = getOrientationLabel;
   protected readonly getFlexStateLabel = getFlexStateLabel;
+  protected readonly getContextLabel = getContextLabel;
   protected readonly getActionLabel = getActionLabel;
+
+  protected activeContextTab = signal<string>('ALL');
+  protected filteredConfigs = computed(() => {
+    const tab = this.activeContextTab();
+    if (tab === 'ALL') return this.gestureConfigs();
+    return this.gestureConfigs().filter(c => c.context === tab);
+  });
   protected readonly isConnected = computed(() => this.sensorSocket.connectionStatus() === 'connected');
   protected resettando = signal(false);
 
@@ -370,7 +380,7 @@ export default class Config implements OnInit, OnDestroy {
 
   openCreateDialog(): void {
     this.editingId.set(null);
-    this.form.set({ movement: 'NONE', orientation: 'ANY', index_state: 0, middle_state: 0, action_key: 'play_pause' });
+    this.form.set({ movement: 'NONE', orientation: 'ANY', index_state: 0, middle_state: 0, action_key: 'play_pause', context: 'GLOBAL' });
     this.dialogOpen.set(true);
   }
 
@@ -382,6 +392,7 @@ export default class Config implements OnInit, OnDestroy {
       index_state: config.index_state,
       middle_state: config.middle_state,
       action_key: config.action_key,
+      context: config.context ?? 'GLOBAL',
     });
     this.dialogOpen.set(true);
   }

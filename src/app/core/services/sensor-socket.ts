@@ -36,6 +36,7 @@ export class SensorSocket implements OnDestroy {
 
   private lastMouseModeValue: unknown = null;
   public readonly mouseModeActive = signal(false);
+  public readonly currentMode = signal<string>('GLOBAL');
   public readonly dataFlowing = signal(false);
   public readonly waitingForDevice = signal(false);
 
@@ -93,6 +94,10 @@ export class SensorSocket implements OnDestroy {
               this.lastMouseModeValue = newVal;
               this.mouseModeActive.set(newVal === true || newVal === 'ON');
             }
+          }
+
+          if (data.action === 'mode_changed') {
+            this.currentMode.set(String(data.action_value).toUpperCase());
           }
 
           return;
