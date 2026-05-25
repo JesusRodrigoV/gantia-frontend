@@ -4,6 +4,11 @@ import { publicGuard } from '@core/guards/public-guard';
 
 export const routes: Routes = [
   {
+    path: '',
+    redirectTo: 'auth/login',
+    pathMatch: 'full',
+  },
+  {
     path: 'auth',
     canActivateChild: [publicGuard],
     loadComponent: () => import('./core/layouts/public-layout/public-layout'),
