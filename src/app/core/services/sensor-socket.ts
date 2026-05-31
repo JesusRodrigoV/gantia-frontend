@@ -104,7 +104,7 @@ export class SensorSocket implements OnDestroy {
         }
 
         if (data && typeof data.accel_x !== 'undefined') {
-          this.telemetry.set(data as GloveTelemetry);
+          this.scheduleTelemetryUpdate(data as GloveTelemetry);
           this.cancelWaitingTimer();
           this.waitingForDevice.set(false);
           this.resetDataTimeout();
@@ -158,6 +158,17 @@ export class SensorSocket implements OnDestroy {
     if (this.waitingTimer !== null) {
       clearTimeout(this.waitingTimer);
       this.waitingTimer = null;
+    }
+  }
+
+  private lastTelemetryUpdate = 0;
+  private readonly TELEMETRY_THROTTLE_MS = 33;
+
+  private scheduleTelemetryUpdate(data: GloveTelemetry): void {
+    const now = Date.now();
+    if (now - this.lastTelemetryUpdate >= this.TELEMETRY_THROTTLE_MS) {
+      this.telemetry.set(data);
+      this.lastTelemetryUpdate = now;
     }
   }
 

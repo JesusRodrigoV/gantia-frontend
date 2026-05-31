@@ -56,7 +56,7 @@ export default class Config implements OnInit, OnDestroy {
   protected syncing = signal(false);
 
   protected testMode = signal(false);
-  protected testActions = signal<Array<{ action: string; time: string }>>([]);
+  protected testActions = signal<Array<{ id: string; action: string; time: string }>>([]);
   protected testTelemetry = signal<any>(null);
 
   protected calibWizardOpen = signal(false);
@@ -254,6 +254,7 @@ export default class Config implements OnInit, OnDestroy {
       if (actions.length > this.testActionIndex && this.testMode()) {
         const latest = actions[0];
         this.testActions.update(prev => [{
+          id: crypto.randomUUID(),
           action: getActionLabel(latest.action),
           time: new Date().toLocaleTimeString(),
         }, ...prev].slice(0, 50));

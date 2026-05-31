@@ -1,7 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { env } from '../../../environments/environment';
-import { interval, startWith, switchMap, catchError, of } from 'rxjs';
+import { interval, startWith, switchMap, catchError, of, NEVER, fromEvent, map } from 'rxjs';
+import { DOCUMENT } from '@angular/common';
 
 export interface ClientStatus {
   glove: boolean;
@@ -27,32 +29,42 @@ export class ClientStatusService {
   });
 
   constructor() {
+    const destroyRef = inject(DestroyRef);
+    const document = inject(DOCUMENT);
     let isFirst = true;
-    interval(5000)
-      .pipe(
-        startWith(0),
-        switchMap(() =>
-          this.http.get<ClientStatus>(`${this.baseUrl}/clients`).pipe(
-            catchError((err) => {
-              if (isFirst) {
-                isFirst = false;
-                this.isLoading.set(false);
-              }
-              this.error.set(err.statusText || 'Error al verificar estado');
-              return of(null as unknown as ClientStatus);
-            }),
-          ),
-        ),
-      )
-      .subscribe((data) => {
-        if (isFirst) {
-          isFirst = false;
-          this.isLoading.set(false);
-        }
-        if (data) {
-          this.error.set(null);
-          this.status.set(data);
-        }
-      });
+
+    fromEvent(document, 'visibilitychange').pipe(
+      map(() => !document.hidden),
+      startWith(true),
+      switchMap((isVisible) =>
+        isVisible
+          ? interval(5000).pipe(
+              startWith(0),
+              switchMap(() =>
+                this.http.get<ClientStatus>(`${this.baseUrl}/clients`).pipe(
+                  catchError((err) => {
+                    if (isFirst) {
+                      isFirst = false;
+                      this.isLoading.set(false);
+                    }
+                    this.error.set(err.statusText || 'Error al verificar estado');
+                    return of(null as unknown as ClientStatus);
+                  }),
+                ),
+              ),
+            )
+          : NEVER,
+      ),
+      takeUntilDestroyed(destroyRef),
+    ).subscribe((data) => {
+      if (isFirst) {
+        isFirst = false;
+        this.isLoading.set(false);
+      }
+      if (data) {
+        this.error.set(null);
+        this.status.set(data);
+      }
+    });
   }
 }

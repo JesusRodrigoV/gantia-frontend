@@ -9,7 +9,7 @@ const AUTH_ROUTES = ['/auth/login', '/auth/register'];
 export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const authStore = inject(AuthStore);
-  const token = localStorage.getItem('token');
+  const token = authStore.token();
 
   let cloned = req;
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { gsap } from 'gsap';
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
 
@@ -10,14 +10,21 @@ gsap.registerPlugin(ScrambleTextPlugin);
   templateUrl: './letras-gantia.html',
   styleUrl: './letras-gantia.scss',
 })
-export class LetrasGantia implements OnInit {
+export class LetrasGantia implements OnInit, OnDestroy {
   griego = "γαντια";
   normal = "Gantia"
   letrasGriegas = "γαντιαμπωψχφυυ";
   isvisible = signal(false);
+  private animEl: HTMLElement | null = null;
 
   ngOnInit(): void {
     this.startSystem();
+  }
+
+  ngOnDestroy(): void {
+    if (this.animEl) {
+      gsap.killTweensOf(this.animEl);
+    }
   }
 
   private startSystem(): void {
@@ -26,6 +33,7 @@ export class LetrasGantia implements OnInit {
 
   onEnter(event: any): void {
     const el = event.target;
+    this.animEl = el;
 
     gsap.fromTo(
       el,

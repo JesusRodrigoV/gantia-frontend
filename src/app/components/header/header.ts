@@ -39,9 +39,15 @@ export class Header {
     {label: "Gestos", route: "config"},
   ]
 
+  private scrollRaf: number | null = null;
+
   @HostListener('window:scroll')
   onScroll(): void {
-    this.scrolled.set(window.scrollY > 20);
+    if (this.scrollRaf !== null) return;
+    this.scrollRaf = requestAnimationFrame(() => {
+      this.scrolled.set(window.scrollY > 20);
+      this.scrollRaf = null;
+    });
   }
 
   confirmLogout(event: Event): void {

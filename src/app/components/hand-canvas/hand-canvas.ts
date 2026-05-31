@@ -53,6 +53,8 @@ export default class HandCanvas {
   private lastTime = 0;
   private running = false;
   private autoRotate = true;
+  private destroyed = false;
+  private renderPending = true;
 
   private transmitLight: THREE.PointLight | null = null;
   private gestureRing: THREE.Mesh | null = null;
@@ -76,6 +78,7 @@ export default class HandCanvas {
 
     effect(() => {
       this.themeHandler.isDarkMode();
+      this.renderPending = true;
 
       if (this.scene) {
         queueMicrotask(() => this.updateEnvironmentColors());
@@ -119,7 +122,7 @@ export default class HandCanvas {
 
       this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       this.renderer.setSize(width, height);
-      this.renderer.setPixelRatio(this.window.devicePixelRatio);
+      this.renderer.setPixelRatio(Math.min(this.window.devicePixelRatio, 2));
       container.appendChild(this.renderer.domElement);
 
       this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
@@ -128,7 +131,11 @@ export default class HandCanvas {
       this.orbit.minDistance = 3;
       this.orbit.maxDistance = 20;
 
-      this.orbit.addEventListener('start', () => { this.autoRotate = false; });
+      this.orbit.addEventListener('start', () => {
+        this.autoRotate = false;
+        this.renderPending = true;
+      });
+      this.orbit.addEventListener('change', () => { this.renderPending = true; });
 
       this.renderer.domElement.addEventListener('dblclick', () => this.resetCamera());
 
@@ -162,6 +169,7 @@ export default class HandCanvas {
     this.document.addEventListener('visibilitychange', visibilityHandler);
 
     this.destroyRef.onDestroy(() => {
+      this.destroyed = true;
       this.running = false;
       if (this.animationId !== null) {
         cancelAnimationFrame(this.animationId);
@@ -223,7 +231,7 @@ export default class HandCanvas {
     loader.load(
       '/hand/scene.gltf',
       (gltf) => {
-        if (!this.scene) return;
+        if (this.destroyed || !this.scene) return;
         this.handModel = gltf.scene;
         this.handModel.position.y = -1;
         this.scene!.add(this.handModel);
@@ -281,11 +289,17 @@ export default class HandCanvas {
     const dt = (now - this.lastTime) / 1000;
     this.lastTime = now;
 
-    if (this.autoRotate && this.handModel && !this.sensorSocket.telemetry()) {
+    const telemetry = this.sensorSocket.telemetry();
+    const hasTelemetry = !!telemetry;
+    const needsRender = this.renderPending || hasTelemetry || this.autoRotate || this.gestureFlash > 0;
+
+    if (!needsRender) return;
+    this.renderPending = false;
+
+    if (this.autoRotate && this.handModel && !hasTelemetry) {
       this.handModel.rotation.y += dt * 0.4;
     }
 
-    const telemetry = this.sensorSocket.telemetry();
     if (telemetry && this.handModel) {
       const orientation = this.orientationTracker.update(telemetry, dt);
       if (orientation) {
@@ -333,6 +347,7 @@ export default class HandCanvas {
       }
     }
 
+    this.orbit?.update();
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -342,6 +357,7 @@ export default class HandCanvas {
     this.orbit.target.set(0, 0, 0);
     this.orbit.update();
     this.autoRotate = true;
+    this.renderPending = true;
   }
 
   private onWindowResize() {
@@ -354,6 +370,7 @@ export default class HandCanvas {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
+    this.renderPending = true;
   }
 
   protected retryLoad(): void {
@@ -364,20 +381,32 @@ export default class HandCanvas {
 
   private disposeAll() {
     this.orbit?.dispose();
+    this.orbit = null;
+
+    if (this.scene) {
+      this.scene.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.geometry.dispose();
+          const mats = Array.isArray(child.material) ? child.material : [child.material];
+          for (const m of mats) {
+            if (m instanceof THREE.Material) m.dispose();
+          }
+        }
+        if (child instanceof THREE.Light && 'dispose' in child) {
+          (child as unknown as { dispose: () => void }).dispose();
+        }
+      });
+      this.scene = null;
+    }
+
     if (this.renderer) {
       this.renderer.dispose();
       this.renderer = null;
     }
-    if (this.gestureRing) {
-      this.gestureRing.geometry.dispose();
-      (this.gestureRing.material as THREE.Material).dispose();
-      this.gestureRing = null;
-    }
+
     this.handMaterials = [];
-    this.scene = null;
     this.camera = null;
     this.handModel = null;
-    this.orbit = null;
     this.transmitLight = null;
   }
 }

@@ -79,7 +79,7 @@
             <div class="test-empty">Hacé gestos con el guante...</div>
           } @else {
             <div class="gesture-log">
-              @for (g of testActions(); track $index) {
+              @for (g of testActions(); track g.id) {
                 <div class="gesture-entry">
                   <span class="gesture-time">{{ g.time }}</span>
                   <span class="gesture-name">{{ g.action }}</span>

@@ -70,9 +70,14 @@ export class SensorChart implements OnDestroy {
   protected lastValues = signal<[number, number, number] | null>(null);
 
   private uplotInstance: uPlot | undefined;
-  private readonly maxWindow = 1000;
+  private readonly maxWindow = 300;
   private plotData: [number[], number[], number[], number[]] = [[], [], [], []];
+  private pendingData: [number[], number[], number[], number[]] = [[], [], [], []];
+  private rafId: number | null = null;
   protected paused = signal(false);
+
+  private resizeTimer: ReturnType<typeof setTimeout> | null = null;
+  private lastDisplayUpdate = 0;
 
   constructor() {
     afterNextRender(() => {
@@ -86,11 +91,19 @@ export class SensorChart implements OnDestroy {
         if (win) {
           const timestamp = win.Date.now() / 1000;
           const values = this.config().extractValues(telemetry);
-          this.lastValues.set(values);
+          this.scheduleDisplayUpdate(values);
           this.ingestSocketData(timestamp, values[0], values[1], values[2]);
         }
       }
     });
+  }
+
+  private scheduleDisplayUpdate(values: [number, number, number]): void {
+    const now = performance.now();
+    if (now - this.lastDisplayUpdate >= 100) {
+      this.lastValues.set(values);
+      this.lastDisplayUpdate = now;
+    }
   }
 
   protected togglePause(): void {
@@ -99,13 +112,16 @@ export class SensorChart implements OnDestroy {
 
   @HostListener('window:resize')
   onResize(): void {
-    if (this.uplotInstance) {
-      const container = this.uplotContainer().nativeElement;
-      this.uplotInstance.setSize({
-        width: container.offsetWidth,
-        height: container.offsetHeight,
-      });
-    }
+    if (this.resizeTimer !== null) clearTimeout(this.resizeTimer);
+    this.resizeTimer = setTimeout(() => {
+      if (this.uplotInstance) {
+        const container = this.uplotContainer().nativeElement;
+        this.uplotInstance.setSize({
+          width: container.offsetWidth,
+          height: container.offsetHeight,
+        });
+      }
+    }, 100);
   }
 
   private initializeChart(): void {
@@ -181,17 +197,36 @@ export class SensorChart implements OnDestroy {
   }
 
   private ingestSocketData(timestamp: number, x: number, y: number, z: number): void {
-    this.plotData[0].push(timestamp);
-    this.plotData[1].push(x);
-    this.plotData[2].push(y);
-    this.plotData[3].push(z);
+    this.pendingData[0].push(timestamp);
+    this.pendingData[1].push(x);
+    this.pendingData[2].push(y);
+    this.pendingData[3].push(z);
+    this.scheduleFlush();
+  }
 
-    if (this.plotData[0].length > this.maxWindow * 2) {
+  private scheduleFlush(): void {
+    if (this.rafId !== null) return;
+    this.rafId = requestAnimationFrame(() => this.flushPending());
+  }
+
+  private flushPending(): void {
+    this.rafId = null;
+
+    const n = this.pendingData[0].length;
+    if (n === 0) return;
+
+    for (let i = 0; i <= 3; i++) {
+      for (let j = 0; j < n; j++) {
+        this.plotData[i].push(this.pendingData[i][j]);
+      }
+      this.pendingData[i].length = 0;
+    }
+
+    if (this.plotData[0].length > this.maxWindow) {
       const excess = this.plotData[0].length - this.maxWindow;
-      this.plotData[0].splice(0, excess);
-      this.plotData[1].splice(0, excess);
-      this.plotData[2].splice(0, excess);
-      this.plotData[3].splice(0, excess);
+      for (let i = 0; i <= 3; i++) {
+        this.plotData[i].splice(0, excess);
+      }
     }
 
     if (this.uplotInstance) {
@@ -200,6 +235,12 @@ export class SensorChart implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.resizeTimer !== null) {
+      clearTimeout(this.resizeTimer);
+    }
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+    }
     if (this.uplotInstance) {
       this.uplotInstance.destroy();
     }

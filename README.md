@@ -1,59 +1,29 @@
-# IotProject
+# Gantia
 
-Thim project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.4.
+Gantia es un sistema de control por gestos que permite interactuar con una computadora usando un guante IoT. El usuario mueve la mano, flexiona los dedos y el sistema traduce esos movimientos en acciones: controlar el volumen, navegar presentaciones, mover el mouse, abrir aplicaciones y mucho más.
 
-## Development server
+## Cómo funciona
 
-To start a local development server, run:
+Un guante equipado con acelerómetro, giroscopio y sensores de flexión captura los movimientos de la mano en tiempo real. Un backend procesa esa información, reconoce los gestos configurados y envía los comandos correspondientes a la computadora.
 
-```bash
-ng serve
-```
+Este frontend es el panel de control donde el usuario:
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **Monitorea** los sensores del guante en vivo con gráficos y una mano 3D que replica la orientación de su mano real.
+- **Configura** qué gesto ejecuta qué acción, organizados por contexto (multimedia, presentaciones, navegación, general).
+- **Calibra** los sensores de flexión de cada dedo para adaptarse a cada usuario.
+- **Aprende** nuevos gestos al sistema con un wizard que captura muestras y analiza consistencia.
+- **Ajusta** parámetros de sensibilidad, velocidad del mouse y el dispositivo objetivo (PC o celular).
+- **Revisa** el histórico de sensores y acciones ejecutadas.
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Inicio rápido
 
 ```bash
-ng generate --help
+bun install
+bun run start
 ```
 
-## Building
+Se necesita el backend corriendo en `localhost:8000`.
 
-To build the project run:
+## Stack
 
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Angular 21 · PrimeNG · Three.js · uPlot · GSAP · @ngrx/signals · Bun

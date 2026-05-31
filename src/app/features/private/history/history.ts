@@ -42,6 +42,7 @@ export default class History {
 
   private plot: uPlot | null = null;
   private chartContainer: HTMLElement | null = null;
+  private resizeTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly getActionLabel = getActionLabel;
 
@@ -144,7 +145,7 @@ export default class History {
       },
     };
 
-    const data: AlignedData = [new Float64Array([0]), new Float64Array([0]), new Float64Array([0]), new Float64Array([0])];
+    const data: AlignedData = [[], [], [], []];
     this.plot = new uPlot(opts, data, container);
   }
 
@@ -211,6 +212,9 @@ export default class History {
   }
 
   ngOnDestroy(): void {
+    if (this.resizeTimer !== null) {
+      clearTimeout(this.resizeTimer);
+    }
     if (this.plot) {
       this.plot.destroy();
       this.plot = null;
@@ -219,12 +223,15 @@ export default class History {
 
   @HostListener('window:resize')
   onResize(): void {
-    if (this.plot && this.chartContainer) {
-      this.plot.setSize({
-        width: this.chartContainer.clientWidth,
-        height: 280,
-      });
-    }
+    if (this.resizeTimer !== null) clearTimeout(this.resizeTimer);
+    this.resizeTimer = setTimeout(() => {
+      if (this.plot && this.chartContainer) {
+        this.plot.setSize({
+          width: this.chartContainer.clientWidth,
+          height: 280,
+        });
+      }
+    }, 100);
   }
 
   protected formatActionValue(entry: ActionHistoryEntry): string {
