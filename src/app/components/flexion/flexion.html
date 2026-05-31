@@ -14,7 +14,7 @@
     <div class="gauge-group">
       <div class="gauge-info">
         <span class="finger-name">Falange Índice</span>
-        <span class="finger-value" [class.glowing]="glowingIndex()">{{ FLEX_STATE_LABELS[flexState] ?? flexState }}</span>
+        <span class="finger-value" [class.glowing]="glowingIndex()">{{ FLEX_STATE_LABELS[flexState] }}</span>
       </div>
       <div class="gauge-track">
         <div class="gauge-fill index-fill" [class.glowing]="glowingIndex()" [style.width.%]="(flexState / 2) * 100"></div>
@@ -24,7 +24,7 @@
     <div class="gauge-group">
       <div class="gauge-info">
         <span class="finger-name">Falange Media</span>
-        <span class="finger-value" [class.glowing]="glowingMiddle()">{{ FLEX_STATE_LABELS[middleState] ?? middleState }}</span>
+        <span class="finger-value" [class.glowing]="glowingMiddle()">{{ FLEX_STATE_LABELS[middleState] }}</span>
       </div>
       <div class="gauge-track">
         <div class="gauge-fill middle-fill" [class.glowing]="glowingMiddle()" [style.width.%]="(middleState / 2) * 100"></div>
