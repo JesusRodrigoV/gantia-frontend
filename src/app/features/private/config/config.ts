@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed, effect, OnDestroy, EffectRef } from '@angular/core';
+import { Component, inject, Injector, OnInit, signal, computed, effect, OnDestroy, EffectRef, runInInjectionContext } from '@angular/core';
 import { DecimalPipe, PercentPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Skeleton } from 'primeng/skeleton';
@@ -28,6 +28,7 @@ export default class Config implements OnInit, OnDestroy {
   private readonly gestureService = inject(GestureConfigService);
   private readonly calibrationService = inject(CalibrationService);
   private readonly configService = inject(ConfigService);
+  private readonly injector = inject(Injector);
   private readonly learningService = inject(LearningService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
@@ -143,13 +144,13 @@ export default class Config implements OnInit, OnDestroy {
     this.sensorSocket.connect();
 
     this.learnEffectCleanup?.destroy();
-    this.learnEffectCleanup = effect(() => {
+    this.learnEffectCleanup = runInInjectionContext(this.injector, () => effect(() => {
       if (!this.learnOpen()) return;
       const t = this.sensorSocket.telemetry();
       if (!t) return;
       this.learnLiveFlexIndex.set(t.flex_index);
       this.learnLiveFlexMiddle.set(t.flex_middle);
-    });
+    }));
   }
 
   learnStart(): void {
@@ -244,7 +245,7 @@ export default class Config implements OnInit, OnDestroy {
     this.sensorSocket.connect();
 
     this.testEffectCleanup?.destroy();
-    this.testEffectCleanup = effect(() => {
+    this.testEffectCleanup = runInInjectionContext(this.injector, () => effect(() => {
       const t = this.sensorSocket.telemetry();
       if (t && this.testMode()) {
         this.testTelemetry.set(t);
@@ -264,7 +265,7 @@ export default class Config implements OnInit, OnDestroy {
         }
         this.testActionIndex = len;
       }
-    });
+    }));
   }
 
   stopTestMode(): void {
@@ -296,13 +297,13 @@ export default class Config implements OnInit, OnDestroy {
     this.sensorSocket.connect();
 
     this.calibEffectCleanup?.destroy();
-    this.calibEffectCleanup = effect(() => {
+    this.calibEffectCleanup = runInInjectionContext(this.injector, () => effect(() => {
       if (!this.calibWizardOpen()) return;
       const t = this.sensorSocket.telemetry();
       if (!t) return;
       const s = this.calibSensor();
       this.calibLiveValue.set(s === 'index_finger' ? t.flex_index : t.flex_middle);
-    });
+    }));
   }
 
   captureCalibMin(): void {
