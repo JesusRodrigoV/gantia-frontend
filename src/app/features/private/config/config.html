@@ -373,7 +373,7 @@
                 </td>
                 <td class="row-actions">
                   <button class="btn-icon" title="Calibrar con wizard" (click)="openCalibWizard(entry.sensor_name)">
-                    <i class="bx bx-wand"></i>
+                    <i class="bx bx-wrench"></i>
                   </button>
                 </td>
               </tr>
@@ -469,7 +469,7 @@
     <div class="modal-content calib-wizard" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>
-          <i class="bx bx-wand"></i>
+          <i class="bx bx-wrench"></i>
           Calibrar {{ calibSensor() === 'index_finger' ? 'Índice' : 'Medio' }}
         </h3>
         <button class="btn-icon" (click)="closeCalibWizard()"><i class="bx bx-x"></i></button>
