@@ -25,7 +25,8 @@ export class SensorSocket implements OnDestroy {
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private dataTimeout: ReturnType<typeof setTimeout> | null = null;
   private waitingTimer: ReturnType<typeof setTimeout> | null = null;
-  private destroyed = false;
+  private refCount = 0;
+  private shouldBeConnected = false;
 
   public readonly telemetry = signal<GloveTelemetry | null>(null);
   public readonly connectionStatus = signal<'disconnected' | 'connecting' | 'connected' | 'error'>(
@@ -49,9 +50,16 @@ export class SensorSocket implements OnDestroy {
   }
 
   connect(): void {
-    this.destroyed = false;
-    if (this.socket?.readyState === WebSocket.OPEN) return;
+    const firstConnection = this.refCount === 0;
+    this.refCount++;
 
+    if (!firstConnection) return;
+
+    this.shouldBeConnected = true;
+    this.establishConnection();
+  }
+
+  private establishConnection(): void {
     const token = this.authStore.token();
     if (!token) {
       console.warn('[SensorSocket] No hay token disponible');
@@ -126,20 +134,25 @@ export class SensorSocket implements OnDestroy {
       this.waitingForDevice.set(false);
       this.cancelWaitingTimer();
       if (this.dataTimeout) clearTimeout(this.dataTimeout);
-      if (!this.destroyed && this.authStore.isAuthenticated()) {
+
+      if (this.shouldBeConnected && this.authStore.isAuthenticated()) {
         const token = this.authStore.token();
         if (token && isTokenExpired(token)) {
           console.warn('[SensorSocket] Token expirado, redirigiendo a login');
           this.authStore.logout();
           return;
         }
-        this.reconnectTimer = setTimeout(() => this.connect(), 5000);
+        this.reconnectTimer = setTimeout(() => this.establishConnection(), 5000);
       }
     };
   }
 
   disconnect(): void {
-    this.destroyed = true;
+    if (this.refCount > 0) this.refCount--;
+
+    if (this.refCount > 0) return;
+
+    this.shouldBeConnected = false;
     this.clearReconnectTimer();
     this.cancelWaitingTimer();
     if (this.dataTimeout) clearTimeout(this.dataTimeout);
@@ -148,10 +161,20 @@ export class SensorSocket implements OnDestroy {
       this.socket.close();
       this.socket = null;
     }
+    this.connectionStatus.set('disconnected');
   }
 
   ngOnDestroy(): void {
-    this.disconnect();
+    this.shouldBeConnected = false;
+    this.refCount = 0;
+    this.clearReconnectTimer();
+    this.cancelWaitingTimer();
+    if (this.dataTimeout) clearTimeout(this.dataTimeout);
+    if (this.socket) {
+      this.socket.onclose = null;
+      this.socket.close();
+      this.socket = null;
+    }
   }
 
   private cancelWaitingTimer(): void {
