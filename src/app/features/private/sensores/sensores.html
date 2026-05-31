@@ -98,27 +98,21 @@
 
                 <div class="info-item">
                   <span class="info-label">Índice</span>
-                  <span class="info-value">{{ t.flex_index }}%</span>
+                  <span class="info-value">{{ FLEX_STATE_LABELS[t.index_state] ?? t.index_state }}</span>
                 </div>
                 <div class="info-item">
                   <span class="info-label">Medio</span>
-                  <span class="info-value">{{ t.flex_middle }}%</span>
+                  <span class="info-value">{{ FLEX_STATE_LABELS[t.middle_state] ?? t.middle_state }}</span>
                 </div>
               </div>
 
-              <div class="compass-wrapper">
-                <div class="compass-ring">
-                  <div class="compass-dot" [style.transform]="'rotate(' + (orientation()?.roll ?? 0) + 'deg)'">
-                    <i class="bx bx-dot" aria-hidden="true"></i>
-                  </div>
-                  <div class="compass-cross">
-                    <span class="cross-label top">N</span>
-                    <span class="cross-label right">E</span>
-                    <span class="cross-label bottom">S</span>
-                    <span class="cross-label left">O</span>
-                  </div>
+              @let o = orientation();
+              @if (o) {
+                <div class="orientation-wrapper">
+                  <span class="orientation-value">Pitch: {{ o.pitch | number:'1.0-0' }}°</span>
+                  <span class="orientation-value">Roll: {{ o.roll | number:'1.0-0' }}°</span>
                 </div>
-              </div>
+              }
             }
           </div>
         </div>

@@ -1,10 +1,8 @@
 import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
-import { gsap } from 'gsap';
 import { SensorSocket } from '@core/services/sensor-socket';
+import { FLEX_STATE_LABELS } from '@core/models/glove-telemetry.model';
 
-const MIN_CHANGE = 2;
 const GLOW_MS = 300;
-const ANIM_SEC = 0.2;
 
 @Component({
   selector: 'app-flexion',
@@ -24,6 +22,7 @@ export class Flexion {
   private lastIndexChange = 0;
   private lastMiddleChange = 0;
   private glowRaf: number | null = null;
+  protected readonly FLEX_STATE_LABELS = FLEX_STATE_LABELS;
 
   constructor() {
     this.destroyRef.onDestroy(() => {
@@ -34,56 +33,20 @@ export class Flexion {
       const t = this.sensorSocket.telemetry();
       if (!t) return;
 
-      if (t.flex_index !== this.prevIndex) {
-        const rawValue = t.flex_index;
-        const diff = Math.abs(rawValue - this.prevIndex);
-        this.prevIndex = rawValue;
-
+      if (t.index_state !== this.prevIndex) {
+        this.prevIndex = t.index_state;
         this.lastIndexChange = performance.now();
         this.glowingIndex.set(true);
+        this.displayIndex.set(t.index_state);
         this.scheduleGlowCheck();
-
-        if (diff >= MIN_CHANGE) {
-          const from = this.displayIndex();
-          const proxy = { val: from };
-          gsap.killTweensOf(proxy);
-          gsap.to(proxy, {
-            val: rawValue,
-            duration: ANIM_SEC,
-            ease: 'power2.out',
-            onUpdate: () => {
-              this.displayIndex.set(Math.round(proxy.val));
-            },
-          });
-        } else {
-          this.displayIndex.set(rawValue);
-        }
       }
 
-      if (t.flex_middle !== this.prevMiddle) {
-        const rawValue = t.flex_middle;
-        const diff = Math.abs(rawValue - this.prevMiddle);
-        this.prevMiddle = rawValue;
-
+      if (t.middle_state !== this.prevMiddle) {
+        this.prevMiddle = t.middle_state;
         this.lastMiddleChange = performance.now();
         this.glowingMiddle.set(true);
+        this.displayMiddle.set(t.middle_state);
         this.scheduleGlowCheck();
-
-        if (diff >= MIN_CHANGE) {
-          const from = this.displayMiddle();
-          const proxy = { val: from };
-          gsap.killTweensOf(proxy);
-          gsap.to(proxy, {
-            val: rawValue,
-            duration: ANIM_SEC,
-            ease: 'power2.out',
-            onUpdate: () => {
-              this.displayMiddle.set(Math.round(proxy.val));
-            },
-          });
-        } else {
-          this.displayMiddle.set(rawValue);
-        }
       }
     });
   }

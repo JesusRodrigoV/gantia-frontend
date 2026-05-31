@@ -32,6 +32,10 @@
     <span class="transmit-dot"></span>
     <span>TRANSMITIENDO</span>
   </div>
+} @else if (showIdleHint()) {
+  <div class="idle-hint">
+    <span class="idle-text">Presiona el botón del guante para mover la mano 3D</span>
+  </div>
 }
 
 @if (lastGestureLabel()) {
@@ -46,7 +50,7 @@
   <div class="telemetry-overlay">
     <div class="overlay-item">
       <span class="overlay-label">Flexión</span>
-      <span class="overlay-value">{{ t.flex_index }} / {{ t.flex_middle }}</span>
+      <span class="overlay-value">{{ FLEX_STATE_LABELS[t.index_state] ?? t.index_state }} / {{ FLEX_STATE_LABELS[t.middle_state] ?? t.middle_state }}</span>
     </div>
     <div class="overlay-item">
       <span class="overlay-label">Orientación</span>

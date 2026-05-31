@@ -3,7 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { env } from '../../../environments/environment';
 import { catchError, of } from 'rxjs';
 
-export type PicoTarget = 'pc' | 'phone' | 'auto';
+export type PicoTarget = 'pc' | 'auto';
 
 export interface PicoTargetResponse {
   target: PicoTarget;
@@ -43,11 +43,10 @@ export class PicoTargetService {
   }
 
   targetLabel(): string {
-    const map: Record<PicoTarget, string> = {
+    const map: Partial<Record<PicoTarget, string>> = {
       pc: 'PC (USB)',
-      phone: 'Celular (BLE)',
       auto: 'Automatico',
     };
-    return map[this.target()] ?? 'auto';
+    return map[this.target()] ?? 'PC (USB)';
   }
 }

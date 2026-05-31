@@ -202,7 +202,22 @@
   height: 8px;
   border-radius: 50%;
   background-color: var(--p-primary-500);
-  box-shadow: 0 0 6px var(--p-primary-500);
+}
+
+.idle-hint {
+  position: absolute;
+  top: 1.5rem;
+  left: 2rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  background-color: color-mix(in srgb, var(--p-surface-500) 12%, transparent);
+  backdrop-filter: blur(8px);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--p-surface-500);
 }
 
 @keyframes transmit-pulse {

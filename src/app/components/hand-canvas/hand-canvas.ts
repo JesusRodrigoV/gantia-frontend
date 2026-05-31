@@ -20,7 +20,7 @@ import { WINDOW } from '@core/window.token';
 import { SensorSocket } from '@core/services/sensor-socket';
 import { ThemeHandler } from '@core/services/theme-handler';
 import { HandOrientationTracker } from '@core/services/hand-orientation';
-import { getActionLabel } from '@core/models/glove-telemetry.model';
+import { getActionLabel, FLEX_STATE_LABELS } from '@core/models/glove-telemetry.model';
 
 @Component({
   selector: 'app-hand-canvas',
@@ -34,6 +34,7 @@ export default class HandCanvas {
   private readonly document = inject(DOCUMENT);
   private destroyRef = inject(DestroyRef);
   protected sensorSocket = inject(SensorSocket);
+  protected FLEX_STATE_LABELS = FLEX_STATE_LABELS;
   private themeHandler = inject(ThemeHandler);
   private messageService = inject(MessageService);
   private orientationTracker = new HandOrientationTracker();
@@ -59,7 +60,8 @@ export default class HandCanvas {
   private transmitLight: THREE.PointLight | null = null;
   private gestureRing: THREE.Mesh | null = null;
   private gestureFlash: number = 0;
-  private prevActionCount = 0;
+  private effectPrevActionCount = 0;
+  private animatePrevActionCount = 0;
   private handMaterials: THREE.Material[] = [];
   private baseEmissive = new THREE.Color(0x000000);
 
@@ -67,6 +69,11 @@ export default class HandCanvas {
   protected isTransmitting = computed(() => {
     const t = this.sensorSocket.telemetry();
     return t?.button_pressed === 1;
+  });
+
+  protected showIdleHint = computed(() => {
+    const t = this.sensorSocket.telemetry();
+    return !!t && t.button_pressed !== 1 && this.modelLoaded();
   });
 
   constructor() {
@@ -87,7 +94,7 @@ export default class HandCanvas {
 
     effect(() => {
       const actions = this.sensorSocket.recentActions();
-      if (actions.length > this.prevActionCount && actions.length > 0) {
+      if (actions.length > this.effectPrevActionCount && actions.length > 0) {
         const latest = actions[0];
         const label = getActionLabel(latest.action);
         this.lastGestureLabel.set(label);
@@ -101,7 +108,7 @@ export default class HandCanvas {
             key: 'hand-toast',
           });
         }
-        this.prevActionCount = actions.length;
+        this.effectPrevActionCount = actions.length;
       }
     });
   }
@@ -328,11 +335,10 @@ export default class HandCanvas {
 
     if (this.gestureRing) {
       const actionCount = this.sensorSocket.recentActions().length;
-      if (actionCount > this.prevActionCount) {
+      if (actionCount > this.animatePrevActionCount) {
         this.gestureFlash = 1.0;
-        this.prevActionCount = actionCount;
+        this.animatePrevActionCount = actionCount;
       }
-      this.prevActionCount = actionCount;
 
       if (this.gestureFlash > 0) {
         this.gestureFlash = Math.max(0, this.gestureFlash - dt * 2.5);

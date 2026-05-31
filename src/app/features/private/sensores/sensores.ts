@@ -14,6 +14,7 @@ import { Flexion } from '@components/flexion';
 import { GyroscopeChart } from '@components/gyroscope-chart';
 import { Skeleton } from 'primeng/skeleton';
 import { SensorSocket } from '@core/services/sensor-socket';
+import { FLEX_STATE_LABELS } from '@core/models/glove-telemetry.model';
 import { createSwapy } from 'swapy';
 import type { Swapy } from 'swapy';
 
@@ -27,6 +28,7 @@ const STORAGE_KEY = 'gantia-sensor-layout';
 })
 export default class Sensores implements OnDestroy {
   protected sensorSocket = inject(SensorSocket);
+  protected FLEX_STATE_LABELS = FLEX_STATE_LABELS;
   private swapyContainer = viewChild<ElementRef<HTMLElement>>('swapyContainer');
   private swapy: Swapy | null = null;
   protected isSwapping = signal(false);

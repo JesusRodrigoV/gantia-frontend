@@ -9,25 +9,25 @@
   </div>
 
   <div class="gauges-wrapper">
-    @let flex = t?.flex_index ?? 0;
-    @let middle = t?.flex_middle ?? 0;
+    @let flexState = displayIndex();
+    @let middleState = displayMiddle();
     <div class="gauge-group">
       <div class="gauge-info">
         <span class="finger-name">Falange Índice</span>
-        <span class="finger-value">{{ displayIndex() }}</span>
+        <span class="finger-value" [class.glowing]="glowingIndex()">{{ FLEX_STATE_LABELS[flexState] ?? flexState }}</span>
       </div>
       <div class="gauge-track">
-        <div class="gauge-fill index-fill" [class.glowing]="glowingIndex()" [style.width.%]="flex"></div>
+        <div class="gauge-fill index-fill" [class.glowing]="glowingIndex()" [style.width.%]="(flexState / 2) * 100"></div>
       </div>
     </div>
 
     <div class="gauge-group">
       <div class="gauge-info">
         <span class="finger-name">Falange Media</span>
-        <span class="finger-value">{{ displayMiddle() }}</span>
+        <span class="finger-value" [class.glowing]="glowingMiddle()">{{ FLEX_STATE_LABELS[middleState] ?? middleState }}</span>
       </div>
       <div class="gauge-track">
-        <div class="gauge-fill middle-fill" [class.glowing]="glowingMiddle()" [style.width.%]="middle"></div>
+        <div class="gauge-fill middle-fill" [class.glowing]="glowingMiddle()" [style.width.%]="(middleState / 2) * 100"></div>
       </div>
     </div>
   </div>

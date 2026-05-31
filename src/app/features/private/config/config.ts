@@ -251,14 +251,18 @@ export default class Config implements OnInit, OnDestroy {
       }
 
       const actions = this.sensorSocket.recentActions();
-      if (actions.length > this.testActionIndex && this.testMode()) {
-        const latest = actions[0];
-        this.testActions.update(prev => [{
-          id: crypto.randomUUID(),
-          action: getActionLabel(latest.action),
-          time: new Date().toLocaleTimeString(),
-        }, ...prev].slice(0, 50));
-        this.testActionIndex = actions.length;
+      const len = actions.length;
+      if (this.testMode() && len > this.testActionIndex) {
+        const newCount = len - this.testActionIndex;
+        for (let i = 0; i < newCount; i++) {
+          const action = actions[i];
+          this.testActions.update(prev => [{
+            id: crypto.randomUUID(),
+            action: getActionLabel(action.action),
+            time: new Date().toLocaleTimeString(),
+          }, ...prev].slice(0, 50));
+        }
+        this.testActionIndex = len;
       }
     });
   }

@@ -92,8 +92,12 @@
   font-weight: 600;
   color: var(--p-primary-600);
   font-variant-numeric: tabular-nums;
-  min-width: 50px;
+  min-width: 80px;
   text-align: right;
+}
+
+.finger-value.glowing {
+  animation: glow-flash 0.3s ease-out;
 }
 
 .gauge-track {

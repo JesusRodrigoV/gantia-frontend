@@ -2,6 +2,8 @@ export interface GloveTelemetry {
   button_pressed: number;
   flex_index: number;
   flex_middle: number;
+  index_state: number;
+  middle_state: number;
   accel_x: number;
   accel_y: number;
   accel_z: number;
@@ -9,6 +11,12 @@ export interface GloveTelemetry {
   gyro_y: number;
   gyro_z: number;
 }
+
+export const FLEX_STATE_LABELS: Record<number, string> = {
+  0: 'Abierto',
+  1: 'Parcial',
+  2: 'Flexionado',
+};
 
 export interface ActionEvent {
   action: string;
