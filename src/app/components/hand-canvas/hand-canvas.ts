@@ -311,7 +311,6 @@ export default class HandCanvas {
       const orientation = this.orientationTracker.update(telemetry, dt);
       if (orientation) {
         this.handModel.rotation.set(orientation.pitch, orientation.yaw, orientation.roll, 'XYZ');
-        this.handModel.scale.set(1, orientation.scaleY, 1);
       }
 
       const isTransmitting = telemetry.button_pressed === 1;

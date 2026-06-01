@@ -8,7 +8,6 @@ export interface HandOrientation {
   pitch: number;
   roll: number;
   yaw: number;
-  scaleY: number;
 }
 
 export class HandOrientationTracker {
@@ -33,9 +32,7 @@ export class HandOrientationTracker {
     this.roll = ALPHA * (this.roll + gyroRollRate * dt) + BETA * accelRoll;
     this.yaw += gyroYawRate * dt;
 
-    const scaleY = Math.max(0.1, 1 - telemetry.flex_index / 100);
-
-    return { pitch: this.pitch, roll: this.roll, yaw: this.yaw, scaleY };
+    return { pitch: this.pitch, roll: this.roll, yaw: this.yaw };
   }
 
   reset(): void {
