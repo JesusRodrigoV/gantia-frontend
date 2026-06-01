@@ -1,4 +1,4 @@
-import { Component, signal, afterNextRender, DestroyRef, inject, OnDestroy, HostListener, effect } from '@angular/core';
+import { Component, signal, DestroyRef, inject, OnDestroy, HostListener, effect } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Skeleton } from 'primeng/skeleton';
@@ -47,14 +47,12 @@ export default class History {
   protected readonly getActionLabel = getActionLabel;
 
   constructor() {
-    afterNextRender(() => {
-      this.setDefaultToday();
-      this.search();
-    });
+    this.setDefaultToday();
+    this.search();
 
     effect(() => {
       if (this.readings().length > 0 && this.plot === null) {
-        afterNextRender(() => {
+        setTimeout(() => {
           this.initChart();
           if (this.plot) {
             this.updateChart(this.readings());

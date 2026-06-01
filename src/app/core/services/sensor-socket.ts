@@ -92,6 +92,10 @@ export class SensorSocket implements OnDestroy {
         const data = JSON.parse(event.data);
 
         if (isActionMessage(data)) {
+          if (data.action === 'action_triggered') {
+            data = { action: data.action_key, action_value: data.action_value } as ActionEvent;
+          }
+
           this.actionEvent.set(data);
 
           this.recentActions.update(prev => [data, ...prev].slice(0, MAX_RECENT_ACTIONS));
