@@ -21,7 +21,6 @@ import { env } from '../../../environments/environment';
   imports: [NgOptimizedImage, LetrasGantia, RouterLink, RouterLinkActive, RoundedButton, TooltipModule, FormsModule, SelectModule],
   templateUrl: './header.html',
   styleUrl: './header.scss',
-  providers: [ConfirmationService, MessageService]
 })
 export class Header {
   private http = inject(HttpClient);
