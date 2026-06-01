@@ -105,7 +105,7 @@
                       [step]="f.step"
                       [(ngModel)]="s[key]"
                       (onInput)="updateSensitivity(key, $event.value ?? f.min)"
-                      [style]="{width: '90px'}"
+                      fluid
                     />
                     @if (savingKeys().has(key)) {
                       <i class="bx bx-loader-alt bx-spin saving-spin"></i>
