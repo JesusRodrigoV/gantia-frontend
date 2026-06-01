@@ -92,15 +92,16 @@ export class SensorSocket implements OnDestroy {
         const data = JSON.parse(event.data);
 
         if (isActionMessage(data)) {
-          if (data.action === 'action_triggered') {
-            data = { action: data.action_key, action_value: data.action_value } as ActionEvent;
-          }
+          const msg = data as any;
+          const evt: ActionEvent = msg.action === 'action_triggered'
+            ? { action: String(msg.action_key ?? ''), action_value: msg.action_value }
+            : data;
 
-          this.actionEvent.set(data);
+          this.actionEvent.set(evt);
 
-          this.recentActions.update(prev => [data, ...prev].slice(0, MAX_RECENT_ACTIONS));
+          this.recentActions.update(prev => [evt, ...prev].slice(0, MAX_RECENT_ACTIONS));
 
-          if (data.action === 'mouse_mode') {
+          if (evt.action === 'mouse_mode') {
             const newVal = data.action_value;
             if (newVal !== this.lastMouseModeValue) {
               this.lastMouseModeValue = newVal;
@@ -108,8 +109,8 @@ export class SensorSocket implements OnDestroy {
             }
           }
 
-          if (data.action === 'mode_changed') {
-            this.currentMode.set(String(data.action_value).toUpperCase());
+          if (evt.action === 'mode_changed') {
+            this.currentMode.set(String(evt.action_value).toUpperCase());
           }
 
           return;
