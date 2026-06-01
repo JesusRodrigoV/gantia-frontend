@@ -12,6 +12,23 @@
       }
       {{ syncing() ? 'Sincronizando...' : 'Sincronizar' }}
     </button>
+    <button class="btn-action" (click)="exportConfigs()" [disabled]="exporting()">
+      @if (exporting()) {
+        <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
+      } @else {
+        <i class="bx bx-export"></i>
+      }
+      {{ exporting() ? 'Exportando...' : 'Exportar' }}
+    </button>
+    <button class="btn-action" (click)="fileInput.click()" [disabled]="importing()">
+      @if (importing()) {
+        <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
+      } @else {
+        <i class="bx bx-import"></i>
+      }
+      {{ importing() ? 'Importando...' : 'Importar' }}
+    </button>
+    <input #fileInput type="file" accept=".json" (change)="onImportFile($event)" hidden />
     <button class="btn-action danger" (click)="resetToDefaults()" [disabled]="resettando()">
       @if (resettando()) {
         <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>

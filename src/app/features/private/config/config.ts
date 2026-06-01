@@ -87,6 +87,8 @@ export default class Config implements OnInit, OnDestroy {
   });
   protected readonly isConnected = computed(() => this.sensorSocket.connectionStatus() === 'connected');
   protected resettando = signal(false);
+  protected exporting = signal(false);
+  protected importing = signal(false);
 
   protected learnOpen = signal(false);
   protected learnStep = signal(1);
@@ -514,6 +516,78 @@ export default class Config implements OnInit, OnDestroy {
         });
       },
     });
+  }
+
+  exportConfigs(): void {
+    this.exporting.set(true);
+    this.gestureService.exportConfigs().pipe(finalize(() => this.exporting.set(false))).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'gantia-gestos.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Exportado',
+          detail: 'Configuraciones exportadas como JSON',
+          life: 3000,
+        });
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron exportar las configuraciones',
+          life: 4000,
+        });
+      },
+    });
+  }
+
+  onImportFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file) return;
+
+    this.importing.set(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result as string);
+        if (!Array.isArray(data)) throw new Error('Formato invalido');
+        this.gestureService.importConfigs(data).pipe(finalize(() => this.importing.set(false))).subscribe({
+          next: (res) => {
+            this.loadGestureConfigs();
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Importado',
+              detail: `${res.imported} importadas, ${res.skipped} omitidas`,
+              life: 4000,
+            });
+          },
+          error: () => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'No se pudieron importar las configuraciones',
+              life: 4000,
+            });
+          },
+        });
+      } catch {
+        this.importing.set(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'El archivo JSON no tiene un formato valido',
+          life: 4000,
+        });
+      }
+    };
+    reader.readAsText(file);
+    input.value = '';
   }
 
   updateCalibration(sensor: CalibrationEntry): void {

@@ -1,6 +1,9 @@
 import { NgOptimizedImage } from '@angular/common';
 import { Component, inject, signal, computed, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { Select } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService } from 'primeng/api';
 import { LetrasGantia } from '@components/letras-gantia/letras-gantia';
@@ -10,15 +13,17 @@ import { ClientStatusService } from '@core/services/client-status.service';
 import { PicoTargetService } from '@core/services/pico-target.service';
 import { AuthStore } from '@core/stores/auth.store';
 import { RoundedButton } from '@shared/components/ui/rounded-button';
-import { getContextLabel } from '@core/models/gesture-config.model';
+import { getContextLabel, CONTEXTS } from '@core/models/gesture-config.model';
+import { env } from '../../../environments/environment';
 
 @Component({
   selector: 'app-header',
-  imports: [NgOptimizedImage, LetrasGantia, RouterLink, RouterLinkActive, RoundedButton, TooltipModule],
+  imports: [NgOptimizedImage, LetrasGantia, RouterLink, RouterLinkActive, RoundedButton, TooltipModule, FormsModule, Select],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
 export class Header {
+  private http = inject(HttpClient);
   themeService = inject(ThemeHandler);
   protected sensorSocket = inject(SensorSocket);
   protected clientStatus = inject(ClientStatusService);
@@ -30,6 +35,11 @@ export class Header {
   protected readonly getContextLabel = getContextLabel;
   protected picoTargetLabel = computed(() => this.picoTarget.targetLabel());
   private confirmationService = inject(ConfirmationService);
+  protected readonly modeOptions = [...CONTEXTS];
+
+  changeMode(mode: string): void {
+    this.http.post(`${env.apiUrl}/mode`, { mode }).subscribe();
+  }
 
   links=[
     {label: "Dashboard", route: "dashboard"},

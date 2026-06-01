@@ -38,9 +38,22 @@
         </div>
       }
       @if (sensorSocket.dataFlowing()) {
-        <div class="mode-badge" [pTooltip]="'Modo: ' + getContextLabel(currentMode())" tooltipPosition="bottom">
+        <div class="mode-badge">
           <i class="bx bx-category" aria-hidden="true"></i>
-          <span>{{ getContextLabel(currentMode()) }}</span>
+          <p-select
+            [options]="modeOptions"
+            [(ngModel)]="currentMode"
+            (ngModelChange)="changeMode($event)"
+            styleClass="mode-select"
+            [fluid]="false"
+          >
+            <ng-template let-option pTemplate="selectedItem">
+              <span>{{ getContextLabel(option) }}</span>
+            </ng-template>
+            <ng-template let-option pTemplate="item">
+              <span>{{ getContextLabel(option) }}</span>
+            </ng-template>
+          </p-select>
         </div>
       }
       <app-rounded-button

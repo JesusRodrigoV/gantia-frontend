@@ -149,20 +149,45 @@
     .mode-badge {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
+      gap: 4px;
+      padding: 4px 4px 4px 12px;
       border-radius: 20px;
       background-color: var(--p-surface-100);
       box-shadow: var(--shadow-inset-sm);
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--p-surface-600);
-      cursor: default;
       white-space: nowrap;
 
       i {
         font-size: 1rem;
         color: var(--p-primary-500);
+        flex-shrink: 0;
+      }
+
+      :host ::ng-deep .mode-select {
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        min-width: 0 !important;
+        width: auto !important;
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        color: var(--p-surface-600) !important;
+        cursor: pointer !important;
+
+        .p-select-label {
+          padding: 0 4px !important;
+        }
+
+        .p-select-dropdown {
+          position: static !important;
+          width: auto !important;
+          padding: 0 4px !important;
+          color: var(--p-surface-500) !important;
+        }
+
+        .p-select-overlay {
+          min-width: 140px !important;
+        }
       }
     }
 

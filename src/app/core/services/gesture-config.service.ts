@@ -26,4 +26,12 @@ export class GestureConfigService {
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/gesture-configs/${id}`);
   }
+
+  exportConfigs(): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/gesture-configs/export`, { responseType: 'blob' });
+  }
+
+  importConfigs(data: GestureConfigForm[]): Observable<{ imported: number; skipped: number }> {
+    return this.http.post<{ imported: number; skipped: number }>(`${this.baseUrl}/gesture-configs/import`, data);
+  }
 }
