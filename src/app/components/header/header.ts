@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { LetrasGantia } from '@components/letras-gantia/letras-gantia';
 import { ThemeHandler } from '@core/services/theme-handler';
 import { SensorSocket } from '@core/services/sensor-socket';
@@ -21,6 +21,7 @@ import { env } from '../../../environments/environment';
   imports: [NgOptimizedImage, LetrasGantia, RouterLink, RouterLinkActive, RoundedButton, TooltipModule, FormsModule, SelectModule],
   templateUrl: './header.html',
   styleUrl: './header.scss',
+  providers: [ConfirmationService, MessageService]
 })
 export class Header {
   private http = inject(HttpClient);
