@@ -92,9 +92,8 @@ export class Header {
     const targetLabel = this.picoTargetLabel();
     const parts: string[] = [];
     if (s.glove) parts.push('Guante: conectado');
-    if (s.agent) parts.push('Agente: activo');
     if (s.pico_w) parts.push(`Pico W: conectado → ${targetLabel}`);
-    if (!s.glove && !s.agent && !s.pico_w) parts.push('Sin dispositivos conectados');
+    if (!s.glove && !s.pico_w) parts.push('Sin dispositivos conectados');
     return parts.join('\n');
   }
 }

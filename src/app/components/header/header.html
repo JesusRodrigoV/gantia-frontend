@@ -30,7 +30,6 @@
       <div class="client-indicators" [class.loading]="clientStatus.isLoading()" [pTooltip]="clientTooltip()" tooltipPosition="bottom">
         @let cs = clientStatus.status();
         <span class="client-dot" [class.connected]="cs.glove" title="Guante"></span>
-        <span class="client-dot" [class.connected]="cs.agent" title="Agente"></span>
         <span class="client-dot" [class.connected]="cs.pico_w" title="Pico W"></span>
       </div>
       @if (mouseModeActive()) {
