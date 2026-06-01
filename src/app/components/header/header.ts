@@ -3,7 +3,7 @@ import { Component, inject, signal, computed, HostListener } from '@angular/core
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Select } from 'primeng/select';
+import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService } from 'primeng/api';
 import { LetrasGantia } from '@components/letras-gantia/letras-gantia';
@@ -18,7 +18,7 @@ import { env } from '../../../environments/environment';
 
 @Component({
   selector: 'app-header',
-  imports: [NgOptimizedImage, LetrasGantia, RouterLink, RouterLinkActive, RoundedButton, TooltipModule, FormsModule, Select],
+  imports: [NgOptimizedImage, LetrasGantia, RouterLink, RouterLinkActive, RoundedButton, TooltipModule, FormsModule, SelectModule],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
@@ -31,13 +31,13 @@ export class Header {
   protected authStore = inject(AuthStore);
   protected scrolled = signal(false);
   protected mouseModeActive = computed(() => this.sensorSocket.mouseModeActive());
-  protected currentMode = computed(() => this.sensorSocket.currentMode());
   protected readonly getContextLabel = getContextLabel;
   protected picoTargetLabel = computed(() => this.picoTarget.targetLabel());
   private confirmationService = inject(ConfirmationService);
   protected readonly modeOptions = [...CONTEXTS];
 
   changeMode(mode: string): void {
+    this.sensorSocket.currentMode.set(mode);
     this.http.post(`${env.apiUrl}/mode`, { mode }).subscribe();
   }
 

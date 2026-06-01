@@ -42,18 +42,10 @@
           <i class="bx bx-category" aria-hidden="true"></i>
           <p-select
             [options]="modeOptions"
-            [(ngModel)]="currentMode"
+            [(ngModel)]="sensorSocket.currentMode"
             (ngModelChange)="changeMode($event)"
-            styleClass="mode-select"
-            [fluid]="false"
-          >
-            <ng-template let-option pTemplate="selectedItem">
-              <span>{{ getContextLabel(option) }}</span>
-            </ng-template>
-            <ng-template let-option pTemplate="item">
-              <span>{{ getContextLabel(option) }}</span>
-            </ng-template>
-          </p-select>
+            [checkmark]="true"
+          />
         </div>
       }
       <app-rounded-button
