@@ -14,6 +14,7 @@
           type="email"
           id="email"
           formControlName="email"
+          autocomplete="email"
           placeholder="usuario@ejemplo.com"
           class="form-control"
         />
@@ -31,14 +32,15 @@
         <label for="password">Contraseña</label>
         <div class="password-wrap">
           <input
-            [type]="showPassword ? 'text' : 'password'"
+            [type]="showPassword() ? 'text' : 'password'"
             id="password"
             formControlName="password"
+            autocomplete="new-password"
             placeholder="Mínimo 6 caracteres"
             class="form-control"
           />
-          <button type="button" class="pwd-toggle" (click)="showPassword = !showPassword" tabindex="-1" [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
-            <i [class]="showPassword ? 'bx bx-hide' : 'bx bx-show'"></i>
+          <button type="button" class="pwd-toggle" (click)="showPassword.set(!showPassword())" tabindex="-1" [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+            <i [class]="showPassword() ? 'bx bx-hide' : 'bx bx-show'"></i>
           </button>
         </div>
         @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
@@ -55,13 +57,14 @@
         <label for="confirmPassword">Confirmar Contraseña</label>
         <div class="password-wrap">
           <input
-            [type]="showConfirmPassword ? 'text' : 'password'"
+            [type]="showConfirmPassword() ? 'text' : 'password'"
             id="confirmPassword"
             formControlName="confirmPassword"
+            autocomplete="new-password"
             class="form-control"
           />
-          <button type="button" class="pwd-toggle" (click)="showConfirmPassword = !showConfirmPassword" tabindex="-1" [attr.aria-label]="showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
-            <i [class]="showConfirmPassword ? 'bx bx-hide' : 'bx bx-show'"></i>
+          <button type="button" class="pwd-toggle" (click)="showConfirmPassword.set(!showConfirmPassword())" tabindex="-1" [attr.aria-label]="showConfirmPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+            <i [class]="showConfirmPassword() ? 'bx bx-hide' : 'bx bx-show'"></i>
           </button>
         </div>
         @if (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) {

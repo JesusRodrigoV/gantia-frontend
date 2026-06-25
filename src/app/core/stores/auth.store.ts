@@ -84,5 +84,8 @@ export const AuthStore = signalStore(
       patchState(store, { token: null });
       router.navigateByUrl('/auth/login');
     },
+    clearError() {
+      patchState(store, { error: null });
+    },
   })),
 );

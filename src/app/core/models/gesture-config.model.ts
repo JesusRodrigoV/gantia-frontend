@@ -1,4 +1,4 @@
-export const CONTEXTS = ['GLOBAL', 'AUDIO', 'PRESENTATION', 'WORK'] as const;
+export const CONTEXTS = ['GLOBAL', 'AUDIO', 'PRESENTATION', 'WORK', 'WORKSHOP'] as const;
 
 export const MOVEMENTS = ['NONE', 'SWIPE_UP', 'SWIPE_DOWN', 'SWIPE_LEFT', 'SWIPE_RIGHT', 'TWIST'] as const;
 export const ORIENTATIONS = ['ANY', 'PALM_UP', 'PALM_DOWN', 'UP', 'DOWN', 'NEUTRAL'] as const;
@@ -10,6 +10,7 @@ export const ACTIONS = [
   'show_desktop', 'open_browser', 'open_url', 'open_app', 'change_mode', 'hotkey',
   'next_slide', 'prev_slide', 'start_present',
   'left_click', 'right_click',
+  'execute_cmd', 'sequence', 'delay',
 ] as const;
 
 export const CONTEXT_LABELS: Record<string, string> = {
@@ -17,6 +18,7 @@ export const CONTEXT_LABELS: Record<string, string> = {
   AUDIO: 'Audio',
   PRESENTATION: 'Presentación',
   WORK: 'Trabajo',
+  WORKSHOP: 'Workshop',
 };
 
 export function getContextLabel(c: string): string {
@@ -66,7 +68,16 @@ export interface GestureConfig {
   index_state: number;
   middle_state: number;
   action_key: string;
+  action_value?: string;
   context: string;
 }
 
-export type GestureConfigForm = Omit<GestureConfig, 'id'>;
+export interface GestureConfigForm {
+  movement: string;
+  orientation: string;
+  index_state: number;
+  middle_state: number;
+  action_key: string;
+  action_value?: string;
+  context: string;
+}

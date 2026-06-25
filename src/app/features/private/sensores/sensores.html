@@ -1,4 +1,15 @@
 <div class="view-container" [class.show-panels]="hasTelemetry()" [class.is-swapping]="isSwapping()">
+  @let flash = gestureFlash();
+  @if (flash) {
+    <div class="gesture-flash" @gestureFade>
+      <div class="gesture-flash-content">
+        <i class="bx bx-gesture"></i>
+        <span class="gesture-flash-gesture">{{ flash.gesture }}</span>
+        <span class="gesture-flash-arrow">→</span>
+        <span class="gesture-flash-action">{{ flash.action }}</span>
+      </div>
+    </div>
+  }
   <div class="error-layer" [class.show]="wsError()">
     <div class="error-state">
       <i class="bx bx-wifi-off error-icon" aria-hidden="true"></i>

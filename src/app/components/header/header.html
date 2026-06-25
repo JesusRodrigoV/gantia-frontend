@@ -47,6 +47,17 @@
             [checkmark]="true"
           />
         </div>
+        <div class="target-selector">
+          <i class="bx bx-share" aria-hidden="true"></i>
+          <p-select
+            [options]="targetOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="selectedTarget"
+            (ngModelChange)="changeTarget($event)"
+            [checkmark]="true"
+          />
+        </div>
       }
       <app-rounded-button
         class="theme-toggle"

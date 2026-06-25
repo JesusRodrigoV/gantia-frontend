@@ -1,5 +1,5 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
 import { LetrasGantia } from '@components/letras-gantia/letras-gantia';
 import { RouterLink } from '@angular/router';
 import {
@@ -16,12 +16,17 @@ import { AuthStore } from '@core/stores/auth.store';
   imports: [NgOptimizedImage, LetrasGantia, ReactiveFormsModule, RouterLink],
   templateUrl: './register.html',
   styleUrl: '../auth.styles.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class Register {
+export default class Register implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   public readonly authStore = inject(AuthStore);
-  showPassword = false;
-  showConfirmPassword = false;
+  showPassword = signal(false);
+  showConfirmPassword = signal(false);
+
+  ngOnInit(): void {
+    this.authStore.clearError();
+  }
 
   registerForm = this.formBuilder.group(
     {

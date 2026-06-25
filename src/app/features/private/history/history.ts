@@ -1,4 +1,4 @@
-import { Component, signal, DestroyRef, inject, OnDestroy, HostListener, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, DestroyRef, inject, OnDestroy, effect, viewChild, ElementRef } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Skeleton } from 'primeng/skeleton';
@@ -14,6 +14,10 @@ import uPlot, { AlignedData } from 'uplot';
   imports: [DecimalPipe, DatePipe, FormsModule, Skeleton],
   templateUrl: './history.html',
   styleUrl: './history.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(window:resize)': 'onResize()',
+  },
 })
 export default class History {
   private readonly service = inject(ReadingsHistoryService);
@@ -40,8 +44,8 @@ export default class History {
   protected actionsError = signal(false);
   protected actionsLimit = 50;
 
+  private chartEl = viewChild<ElementRef<HTMLDivElement>>('chartContainer');
   private plot: uPlot | null = null;
-  private chartContainer: HTMLElement | null = null;
   private resizeTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly getActionLabel = getActionLabel;
@@ -99,9 +103,8 @@ export default class History {
   }
 
   private initChart(): void {
-    const container = document.getElementById('history-chart');
+    const container = this.chartEl()?.nativeElement;
     if (!container) return;
-    this.chartContainer = container;
 
     const opts: uPlot.Options = {
       width: container.clientWidth,
@@ -229,13 +232,12 @@ export default class History {
     }
   }
 
-  @HostListener('window:resize')
   onResize(): void {
     if (this.resizeTimer !== null) clearTimeout(this.resizeTimer);
     this.resizeTimer = setTimeout(() => {
-      if (this.plot && this.chartContainer) {
+      if (this.plot && this.chartEl()) {
         this.plot.setSize({
-          width: this.chartContainer.clientWidth,
+          width: this.chartEl()!.nativeElement.clientWidth,
           height: 280,
         });
       }

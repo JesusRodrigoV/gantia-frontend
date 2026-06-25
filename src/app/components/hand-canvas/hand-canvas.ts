@@ -1,5 +1,6 @@
 import {
   afterNextRender,
+  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   effect,
@@ -28,6 +29,7 @@ import { getActionLabel, FLEX_STATE_LABELS } from '@core/models/glove-telemetry.
   templateUrl: './hand-canvas.html',
   styleUrl: './hand-canvas.scss',
   providers: [MessageService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class HandCanvas {
   private window = inject(WINDOW);

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, signal } from '@angular/core';
 import { gsap } from 'gsap';
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
 
@@ -9,6 +9,7 @@ gsap.registerPlugin(ScrambleTextPlugin);
   imports: [],
   templateUrl: './letras-gantia.html',
   styleUrl: './letras-gantia.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LetrasGantia implements OnInit, OnDestroy {
   griego = "γαντια";

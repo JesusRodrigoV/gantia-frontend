@@ -23,6 +23,16 @@ export interface ActionEvent {
   action_value: unknown;
 }
 
+export interface GestureDetectedEvent {
+  type: 'gesture_detected';
+  gesture: string;
+  action: string;
+}
+
+export function isGestureDetected(data: unknown): data is GestureDetectedEvent {
+  return typeof data === 'object' && data !== null && (data as any).type === 'gesture_detected';
+}
+
 const ACTION_LABELS: Record<string, string> = {
   mouse_mode: 'Mouse Mode',
   volume_up: 'Subir Volumen',
@@ -50,6 +60,9 @@ const ACTION_LABELS: Record<string, string> = {
   right_click: 'Click Derecho',
   scroll: 'Scroll',
   mouse_move: 'Mover Mouse',
+  execute_cmd: 'Ejecutar Comando',
+  sequence: 'Secuencia',
+  delay: 'Esperar',
 };
 
 export function getActionLabel(action: string): string {

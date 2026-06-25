@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { RouterOutlet, Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MessageService } from 'primeng/api';
@@ -12,6 +12,7 @@ import { SensorSocket } from '@core/services/sensor-socket';
   imports: [Header, Toast, ConfirmPopup, RouterOutlet],
   templateUrl: './base-layout.html',
   styleUrl: './base-layout.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class BaseLayout implements OnInit, OnDestroy {
   private readonly sensorSocket = inject(SensorSocket);

@@ -370,7 +370,8 @@
   }
 }
 
-.form-select {
+.form-select,
+.form-input {
   padding: 0.5rem 0.65rem;
   border: 1px solid var(--p-surface-200);
   border-radius: 8px;
@@ -379,12 +380,28 @@
   color: var(--p-surface-700);
   background-color: var(--p-surface-0);
   outline: none;
-  cursor: pointer;
   transition: border-color 0.15s ease;
-  appearance: auto;
 
   &:focus {
     border-color: var(--p-primary-500);
+  }
+}
+
+.form-select {
+  cursor: pointer;
+  appearance: auto;
+}
+
+.form-hint {
+  font-size: 0.7rem;
+  color: var(--p-surface-500);
+  line-height: 1.4;
+
+  code {
+    background-color: var(--p-surface-100);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 0.68rem;
   }
 }
 

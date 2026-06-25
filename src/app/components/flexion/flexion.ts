@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, effect, inject, signal } from '@angular/core';
 import { SensorSocket } from '@core/services/sensor-socket';
 import { FLEX_STATE_LABELS } from '@core/models/glove-telemetry.model';
 
@@ -9,6 +9,7 @@ const GLOW_MS = 300;
   imports: [],
   templateUrl: './flexion.html',
   styleUrl: './flexion.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Flexion {
   protected readonly sensorSocket = inject(SensorSocket);

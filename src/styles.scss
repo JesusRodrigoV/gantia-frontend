@@ -17,6 +17,8 @@ body {
   font-family: var(--font-ui);
   background-color: var(--p-surface-50);
   color: var(--p-surface-800);
+  scrollbar-width: thin;
+  scrollbar-color: var(--p-surface-300) transparent;
 }
 
 ::-webkit-scrollbar {

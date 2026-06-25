@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
@@ -19,6 +19,7 @@ import { finalize } from 'rxjs';
   templateUrl: './settings.html',
   styleUrl: './settings.scss',
   providers: [MessageService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class Settings implements OnInit, OnDestroy {
   private readonly mouseConfigService = inject(MouseConfigService);
@@ -28,8 +29,8 @@ export default class Settings implements OnInit, OnDestroy {
 
   protected loading = signal(true);
   protected sensLoading = signal(true);
-  protected invertRoll = false;
-  protected invertPitch = false;
+  protected invertRoll = signal(false);
+  protected invertPitch = signal(false);
 
   protected sens = signal<SensitivitySettings | null>(null);
   protected savingKeys = signal<Set<string>>(new Set());
@@ -63,8 +64,8 @@ export default class Settings implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.mouseConfigService.getConfig().pipe(finalize(() => this.loading.set(false))).subscribe({
       next: (config) => {
-        this.invertRoll = config.invert_roll;
-        this.invertPitch = config.invert_pitch;
+        this.invertRoll.set(config.invert_roll);
+        this.invertPitch.set(config.invert_pitch);
       },
       error: () => {
         this.messageService.add({
@@ -131,10 +132,10 @@ export default class Settings implements OnInit, OnDestroy {
     }, 300));
   }
 
-  onRollChange(): void {
-    this.mouseConfigService.updateConfig({ invert_roll: this.invertRoll }).subscribe({
+  onRollChange(value: boolean): void {
+    this.mouseConfigService.updateConfig({ invert_roll: value }).subscribe({
       next: (config) => {
-        this.invertRoll = config.invert_roll;
+        this.invertRoll.set(config.invert_roll);
         this.messageService.add({
           severity: 'success',
           summary: 'Guardado',
@@ -143,7 +144,6 @@ export default class Settings implements OnInit, OnDestroy {
         });
       },
       error: () => {
-        this.invertRoll = !this.invertRoll;
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -154,10 +154,10 @@ export default class Settings implements OnInit, OnDestroy {
     });
   }
 
-  onPitchChange(): void {
-    this.mouseConfigService.updateConfig({ invert_pitch: this.invertPitch }).subscribe({
+  onPitchChange(value: boolean): void {
+    this.mouseConfigService.updateConfig({ invert_pitch: value }).subscribe({
       next: (config) => {
-        this.invertPitch = config.invert_pitch;
+        this.invertPitch.set(config.invert_pitch);
         this.messageService.add({
           severity: 'success',
           summary: 'Guardado',
@@ -166,7 +166,6 @@ export default class Settings implements OnInit, OnDestroy {
         });
       },
       error: () => {
-        this.invertPitch = !this.invertPitch;
         this.messageService.add({
           severity: 'error',
           summary: 'Error',

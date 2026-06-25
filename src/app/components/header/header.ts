@@ -1,5 +1,5 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, inject, signal, computed, HostListener } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -21,6 +21,10 @@ import { env } from '../../../environments/environment';
   imports: [NgOptimizedImage, LetrasGantia, RouterLink, RouterLinkActive, RoundedButton, TooltipModule, FormsModule, SelectModule],
   templateUrl: './header.html',
   styleUrl: './header.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(window:scroll)': 'onScroll()',
+  },
 })
 export class Header {
   private http = inject(HttpClient);
@@ -35,10 +39,27 @@ export class Header {
   protected picoTargetLabel = computed(() => this.picoTarget.targetLabel());
   private confirmationService = inject(ConfirmationService);
   protected readonly modeOptions = [...CONTEXTS];
+  protected readonly targetOptions = [
+    { label: 'Auto', value: 'auto' },
+    { label: 'Pico W', value: 'pico_w' },
+    { label: 'Móvil', value: 'mobile' },
+  ];
+  protected selectedTarget = signal('auto');
+
+  constructor() {
+    this.http.get<{ target: string }>(`${env.apiUrl}/active-target`).subscribe({
+      next: (r) => this.selectedTarget.set(r.target),
+    });
+  }
 
   changeMode(mode: string): void {
     this.sensorSocket.currentMode.set(mode);
     this.http.post(`${env.apiUrl}/mode`, { mode }).subscribe();
+  }
+
+  changeTarget(target: string): void {
+    this.selectedTarget.set(target);
+    this.http.post(`${env.apiUrl}/active-target`, { target }).subscribe();
   }
 
   links=[
@@ -51,7 +72,6 @@ export class Header {
 
   private scrollRaf: number | null = null;
 
-  @HostListener('window:scroll')
   onScroll(): void {
     if (this.scrollRaf !== null) return;
     this.scrollRaf = requestAnimationFrame(() => {

@@ -1,10 +1,9 @@
 import {
   afterNextRender,
+  ChangeDetectionStrategy,
   Component,
-  DOCUMENT,
   effect,
   ElementRef,
-  HostListener,
   inject,
   input,
   viewChild,
@@ -57,6 +56,10 @@ const SYNC_KEY = 'gantia-sensors';
     <div #chartContainer class="uplot-container"></div>
   `,
   styleUrl: '../chart.styles.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(window:resize)': 'onResize()',
+  },
 })
 export class SensorChart implements OnDestroy {
   config = input.required<SensorChartConfig>();
@@ -65,7 +68,6 @@ export class SensorChart implements OnDestroy {
     viewChild.required<ElementRef<HTMLDivElement>>('chartContainer');
 
   private readonly sensorSocket = inject(SensorSocket);
-  private readonly document = inject(DOCUMENT);
   protected readonly seriesLabels = signal(['X', 'Y', 'Z']);
   protected lastValues = signal<[number, number, number] | null>(null);
 
@@ -87,13 +89,10 @@ export class SensorChart implements OnDestroy {
     effect(() => {
       const telemetry = this.sensorSocket.telemetry();
       if (telemetry && !this.paused()) {
-        const win = this.document.defaultView;
-        if (win) {
-          const timestamp = win.Date.now() / 1000;
-          const values = this.config().extractValues(telemetry);
-          this.scheduleDisplayUpdate(values);
-          this.ingestSocketData(timestamp, values[0], values[1], values[2]);
-        }
+        const timestamp = Date.now() / 1000;
+        const values = this.config().extractValues(telemetry);
+        this.scheduleDisplayUpdate(values);
+        this.ingestSocketData(timestamp, values[0], values[1], values[2]);
       }
     });
   }
@@ -110,7 +109,6 @@ export class SensorChart implements OnDestroy {
     this.paused.update((v) => !v);
   }
 
-  @HostListener('window:resize')
   onResize(): void {
     if (this.resizeTimer !== null) clearTimeout(this.resizeTimer);
     this.resizeTimer = setTimeout(() => {

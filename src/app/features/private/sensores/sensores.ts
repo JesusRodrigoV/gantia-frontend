@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
@@ -7,6 +8,7 @@ import {
   afterNextRender,
   OnDestroy,
   signal,
+  effect,
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { AcelerometerChart } from '@components/acelerometer-chart';
@@ -14,7 +16,7 @@ import { Flexion } from '@components/flexion';
 import { GyroscopeChart } from '@components/gyroscope-chart';
 import { Skeleton } from 'primeng/skeleton';
 import { SensorSocket } from '@core/services/sensor-socket';
-import { FLEX_STATE_LABELS } from '@core/models/glove-telemetry.model';
+import { FLEX_STATE_LABELS, getActionLabel } from '@core/models/glove-telemetry.model';
 import { createSwapy } from 'swapy';
 import type { Swapy } from 'swapy';
 
@@ -25,6 +27,7 @@ const STORAGE_KEY = 'gantia-sensor-layout';
   imports: [GyroscopeChart, AcelerometerChart, Flexion, DecimalPipe, Skeleton],
   templateUrl: './sensores.html',
   styleUrl: './sensores.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class Sensores implements OnDestroy {
   protected sensorSocket = inject(SensorSocket);
@@ -60,6 +63,9 @@ export default class Sensores implements OnDestroy {
   protected wsError = computed(
     () => this.sensorSocket.connectionStatus() === 'error' && !this.sensorSocket.telemetry(),
   );
+
+  protected gestureFlash = signal<{ gesture: string; action: string } | null>(null);
+  private gestureTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     afterNextRender(() => {
@@ -97,9 +103,18 @@ export default class Sensores implements OnDestroy {
         }
       });
     });
+
+    effect(() => {
+      const g = this.sensorSocket.gestureDetected();
+      if (!g) return;
+      this.gestureFlash.set({ gesture: g.gesture, action: getActionLabel(g.action) });
+      if (this.gestureTimer) clearTimeout(this.gestureTimer);
+      this.gestureTimer = setTimeout(() => this.gestureFlash.set(null), 2000);
+    });
   }
 
   ngOnDestroy() {
     this.swapy?.destroy();
+    if (this.gestureTimer) clearTimeout(this.gestureTimer);
   }
 }

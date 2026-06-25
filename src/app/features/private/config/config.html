@@ -464,6 +464,17 @@
             }
           </select>
         </label>
+
+        <label class="form-field">
+          <span>Valor adicional</span>
+          <input
+            class="form-input"
+            type="text"
+            [(ngModel)]="form().action_value"
+            placeholder="Ej: open_browser:url|delay:2|hotkey:f11"
+          />
+          <small class="form-hint">Para secuencias: <code>accion:valor|accion:valor</code>. Para comandos: el texto del comando.</small>
+        </label>
       </div>
 
       <div class="modal-footer">

@@ -1,4 +1,4 @@
-import { Component, inject, Injector, OnInit, signal, computed, effect, OnDestroy, EffectRef, runInInjectionContext } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, Injector, OnInit, signal, computed, effect, OnDestroy, EffectRef, runInInjectionContext } from '@angular/core';
 import { DecimalPipe, PercentPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Skeleton } from 'primeng/skeleton';
@@ -388,7 +388,7 @@ export default class Config implements OnInit, OnDestroy {
 
   openCreateDialog(): void {
     this.editingId.set(null);
-    this.form.set({ movement: 'NONE', orientation: 'ANY', index_state: 0, middle_state: 0, action_key: 'play_pause', context: 'GLOBAL' });
+    this.form.set({ movement: 'NONE', orientation: 'ANY', index_state: 0, middle_state: 0, action_key: 'play_pause', action_value: '', context: 'GLOBAL' });
     this.dialogOpen.set(true);
   }
 
@@ -400,6 +400,7 @@ export default class Config implements OnInit, OnDestroy {
       index_state: config.index_state,
       middle_state: config.middle_state,
       action_key: config.action_key,
+      action_value: config.action_value ?? '',
       context: config.context ?? 'GLOBAL',
     });
     this.dialogOpen.set(true);

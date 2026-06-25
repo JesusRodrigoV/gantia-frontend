@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy, inject, signal } from '@angular/core';
-import { GloveTelemetry, ActionEvent, isActionMessage } from '@core/models/glove-telemetry.model';
+import { GloveTelemetry, ActionEvent, isActionMessage, GestureDetectedEvent, isGestureDetected } from '@core/models/glove-telemetry.model';
 import { env } from '../../../environments/environment';
 import { AuthStore } from '@core/stores/auth.store';
 
@@ -34,6 +34,7 @@ export class SensorSocket implements OnDestroy {
   );
   public readonly actionEvent = signal<ActionEvent | null>(null);
   public readonly recentActions = signal<ActionEvent[]>([]);
+  public readonly gestureDetected = signal<GestureDetectedEvent | null>(null);
 
   private lastMouseModeValue: unknown = null;
   public readonly mouseModeActive = signal(false);
@@ -90,6 +91,11 @@ export class SensorSocket implements OnDestroy {
     this.socket.onmessage = (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data);
+
+        if (isGestureDetected(data)) {
+          this.gestureDetected.set(data);
+          return;
+        }
 
         if (isActionMessage(data)) {
           const msg = data as any;
