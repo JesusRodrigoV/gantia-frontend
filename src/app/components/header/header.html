@@ -67,7 +67,7 @@
       <ul>
         @for (link of links; track link.route) {
           <li>
-            <a [routerLink]="link.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}">{{ link.label }}</a>
+            <a [routerLink]="link.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" data-cuelume-hover="tick">{{ link.label }}</a>
           </li>
         }
         <li

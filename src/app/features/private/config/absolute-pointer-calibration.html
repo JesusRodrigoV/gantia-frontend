@@ -1,0 +1,152 @@
+<div class="abs-calib-wizard">
+  <div class="wizard-header">
+    <h3><i class="bx bx-target-lock"></i> Calibración de Puntero Absoluto</h3>
+    <p class="wizard-subtitle">Configurá las 4 esquinas para mapear tu mano a la pantalla</p>
+  </div>
+
+  <!-- Progress indicator -->
+  <div class="wizard-progress">
+    @for (corner of cornersList; track corner.key) {
+      @let captured = corners()[corner.key] !== null;
+      @let active = step() === $index + 1;
+      <div class="progress-step" [class.active]="active" [class.done]="captured">
+        <div class="progress-dot">
+          @if (captured) {
+            <i class="bx bx-check"></i>
+          } @else {
+            <span>{{ $index + 1 }}</span>
+          }
+        </div>
+        @if ($index < cornersList.length - 1) {
+          <div class="progress-line" [class.done]="captured || cornersList.slice($index + 1).every(c => corners()[c.key] !== null)"></div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="wizard-body">
+    <!-- Step 1-4: Capture corners -->
+    @if (step() >= 1 && step() <= 4) {
+      @let corner = currentCorner();
+      @if (corner) {
+        <div class="capture-phase">
+          <div class="corner-visual">
+            <i class="{{ corner.icon }}" aria-hidden="true"></i>
+            <div class="corner-screen">
+              <div class="corner-marker" [class]="'marker-' + corner.key">
+                <i class="bx bx-crosshair"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="corner-instruction">
+            <h4>{{ corner.label }}</h4>
+            <p>{{ corner.description }}</p>
+          </div>
+
+          @if (!hasGloveData()) {
+            <div class="no-glove-warning">
+              <i class="bx bx-wifi-off"></i>
+              <span>Esperando datos del guante...</span>
+            </div>
+          }
+
+          <div class="live-readings">
+            <div class="reading">
+              <span class="reading-label">Pitch</span>
+              <span class="reading-value">{{ currentPitch() | number:'1.2' }}</span>
+            </div>
+            <div class="reading">
+              <span class="reading-label">Roll</span>
+              <span class="reading-value">{{ currentRoll() | number:'1.2' }}</span>
+            </div>
+          </div>
+
+          <div class="capture-actions">
+            <button class="btn-action primary full-width" (click)="captureCorner()" [disabled]="!hasGloveData()">
+              <i class="bx bx-check"></i> Capturar {{ corner.label }}
+            </button>
+            <button class="btn-action full-width" (click)="cancel()">
+              <i class="bx bx-x"></i> Cancelar
+            </button>
+          </div>
+        </div>
+      }
+    }
+
+    <!-- Step 5: Review & Save -->
+    @if (step() === 0 && allCornersDone()) {
+      <div class="review-phase">
+        <div class="review-header">
+          <i class="bx bx-check-double"></i>
+          <h4>Calibración Completa</h4>
+        </div>
+
+        <div class="corner-summary">
+          @for (corner of cornersList; track corner.key) {
+            @let data = corners()[corner.key];
+            <div class="corner-entry" (click)="redoCorner(corner.key)">
+              <div class="corner-entry-header">
+                <span class="corner-name">{{ corner.label }}</span>
+                <button class="btn-icon" title="Recapturar"><i class="bx bx-revision"></i></button>
+              </div>
+              @if (data) {
+                <div class="corner-data">
+                  <span>Pitch: {{ data.pitch | number:'1.2' }}</span>
+                  <span>Roll: {{ data.roll | number:'1.2' }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="screen-size-inputs">
+          <label class="field">
+            <span>Ancho de pantalla (px)</span>
+            <input type="number" class="form-input" [(ngModel)]="screenWidth" min="1" />
+          </label>
+          <label class="field">
+            <span>Alto de pantalla (px)</span>
+            <input type="number" class="form-input" [(ngModel)]="screenHeight" min="1" />
+          </label>
+        </div>
+
+        @if (error()) {
+          <div class="error-msg">
+            <i class="bx bx-error-circle"></i>
+            <span>{{ error() }}</span>
+          </div>
+        }
+
+        <div class="review-actions">
+          <button class="btn-action primary full-width" (click)="save()" [disabled]="saving()">
+            @if (saving()) {
+              <i class="bx bx-loader-alt bx-spin"></i> Guardando...
+            } @else {
+              <i class="bx bx-save"></i> Guardar Calibración
+            }
+          </button>
+          <button class="btn-action full-width" (click)="cancel()">
+            <i class="bx bx-x"></i> Cancelar
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Empty state before starting -->
+    @if (step() === 0 && !allCornersDone()) {
+      <div class="start-phase">
+        <div class="start-icon">
+          <i class="bx bx-target-lock"></i>
+        </div>
+        <p class="start-text">Este asistente te guiará para calibrar las 4 esquinas de la pantalla. Vas a inclinar tu mano hacia cada esquina mientras presionás el botón del guante para registrar la posición.</p>
+        <button class="btn-action primary full-width" (click)="start()">
+          <i class="bx bx-play"></i> Iniciar Calibración
+        </button>
+        <button class="btn-action full-width" (click)="close.emit()">
+          <i class="bx bx-x"></i> Cerrar
+        </button>
+      </div>
+    }
+  </div>
+</div>

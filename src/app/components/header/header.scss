@@ -14,10 +14,14 @@
   width: calc(100% - 3rem);
   max-width: 1200px;
   margin: 1rem auto;
-  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
 
   &.scrolled {
-    box-shadow: var(--shadow-elevated), 0 4px 20px color-mix(in srgb, var(--p-primary-500) 10%, transparent);
+    box-shadow:
+      var(--shadow-elevated),
+      0 4px 20px color-mix(in srgb, var(--p-primary-500) 10%, transparent);
   }
 
   .header-container {
@@ -53,7 +57,9 @@
       align-items: center;
       justify-content: center;
       cursor: default;
-      transition: box-shadow 0.3s ease, background-color 0.3s ease;
+      transition:
+        box-shadow 0.3s ease,
+        background-color 0.3s ease;
 
       .status-dot {
         width: 10px;
@@ -76,8 +82,12 @@
 
       &.status-connected {
         background-color: var(--p-surface-0);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-500) 15%, transparent), var(--shadow-elevated-sm);
-        .status-dot { background-color: var(--p-primary-500); }
+        box-shadow:
+          0 0 0 3px color-mix(in srgb, var(--p-primary-500) 15%, transparent),
+          var(--shadow-elevated-sm);
+        .status-dot {
+          background-color: var(--p-primary-500);
+        }
 
         &.data-flowing {
           .status-dot {
@@ -89,19 +99,35 @@
         }
       }
 
+      &.status-reconnecting {
+        background-color: var(--p-surface-0);
+        box-shadow:
+          0 0 0 3px color-mix(in srgb, var(--p-warning-500) 15%, transparent),
+          var(--shadow-elevated-sm);
+        .status-dot {
+          background-color: var(--p-warning-500);
+          animation: pulse 0.8s infinite;
+        }
+      }
+
       &.status-connecting {
         background-color: var(--p-surface-0);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-300) 15%, transparent), var(--shadow-elevated-sm);
+        box-shadow:
+          0 0 0 3px color-mix(in srgb, var(--p-primary-300) 15%, transparent),
+          var(--shadow-elevated-sm);
         .status-dot {
           background-color: var(--p-primary-300);
           animation: pulse 1s infinite;
         }
       }
 
-      &.status-disconnected, &.status-error {
+      &.status-disconnected,
+      &.status-error {
         background-color: var(--p-surface-0);
         box-shadow: var(--shadow-inset-sm);
-        .status-dot { background-color: var(--p-surface-300); }
+        .status-dot {
+          background-color: var(--p-surface-300);
+        }
       }
     }
 
@@ -122,7 +148,9 @@
         height: 8px;
         border-radius: 50%;
         background-color: var(--p-surface-300);
-        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        transition:
+          background-color 0.3s ease,
+          box-shadow 0.3s ease;
 
         &.connected {
           background-color: var(--p-primary-500);
@@ -142,7 +170,9 @@
       font-size: 1.15rem;
       color: var(--p-primary-500);
       background-color: var(--p-surface-0);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-500) 20%, transparent), var(--shadow-elevated-sm);
+      box-shadow:
+        0 0 0 3px color-mix(in srgb, var(--p-primary-500) 20%, transparent),
+        var(--shadow-elevated-sm);
       animation: mm-pulse 2s ease-in-out infinite;
     }
 
@@ -189,23 +219,50 @@
     }
 
     @keyframes mm-pulse {
-      0%, 100% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-500) 20%, transparent), var(--shadow-elevated-sm); }
-      50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--p-primary-500) 12%, transparent), var(--shadow-elevated-sm); }
+      0%,
+      100% {
+        box-shadow:
+          0 0 0 3px color-mix(in srgb, var(--p-primary-500) 20%, transparent),
+          var(--shadow-elevated-sm);
+      }
+      50% {
+        box-shadow:
+          0 0 0 6px color-mix(in srgb, var(--p-primary-500) 12%, transparent),
+          var(--shadow-elevated-sm);
+      }
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
+      0%,
+      100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.3;
+      }
     }
 
     @keyframes data-pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.6; transform: scale(1.3); }
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.6;
+        transform: scale(1.3);
+      }
     }
 
     @keyframes flow-expand {
-      0% { transform: scale(1); opacity: 0.8; }
-      100% { transform: scale(2.8); opacity: 0; }
+      0% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(2.8);
+        opacity: 0;
+      }
     }
 
     .theme-toggle {

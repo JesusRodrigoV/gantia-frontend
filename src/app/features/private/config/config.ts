@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, Injector, OnInit, signal, computed, effect, OnDestroy, EffectRef, runInInjectionContext } from '@angular/core';
 import { DecimalPipe, PercentPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { Skeleton } from 'primeng/skeleton';
 import { Toast } from 'primeng/toast';
 import { MessageService, ConfirmationService } from 'primeng/api';
@@ -10,19 +11,24 @@ import { ConfigService } from '@core/services/config.service';
 import { SensorSocket } from '@core/services/sensor-socket';
 import { LearningService, LearnAnalysis } from '@core/services/learning.service';
 import {
-  GestureConfig, GestureConfigForm, CONTEXTS, MOVEMENTS, ORIENTATIONS, FLEX_STATES, ACTIONS,
+  GestureConfig, GestureConfigForm, MacroStep, CONTEXTS, MOVEMENTS, ORIENTATIONS, FLEX_STATES, ACTIONS,
   getMovementLabel, getOrientationLabel, getFlexStateLabel, getContextLabel,
 } from '@core/models/gesture-config.model';
+import { MacroRecordingService } from '@core/services/macro-recording.service';
+import { SoundService } from '@core/services/sound.service';
 import { getActionLabel } from '@core/models/glove-telemetry.model';
 import { CalibrationEntry } from '@core/models/calibration.model';
+import { env } from '../../../../environments/environment';
 import { finalize } from 'rxjs';
+import AbsolutePointerCalibration from './absolute-pointer-calibration';
 
 @Component({
   selector: 'app-config',
-  imports: [FormsModule, Skeleton, Toast, DecimalPipe, PercentPipe],
+  imports: [FormsModule, Skeleton, Toast, DecimalPipe, PercentPipe, AbsolutePointerCalibration],
   providers: [MessageService],
   templateUrl: './config.html',
   styleUrl: './config.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class Config implements OnInit, OnDestroy {
   private readonly gestureService = inject(GestureConfigService);
@@ -32,7 +38,10 @@ export default class Config implements OnInit, OnDestroy {
   private readonly learningService = inject(LearningService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly http = inject(HttpClient);
   private readonly sensorSocket = inject(SensorSocket);
+  private readonly macroRecordingService = inject(MacroRecordingService);
+  private readonly soundService = inject(SoundService);
   private readonly debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   protected gestureConfigs = signal<GestureConfig[]>([]);
@@ -56,6 +65,35 @@ export default class Config implements OnInit, OnDestroy {
   protected saving = signal(false);
   protected syncing = signal(false);
 
+  protected onFormField(field: keyof GestureConfigForm, value: string | number | undefined): void {
+    this.form.update(f => ({ ...f, [field]: value }));
+  }
+
+  protected onCompositeField(step: 1 | 2, field: string, value: string | number): void {
+    const sig = step === 1 ? this.compositeStep1 : this.compositeStep2;
+    sig.update(s => ({ ...s, [field]: value }));
+  }
+
+  protected recording = signal(false);
+  protected recordedKeys = signal<string[]>([]);
+  protected showKeyRecorder = computed(() => this.form().action_key === 'hotkey');
+  protected showSequenceEditor = computed(() => this.form().action_key === 'sequence');
+
+  // Macro step editor state
+  protected macroSteps = signal<MacroStep[]>([]);
+  protected macroRepeat = signal(1);
+  protected isRecording = signal(false);
+
+  // Composite state
+  protected showCompositeEditor = computed(() => this.form().movement === 'COMPOSITE');
+  protected compositeStep1 = signal<{ movement: string; index_state: number; middle_state: number; orientation: string }>({
+    movement: 'SWIPE_RIGHT', index_state: 2, middle_state: 2, orientation: 'ANY',
+  });
+  protected compositeStep2 = signal<{ movement: string; index_state: number; middle_state: number; orientation: string }>({
+    movement: 'TWIST', index_state: 2, middle_state: 2, orientation: 'ANY',
+  });
+  protected compositeActionKey = signal<string>('next_track');
+
   protected testMode = signal(false);
   protected testActions = signal<Array<{ id: string; action: string; time: string }>>([]);
   protected testTelemetry = signal<any>(null);
@@ -68,6 +106,19 @@ export default class Config implements OnInit, OnDestroy {
   protected calibLiveValue = signal(0);
   protected calibSaving = signal(false);
 
+  // Absolute pointer state
+  protected readonly absPointerEnabled = computed(() => this.sensorSocket.absolutePointerEnabled());
+  protected absCalibrationData = signal<any | null>(null); // null = unknown/not found
+  protected absCalibrationExists = computed(() => this.absCalibrationData() !== null);
+  protected absCalibrationIsDraft = computed(() => this.absCalibrationData()?.status === 'draft');
+  protected absCalibrationCorners = computed(() => {
+    const data = this.absCalibrationData();
+    if (!data?.corners) return 0;
+    return Object.keys(data.corners).length;
+  });
+  protected absCalibWizardOpen = signal(false);
+  protected absCalibLoading = signal(false);
+
   protected readonly contexts = CONTEXTS;
   protected readonly movements = MOVEMENTS;
   protected readonly orientations = ORIENTATIONS;
@@ -78,6 +129,30 @@ export default class Config implements OnInit, OnDestroy {
   protected readonly getFlexStateLabel = getFlexStateLabel;
   protected readonly getContextLabel = getContextLabel;
   protected readonly getActionLabel = getActionLabel;
+
+  protected readonly KEY_MAP: Record<string, string> = {
+    Control: 'ctrl', Alt: 'alt', Shift: 'shift', Meta: 'win',
+    ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down',
+    ' ': 'space', Escape: 'escape', Enter: 'enter', Tab: 'tab',
+    Delete: 'delete', Backspace: 'backspace',
+    F1: 'f1', F2: 'f2', F3: 'f3', F4: 'f4', F5: 'f5', F6: 'f6',
+    F7: 'f7', F8: 'f8', F9: 'f9', F10: 'f10', F11: 'f11', F12: 'f12',
+  };
+
+  protected readonly hotkeyPresets = [
+    { label: 'Ctrl+C', value: 'ctrl,c' },
+    { label: 'Ctrl+V', value: 'ctrl,v' },
+    { label: 'Ctrl+X', value: 'ctrl,x' },
+    { label: 'Ctrl+Z', value: 'ctrl,z' },
+    { label: 'Win+D', value: 'win,d' },
+    { label: 'Alt+Tab', value: 'alt,tab' },
+    { label: 'Win+E', value: 'win,e' },
+    { label: 'Ctrl+Shift+Esc', value: 'ctrl,shift,esc' },
+    { label: 'F5', value: 'f5' },
+    { label: 'F11', value: 'f11' },
+    { label: 'Win+R', value: 'win,r' },
+    { label: 'Ctrl+Alt+Del', value: 'ctrl,alt,delete' },
+  ];
 
   protected activeContextTab = signal<string>('ALL');
   protected filteredConfigs = computed(() => {
@@ -107,6 +182,7 @@ export default class Config implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadGestureConfigs();
     this.loadCalibration();
+    this.checkAbsCalibration();
   }
 
   ngOnDestroy(): void {
@@ -213,6 +289,7 @@ export default class Config implements OnInit, OnDestroy {
       next: () => {
         this.closeLearnWizard();
         this.loadGestureConfigs();
+        this.soundService.play('success');
         this.messageService.add({
           severity: 'success',
           summary: 'Gesto aprendido',
@@ -222,6 +299,7 @@ export default class Config implements OnInit, OnDestroy {
       },
       error: (err) => {
         const detail = err?.error?.detail || 'No se pudo guardar el gesto aprendido';
+        this.soundService.play('droplet');
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -238,6 +316,37 @@ export default class Config implements OnInit, OnDestroy {
     this.learnEffectCleanup = null;
     this.learningService.cancel().subscribe();
     this.sensorSocket.disconnect();
+  }
+
+  checkAbsCalibration(): void {
+    this.absCalibLoading.set(true);
+    this.http.get(`${env.apiUrl}/absolute-pointer/calibration`).pipe(finalize(() => this.absCalibLoading.set(false))).subscribe({
+      next: (data: any) => this.absCalibrationData.set(data),
+      error: () => this.absCalibrationData.set(null),
+    });
+  }
+
+  toggleAbsPointer(enabled: boolean): void {
+    this.sensorSocket.sendToggleAbsolutePointer(enabled);
+  }
+
+  openAbsCalibWizard(): void {
+    this.absCalibWizardOpen.set(true);
+  }
+
+  onAbsCalibSaved(): void {
+    this.absCalibWizardOpen.set(false);
+    this.checkAbsCalibration();
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Calibración guardada',
+      detail: 'El puntero absoluto ya está calibrado',
+      life: 3000,
+    });
+  }
+
+  closeAbsCalibWizard(): void {
+    this.absCalibWizardOpen.set(false);
   }
 
   startTestMode(): void {
@@ -389,6 +498,14 @@ export default class Config implements OnInit, OnDestroy {
   openCreateDialog(): void {
     this.editingId.set(null);
     this.form.set({ movement: 'NONE', orientation: 'ANY', index_state: 0, middle_state: 0, action_key: 'play_pause', action_value: '', context: 'GLOBAL' });
+    this.recordedKeys.set([]);
+    this.recording.set(false);
+    this.compositeStep1.set({ movement: 'SWIPE_RIGHT', index_state: 2, middle_state: 2, orientation: 'ANY' });
+    this.compositeStep2.set({ movement: 'TWIST', index_state: 2, middle_state: 2, orientation: 'ANY' });
+    this.compositeActionKey.set('next_track');
+    this.macroSteps.set([]);
+    this.macroRepeat.set(1);
+    this.isRecording.set(false);
     this.dialogOpen.set(true);
   }
 
@@ -403,16 +520,76 @@ export default class Config implements OnInit, OnDestroy {
       action_value: config.action_value ?? '',
       context: config.context ?? 'GLOBAL',
     });
+    if (config.movement === 'COMPOSITE' && config.action_value) {
+      try {
+        const steps = JSON.parse(config.action_value);
+        if (Array.isArray(steps) && steps.length >= 2) {
+          this.compositeStep1.set(steps[0]);
+          this.compositeStep2.set(steps[1]);
+        }
+      } catch {}
+      this.compositeActionKey.set(config.action_key);
+    }
+    if (config.action_key === 'hotkey' && config.action_value) {
+      this.recordedKeys.set(config.action_value.split(','));
+    } else {
+      this.recordedKeys.set([]);
+    }
+    this.recording.set(false);
+
+    // Load existing macro steps for sequence action
+    if (config.action_key === 'sequence' && config.action_value) {
+      try {
+        const parsed = JSON.parse(config.action_value);
+        if (parsed && typeof parsed === 'object') {
+          if (Array.isArray(parsed.steps)) {
+            this.macroSteps.set(parsed.steps);
+            this.macroRepeat.set(parsed.repeat ?? 1);
+          } else if (Array.isArray(parsed)) {
+            // Legacy bare array format
+            this.macroSteps.set(parsed.map((s: any) => ({ action: s.action, value: s.value ?? '' })));
+          }
+        }
+      } catch {
+        // Try pipe-separated format
+        const steps = this.parsePipeToSteps(config.action_value);
+        if (steps.length > 0) {
+          this.macroSteps.set(steps);
+        }
+      }
+    } else {
+      this.macroSteps.set([]);
+      this.macroRepeat.set(1);
+    }
+    this.isRecording.set(false);
     this.dialogOpen.set(true);
   }
 
   closeDialog(): void {
+    this.recording.set(false);
+    this.recordedKeys.set([]);
     this.dialogOpen.set(false);
   }
 
   saveGesture(): void {
     this.saving.set(true);
-    const data = this.form();
+    const data = { ...this.form() };
+
+    // Build JSON action_value for composites
+    if (data.movement === 'COMPOSITE') {
+      const s1 = this.compositeStep1();
+      const s2 = this.compositeStep2();
+      data.action_value = JSON.stringify([s1, s2]);
+      data.action_key = this.compositeActionKey();
+      data.orientation = 'ANY';
+      data.index_state = 0;
+      data.middle_state = 0;
+    }
+
+    // Build JSON action_value for sequence macros
+    if (data.action_key === 'sequence') {
+      data.action_value = this.buildMacroJson();
+    }
 
     const action = this.editingId()
       ? this.gestureService.update(this.editingId()!, data)
@@ -428,6 +605,7 @@ export default class Config implements OnInit, OnDestroy {
           return [...list, { ...saved, id: saved.id }];
         });
         this.closeDialog();
+        this.soundService.play('success');
         this.messageService.add({
           severity: 'success',
           summary: 'Guardado',
@@ -457,6 +635,7 @@ export default class Config implements OnInit, OnDestroy {
         this.gestureService.delete(id).subscribe({
           next: () => {
             this.gestureConfigs.update(list => list.filter(g => g.id !== id));
+            this.soundService.play('success');
             this.messageService.add({
               severity: 'success',
               summary: 'Eliminado',
@@ -477,14 +656,114 @@ export default class Config implements OnInit, OnDestroy {
     });
   }
 
+  protected startRecording(): void {
+    this.recording.set(true);
+  }
+
+  protected stopRecording(): void {
+    this.recording.set(false);
+  }
+
+  protected onKeyDown(event: KeyboardEvent): void {
+    event.preventDefault();
+    const key = event.key;
+    const mapped = this.KEY_MAP[key] ?? key.toLowerCase();
+    if (mapped.length > 1 || /^[a-z0-9]$/.test(mapped)) {
+      this.recordedKeys.update(keys => {
+        if (!keys.includes(mapped)) return [...keys, mapped];
+        return keys;
+      });
+    }
+    this.form.update(f => ({ ...f, action_value: this.recordedKeys().join(',') }));
+  }
+
+  protected clearRecording(): void {
+    this.recordedKeys.set([]);
+    this.form.update(f => ({ ...f, action_value: '' }));
+  }
+
+  protected applyPreset(value: string): void {
+    this.recordedKeys.set(value.split(','));
+    this.form.update(f => ({ ...f, action_value: value }));
+  }
+
+  // ── Macro step helpers ──
+
+  protected addMacroStep(): void {
+    this.macroSteps.update(steps => [...steps, { action: 'hotkey', value: '' }]);
+  }
+
+  protected removeMacroStep(index: number): void {
+    this.macroSteps.update(steps => steps.filter((_, i) => i !== index));
+  }
+
+  protected moveMacroStepUp(index: number): void {
+    if (index <= 0) return;
+    this.macroSteps.update(steps => {
+      const copy = [...steps];
+      [copy[index - 1], copy[index]] = [copy[index], copy[index - 1]];
+      return copy;
+    });
+  }
+
+  protected moveMacroStepDown(index: number): void {
+    this.macroSteps.update(steps => {
+      if (index >= steps.length - 1) return steps;
+      const copy = [...steps];
+      [copy[index], copy[index + 1]] = [copy[index + 1], copy[index]];
+      return copy;
+    });
+  }
+
+  protected updateMacroStepAction(index: number, action: string): void {
+    this.macroSteps.update(steps =>
+      steps.map((s, i) => (i === index ? { ...s, action } : s)),
+    );
+  }
+
+  protected updateMacroStepValue(index: number, value: string): void {
+    this.macroSteps.update(steps =>
+      steps.map((s, i) => (i === index ? { ...s, value } : s)),
+    );
+  }
+
+  protected parsePipeToSteps(value: string): MacroStep[] {
+    return value.split('|').map(part => {
+      const colonIdx = part.indexOf(':');
+      if (colonIdx > 0) {
+        return { action: part.slice(0, colonIdx).trim(), value: part.slice(colonIdx + 1).trim() };
+      }
+      return { action: part.trim() };
+    });
+  }
+
+  protected buildMacroJson(): string {
+    return JSON.stringify({ steps: this.macroSteps(), repeat: this.macroRepeat() });
+  }
+
+  protected toggleRecording(): void {
+    if (this.isRecording()) {
+      const steps = this.macroRecordingService.stop();
+      if (steps.length > 0) {
+        this.macroSteps.update(existing => [...existing, ...steps]);
+      }
+      this.isRecording.set(false);
+    } else {
+      this.macroRecordingService.start();
+      this.isRecording.set(true);
+    }
+  }
+
   syncFromSupabase(): void {
     this.syncing.set(true);
     this.configService.refreshFromSupabase().pipe(finalize(() => this.syncing.set(false))).subscribe({
       next: () => {
         this.loadGestureConfigs();
         this.loadCalibration();
+        this.soundService.play('success');
       },
       error: () => {
+        this.soundService.play('droplet');
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -529,6 +808,7 @@ export default class Config implements OnInit, OnDestroy {
         a.download = 'gantia-gestos.json';
         a.click();
         URL.revokeObjectURL(url);
+        this.soundService.play('sparkle');
         this.messageService.add({
           severity: 'success',
           summary: 'Exportado',
@@ -537,6 +817,7 @@ export default class Config implements OnInit, OnDestroy {
         });
       },
       error: () => {
+        this.soundService.play('droplet');
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -561,6 +842,7 @@ export default class Config implements OnInit, OnDestroy {
         this.gestureService.importConfigs(data).pipe(finalize(() => this.importing.set(false))).subscribe({
           next: (res) => {
             this.loadGestureConfigs();
+            this.soundService.play('success');
             this.messageService.add({
               severity: 'success',
               summary: 'Importado',
@@ -569,6 +851,7 @@ export default class Config implements OnInit, OnDestroy {
             });
           },
           error: () => {
+            this.soundService.play('droplet');
             this.messageService.add({
               severity: 'error',
               summary: 'Error',

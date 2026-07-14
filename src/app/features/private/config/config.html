@@ -4,7 +4,7 @@
   <div class="config-header">
     <i class="bx bx-gesture" aria-hidden="true"></i>
     <h1>Gestos</h1>
-    <button class="btn-action" (click)="syncFromSupabase()" [disabled]="syncing()">
+    <button class="btn-action" (click)="syncFromSupabase()" [disabled]="syncing()" data-cuelume-press data-cuelume-release>
       @if (syncing()) {
         <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
       } @else {
@@ -12,7 +12,7 @@
       }
       {{ syncing() ? 'Sincronizando...' : 'Sincronizar' }}
     </button>
-    <button class="btn-action" (click)="exportConfigs()" [disabled]="exporting()">
+    <button class="btn-action" (click)="exportConfigs()" [disabled]="exporting()" data-cuelume-press data-cuelume-release>
       @if (exporting()) {
         <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
       } @else {
@@ -20,7 +20,7 @@
       }
       {{ exporting() ? 'Exportando...' : 'Exportar' }}
     </button>
-    <button class="btn-action" (click)="fileInput.click()" [disabled]="importing()">
+    <button class="btn-action" (click)="fileInput.click()" [disabled]="importing()" data-cuelume-press data-cuelume-release>
       @if (importing()) {
         <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
       } @else {
@@ -29,7 +29,7 @@
       {{ importing() ? 'Importando...' : 'Importar' }}
     </button>
     <input #fileInput type="file" accept=".json" (change)="onImportFile($event)" hidden />
-    <button class="btn-action danger" (click)="resetToDefaults()" [disabled]="resettando()">
+    <button class="btn-action danger" (click)="resetToDefaults()" [disabled]="resettando()" data-cuelume-press data-cuelume-release>
       @if (resettando()) {
         <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
       } @else {
@@ -39,16 +39,88 @@
     </button>
   </div>
 
+  <section class="config-section">
+    <div class="section-header">
+      <h2><i class="bx bx-target-lock"></i> Puntero Absoluto</h2>
+    </div>
+
+    <div class="abs-pointer-section">
+      <div class="abs-pointer-info">
+        <div class="abs-pointer-description">
+          <p>Modo PRESENTATION: mapea la inclinación de tu mano a posición absoluta en pantalla. Sin deriva, sin yaw.</p>
+        </div>
+        <div class="abs-pointer-status">
+          @if (absCalibLoading()) {
+            <span class="status-badge loading">Verificando calibración...</span>
+          } @else if (absCalibrationIsDraft()) {
+            <span class="status-badge draft"><i class="bx bx-error-circle"></i> Calibración incompleta ({{ absCalibrationCorners() }}/4 esquinas)</span>
+          } @else if (absCalibrationExists()) {
+            <span class="status-badge ok"><i class="bx bx-check-circle"></i> Calibrado</span>
+          } @else {
+            <span class="status-badge missing"><i class="bx bx-error-circle"></i> No calibrado</span>
+          }
+        </div>
+      </div>
+
+      <div class="abs-pointer-controls">
+        <div class="toggle-row">
+          <span class="toggle-label">Puntero Absoluto</span>
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              [checked]="absPointerEnabled()"
+              [disabled]="!absCalibrationExists() || absCalibrationIsDraft()"
+              (change)="toggleAbsPointer($any($event.target).checked)"
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        @if (absCalibrationIsDraft() && !absCalibLoading()) {
+          <p class="calib-required-msg">
+            <i class="bx bx-info-circle"></i>
+            Calibración incompleta ({{ absCalibrationCorners() }}/4 esquinas) — completá las 4 esquinas para activar el puntero absoluto
+          </p>
+        } @else if (!absCalibrationExists() && !absCalibLoading()) {
+          <p class="calib-required-msg">
+            <i class="bx bx-info-circle"></i>
+            Se requiere calibración antes de usar el puntero absoluto
+          </p>
+        }
+
+        <button class="btn-action primary full-width" (click)="openAbsCalibWizard()" data-cuelume-press data-cuelume-release>
+          <i class="bx bx-wrench"></i>
+          {{ absCalibrationExists() ? 'Recalibrar' : 'Iniciar Calibración' }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+  @if (absCalibWizardOpen()) {
+    <div class="modal-overlay" (click)="closeAbsCalibWizard()">
+      <div class="modal-content abs-calib-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3><i class="bx bx-target-lock"></i> Calibración de Puntero Absoluto</h3>
+          <button class="btn-icon" (click)="closeAbsCalibWizard()"><i class="bx bx-x"></i></button>
+        </div>
+        <app-absolute-pointer-calibration
+          (close)="closeAbsCalibWizard()"
+          (saved)="onAbsCalibSaved()"
+        />
+      </div>
+    </div>
+  }
+
   <section class="config-section test-section" [class.active-test]="testMode()">
     <div class="section-header">
       <h2><i class="bx bx-test-tube"></i> Modo Prueba</h2>
       <div class="section-actions">
         @if (testMode()) {
-          <button class="btn-action danger" (click)="stopTestMode()">
+          <button class="btn-action danger" (click)="stopTestMode()" data-cuelume-press data-cuelume-release>
             <i class="bx bx-stop" aria-hidden="true"></i> Detener
           </button>
         } @else {
-          <button class="btn-action" (click)="startTestMode()">
+          <button class="btn-action" (click)="startTestMode()" data-cuelume-press data-cuelume-release>
             <i class="bx bx-play" aria-hidden="true"></i> Iniciar prueba
           </button>
         }
@@ -214,7 +286,7 @@
             }
             <label class="form-field">
               <span>Acción a ejecutar</span>
-              <select [(ngModel)]="learnActionKey" class="form-select">
+               <select [ngModel]="learnActionKey()" (ngModelChange)="learnActionKey.set($event)" class="form-select">
                 @for (a of actions; track a) {
                   <option [value]="a">{{ getActionLabel(a) }}</option>
                 }
@@ -244,13 +316,13 @@
     <div class="section-header">
       <h2>Gestos</h2>
       <div class="section-actions">
-        <button class="btn-action" (click)="openLearnWizard()">
+        <button class="btn-action" (click)="openLearnWizard()" data-cuelume-press data-cuelume-release>
           <i class="bx bx-gesture"></i> Aprender
         </button>
-        <button class="btn-action" (click)="openCreateDialog()">
+        <button class="btn-action" (click)="openCreateDialog()" data-cuelume-press data-cuelume-release>
           <i class="bx bx-plus" aria-hidden="true"></i> Añadir
         </button>
-        <button class="btn-action" (click)="refreshConfigs()">
+        <button class="btn-action" (click)="refreshConfigs()" data-cuelume-press data-cuelume-release>
           <i class="bx bx-refresh" aria-hidden="true"></i> Recargar
         </button>
       </div>
@@ -261,12 +333,14 @@
         class="context-tab"
         [class.active]="activeContextTab() === 'ALL'"
         (click)="activeContextTab.set('ALL')"
+        data-cuelume-hover="tick"
       >Todos</button>
       @for (c of contexts; track c) {
         <button
           class="context-tab"
           [class.active]="activeContextTab() === c"
           (click)="activeContextTab.set(c)"
+          data-cuelume-hover="tick"
         >{{ getContextLabel(c) }}</button>
       }
     </div>
@@ -279,19 +353,19 @@
       <div class="state-box error">
         <i class="bx bx-wifi-off"></i>
         <p>No se pudo conectar al servidor</p>
-        <button class="btn-retry" (click)="refreshConfigs()">Reintentar</button>
+        <button class="btn-retry" (click)="refreshConfigs()" data-cuelume-press data-cuelume-release>Reintentar</button>
       </div>
     } @else if (gestureConfigs().length === 0) {
       <div class="state-box empty">
         <i class="bx bx-gesture"></i>
         <p>No hay configuraciones de gestos</p>
-        <button class="btn-action" (click)="openCreateDialog()">Crear primera</button>
+        <button class="btn-action" (click)="openCreateDialog()" data-cuelume-press data-cuelume-release>Crear primera</button>
       </div>
     } @else if (filteredConfigs().length === 0) {
       <div class="state-box empty">
         <i class="bx bx-filter"></i>
         <p>No hay gestos en el modo <strong>{{ getContextLabel(activeContextTab()) }}</strong></p>
-        <button class="btn-action" (click)="openCreateDialog()">Crear gesto en este modo</button>
+        <button class="btn-action" (click)="openCreateDialog()" data-cuelume-press data-cuelume-release>Crear gesto en este modo</button>
       </div>
     } @else {
       <div class="table-wrap">
@@ -310,7 +384,13 @@
           <tbody>
             @for (cfg of filteredConfigs(); track cfg.id) {
               <tr>
-                <td><span class="badge">{{ getMovementLabel(cfg.movement) }}</span></td>
+                <td>
+                  @if (cfg.movement === 'COMPOSITE') {
+                    <span class="badge composite-badge">COMPUESTO</span>
+                  } @else {
+                    <span class="badge">{{ getMovementLabel(cfg.movement) }}</span>
+                  }
+                </td>
                 <td>{{ getOrientationLabel(cfg.orientation) }}</td>
                 <td>{{ getFlexStateLabel(cfg.index_state) }}</td>
                 <td>{{ getFlexStateLabel(cfg.middle_state) }}</td>
@@ -350,7 +430,7 @@
       <div class="state-box error">
         <i class="bx bx-wifi-off"></i>
         <p>No se pudo conectar al servidor</p>
-        <button class="btn-retry" (click)="refreshCalibration()">Reintentar</button>
+        <button class="btn-retry" (click)="refreshCalibration()" data-cuelume-press data-cuelume-release>Reintentar</button>
       </div>
     } @else if (calibration().length === 0) {
       <div class="state-box empty">
@@ -413,68 +493,251 @@
       <div class="modal-body">
         <label class="form-field">
           <span>Movimiento</span>
-          <select [(ngModel)]="form().movement" class="form-select">
+          <select [ngModel]="form().movement" (ngModelChange)="onFormField('movement', $event)" class="form-select">
             @for (m of movements; track m) {
               <option [value]="m">{{ m }}</option>
             }
           </select>
         </label>
 
-        <label class="form-field">
-          <span>Orientación</span>
-          <select [(ngModel)]="form().orientation" class="form-select">
-            @for (o of orientations; track o) {
-              <option [value]="o">{{ o }}</option>
-            }
-          </select>
-        </label>
+        @if (showCompositeEditor()) {
+          <div class="composite-editor">
+            <h4>Paso 1</h4>
+            <div class="composite-step-row">
+              <select [ngModel]="compositeStep1().movement" (ngModelChange)="onCompositeField(1, 'movement', $event)" class="form-select step-movement">
+                @for (m of movements; track m) {
+                  @if (m !== 'COMPOSITE') {
+                    <option [value]="m">{{ getMovementLabel(m) }}</option>
+                  }
+                }
+              </select>
+              <select [ngModel]="compositeStep1().index_state" (ngModelChange)="onCompositeField(1, 'index_state', $event)" class="form-select step-flex">
+                <option [value]="0">Índice: Abierto</option>
+                <option [value]="1">Índice: Parcial</option>
+                <option [value]="2">Índice: Flexionado</option>
+              </select>
+              <select [ngModel]="compositeStep1().middle_state" (ngModelChange)="onCompositeField(1, 'middle_state', $event)" class="form-select step-flex">
+                <option [value]="0">Medio: Abierto</option>
+                <option [value]="1">Medio: Parcial</option>
+                <option [value]="2">Medio: Flexionado</option>
+              </select>
+            </div>
 
-        <label class="form-field">
-          <span>Estado del Índice</span>
-          <select [(ngModel)]="form().index_state" class="form-select">
-            @for (s of flexStates; track s) {
-              <option [value]="s">{{ s === 0 ? 'Abierto' : s === 1 ? 'Parcial' : 'Flexionado' }}</option>
-            }
-          </select>
-        </label>
+            <div class="composite-arrow-row">⬇ luego</div>
 
-        <label class="form-field">
-          <span>Estado del Medio</span>
-          <select [(ngModel)]="form().middle_state" class="form-select">
-            @for (s of flexStates; track s) {
-              <option [value]="s">{{ s === 0 ? 'Abierto' : s === 1 ? 'Parcial' : 'Flexionado' }}</option>
-            }
-          </select>
-        </label>
+            <h4>Paso 2</h4>
+            <div class="composite-step-row">
+              <select [ngModel]="compositeStep2().movement" (ngModelChange)="onCompositeField(2, 'movement', $event)" class="form-select step-movement">
+                @for (m of movements; track m) {
+                  @if (m !== 'COMPOSITE') {
+                    <option [value]="m">{{ getMovementLabel(m) }}</option>
+                  }
+                }
+              </select>
+              <select [ngModel]="compositeStep2().index_state" (ngModelChange)="onCompositeField(2, 'index_state', $event)" class="form-select step-flex">
+                <option [value]="0">Índice: Abierto</option>
+                <option [value]="1">Índice: Parcial</option>
+                <option [value]="2">Índice: Flexionado</option>
+              </select>
+              <select [ngModel]="compositeStep2().middle_state" (ngModelChange)="onCompositeField(2, 'middle_state', $event)" class="form-select step-flex">
+                <option [value]="0">Medio: Abierto</option>
+                <option [value]="1">Medio: Parcial</option>
+                <option [value]="2">Medio: Flexionado</option>
+              </select>
+            </div>
 
-        <label class="form-field">
-          <span>Acción</span>
-          <select [(ngModel)]="form().action_key" class="form-select">
-            @for (a of actions; track a) {
-              <option [value]="a">{{ a }}</option>
-            }
-          </select>
-        </label>
+            <label class="form-field">
+              <span>Acción compuesta</span>
+              <select [ngModel]="compositeActionKey()" (ngModelChange)="compositeActionKey.set($event)" class="form-select">
+                @for (a of actions; track a) {
+                  <option [value]="a">{{ getActionLabel(a) }}</option>
+                }
+              </select>
+            </label>
+          </div>
+        } @else {
+          <label class="form-field">
+            <span>Orientación</span>
+            <select [ngModel]="form().orientation" (ngModelChange)="onFormField('orientation', $event)" class="form-select">
+              @for (o of orientations; track o) {
+                <option [value]="o">{{ o }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span>Estado del Índice</span>
+            <select [ngModel]="form().index_state" (ngModelChange)="onFormField('index_state', $event)" class="form-select">
+              @for (s of flexStates; track s) {
+                <option [value]="s">{{ s === 0 ? 'Abierto' : s === 1 ? 'Parcial' : 'Flexionado' }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span>Estado del Medio</span>
+            <select [ngModel]="form().middle_state" (ngModelChange)="onFormField('middle_state', $event)" class="form-select">
+              @for (s of flexStates; track s) {
+                <option [value]="s">{{ s === 0 ? 'Abierto' : s === 1 ? 'Parcial' : 'Flexionado' }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span>Acción</span>
+            <select [ngModel]="form().action_key" (ngModelChange)="onFormField('action_key', $event)" class="form-select">
+              @for (a of actions; track a) {
+                <option [value]="a">{{ a }}</option>
+              }
+            </select>
+          </label>
+        }
 
         <label class="form-field">
           <span>Contexto</span>
-          <select [(ngModel)]="form().context" class="form-select">
+          <select [ngModel]="form().context" (ngModelChange)="onFormField('context', $event)" class="form-select">
             @for (c of contexts; track c) {
               <option [value]="c">{{ getContextLabel(c) }}</option>
             }
           </select>
         </label>
 
-        <label class="form-field">
-          <span>Valor adicional</span>
-          <input
-            class="form-input"
-            type="text"
-            [(ngModel)]="form().action_value"
-            placeholder="Ej: open_browser:url|delay:2|hotkey:f11"
-          />
-          <small class="form-hint">Para secuencias: <code>accion:valor|accion:valor</code>. Para comandos: el texto del comando.</small>
-        </label>
+        @if (!showCompositeEditor()) {
+          @if (showSequenceEditor()) {
+            <div class="macro-step-editor">
+              <div class="macro-recording-bar">
+                <button class="btn-small" type="button" (click)="toggleRecording()">
+                  @if (isRecording()) {
+                    <i class="bx bx-stop" aria-hidden="true"></i> Detener grabación
+                  } @else {
+                    <i class="bx bx-circle" aria-hidden="true"></i> Grabar movimientos
+                  }
+                </button>
+              </div>
+
+              <label class="form-field">
+                <span>Repetir</span>
+                <input
+                  class="form-input"
+                  type="number"
+                  [value]="macroRepeat()"
+                  (input)="macroRepeat.set(+$any($event.target).value)"
+                  min="1"
+                />
+              </label>
+
+              @if (macroSteps().length > 0) {
+                <div class="macro-step-list">
+                  @for (step of macroSteps(); track $index; let i = $index) {
+                    <div class="macro-step-row">
+                      <select
+                        class="form-select step-action"
+                        [value]="step.action"
+                        (change)="updateMacroStepAction(i, $any($event.target).value)"
+                      >
+                        <option value="hotkey">Hotkey</option>
+                        <option value="type_string">Type text</option>
+                        <option value="delay">Delay (s)</option>
+                        <option value="left_click">Left click</option>
+                        <option value="right_click">Right click</option>
+                        <option value="volume_up">Volume up</option>
+                        <option value="volume_down">Volume down</option>
+                        <option value="scroll_up">Scroll up</option>
+                        <option value="scroll_down">Scroll down</option>
+                        <option value="mute">Mute</option>
+                        <option value="play_pause">Play/Pause</option>
+                        <option value="next">Next track</option>
+                        <option value="prev">Previous track</option>
+                        <option value="open_browser">Open browser</option>
+                        <option value="open_url">Open URL</option>
+                        <option value="open_app">Open app</option>
+                        <option value="execute_cmd">Execute command</option>
+                        <option value="mouse_move">Mouse move</option>
+                        <option value="scroll">Scroll</option>
+                        <option value="change_mode">Change mode</option>
+                        <option value="switch_target">Switch target</option>
+                        <option value="show_desktop">Show desktop</option>
+                        <option value="back">Back</option>
+                        <option value="forward">Forward</option>
+                      </select>
+
+                      <input
+                        class="form-input step-value"
+                        type="text"
+                        [value]="step.value ?? ''"
+                        (input)="updateMacroStepValue(i, $any($event.target).value)"
+                        placeholder="Value (optional)"
+                      />
+
+                      <div class="step-actions">
+                        <button class="btn-icon" type="button" (click)="moveMacroStepUp(i)" [disabled]="i === 0">
+                          <i class="bx bx-chevron-up"></i>
+                        </button>
+                        <button class="btn-icon" type="button" (click)="moveMacroStepDown(i)" [disabled]="i === macroSteps().length - 1">
+                          <i class="bx bx-chevron-down"></i>
+                        </button>
+                        <button class="btn-icon danger" type="button" (click)="removeMacroStep(i)">
+                          <i class="bx bx-x"></i>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="macro-empty">
+                  <i class="bx bx-list-plus"></i>
+                  <p>Agregá pasos a la secuencia o grabá movimientos con el guante</p>
+                </div>
+              }
+
+              <button class="btn-action full-width" type="button" (click)="addMacroStep()" [disabled]="macroSteps().length >= 20">
+                <i class="bx bx-plus"></i> Agregar paso ({{ macroSteps().length }}/20)
+              </button>
+            </div>
+          } @else if (showKeyRecorder()) {
+            <label class="form-field">
+              <span>Combinación de teclas</span>
+              <div
+                class="key-recorder"
+                [class.recording]="recording()"
+                tabindex="0"
+                (focus)="startRecording()"
+                (blur)="stopRecording()"
+                (keydown)="onKeyDown($event)"
+              >
+                @for (key of recordedKeys(); track $index) {
+                  <span class="key-chip">{{ key }}</span>
+                }
+                @if (recordedKeys().length === 0) {
+                  <span class="key-recorder-hint">Presioná las teclas...</span>
+                }
+              </div>
+              <div class="key-recorder-actions">
+                <button class="btn-small" type="button" (click)="clearRecording()">
+                  <i class="bx bx-x" aria-hidden="true"></i> Limpiar
+                </button>
+              </div>
+              <div class="key-presets">
+                @for (p of hotkeyPresets; track p.value) {
+                  <button class="preset-chip" type="button" (click)="applyPreset(p.value)">
+                    {{ p.label }}
+                  </button>
+                }
+              </div>
+            </label>
+          } @else {
+            <label class="form-field">
+              <span>Valor adicional</span>
+              <input
+                class="form-input"
+                type="text"
+                [ngModel]="form().action_value" (ngModelChange)="onFormField('action_value', $event)"
+                placeholder="Ej: open_browser:url|delay:2|hotkey:f11"
+              />
+              <small class="form-hint">Para secuencias: <code>accion:valor|accion:valor</code>. Para comandos: el texto del comando.</small>
+            </label>
+          }
+        }
       </div>
 
       <div class="modal-footer">

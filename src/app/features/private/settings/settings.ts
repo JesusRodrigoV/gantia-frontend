@@ -10,6 +10,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { MouseConfigService } from '@core/services/mouse-config.service';
 import { PicoTargetService, PicoTarget } from '@core/services/pico-target.service';
 import { SensitivityService } from '@core/services/sensitivity.service';
+import { SoundService } from '@core/services/sound.service';
 import { SensitivitySettings } from '@core/models/sensitivity.model';
 import { finalize } from 'rxjs';
 
@@ -25,6 +26,7 @@ export default class Settings implements OnInit, OnDestroy {
   private readonly mouseConfigService = inject(MouseConfigService);
   private readonly picoTargetService = inject(PicoTargetService);
   private readonly sensitivityService = inject(SensitivityService);
+  private readonly soundService = inject(SoundService);
   private readonly messageService = inject(MessageService);
 
   protected loading = signal(true);
@@ -35,6 +37,12 @@ export default class Settings implements OnInit, OnDestroy {
   protected sens = signal<SensitivitySettings | null>(null);
   protected savingKeys = signal<Set<string>>(new Set());
   private readonly sensTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+  protected soundEnabled = this.soundService.enabled;
+
+  protected onSoundToggle(value: boolean): void {
+    this.soundService.setEnabled(value);
+  }
 
   protected readonly sensFields: { key: keyof SensitivitySettings; label: string; desc: string; min: number; max: number; step: number }[] = [
     { key: 'swipe_threshold', label: 'Sensibilidad Swipe', desc: 'Qué tan fuerte debe ser el movimiento de la muñeca para detectar un swipe. Valores más bajos = más sensible', min: 50, max: 500, step: 10 },

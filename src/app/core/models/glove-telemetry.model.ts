@@ -10,6 +10,10 @@ export interface GloveTelemetry {
   gyro_x: number;
   gyro_y: number;
   gyro_z: number;
+  /** Health telemetry (Feature #8) */
+  rssi?: number;
+  temp_mpu?: number;
+  uptime_ms?: number;
 }
 
 export const FLEX_STATE_LABELS: Record<number, string> = {

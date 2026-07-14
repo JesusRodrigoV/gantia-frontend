@@ -4,6 +4,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap, catchError, of } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../services/auth';
+import { SoundService } from '../services/sound.service';
 import { Router } from '@angular/router';
 import { AuthRequest } from '@core/models/auth.model';
 
@@ -25,7 +26,7 @@ export const AuthStore = signalStore(
   withComputed((state) => ({
     isAuthenticated: computed(() => !!state.token()),
   })),
-  withMethods((store, authService = inject(AuthService), router = inject(Router), messageService = inject(MessageService)) => ({
+  withMethods((store, authService = inject(AuthService), router = inject(Router), messageService = inject(MessageService), soundService = inject(SoundService)) => ({
     login: rxMethod<AuthRequest>(
       pipe(
         tap(() => patchState(store, { isLoading: true, error: null })),
@@ -34,6 +35,7 @@ export const AuthStore = signalStore(
             tap((res) => {
               localStorage.setItem('token', res.access_token);
               patchState(store, { token: res.access_token, isLoading: false });
+              soundService.play('success');
               messageService.add({ severity: 'success', summary: 'Bienvenido', detail: 'Inicio de sesión exitoso', life: 2000 });
               router.navigateByUrl('/app/dashboard');
             }),
@@ -60,6 +62,7 @@ export const AuthStore = signalStore(
           authService.register(credentials).pipe(
             tap(() => {
               patchState(store, { isLoading: false });
+              soundService.play('success');
               messageService.add({ severity: 'success', summary: 'Registrado', detail: 'Tu cuenta se creó correctamente. Ahora iniciá sesión.', life: 4000 });
               router.navigateByUrl('/auth/login');
             }),

@@ -1,16 +1,18 @@
 export const CONTEXTS = ['GLOBAL', 'AUDIO', 'PRESENTATION', 'WORK', 'WORKSHOP'] as const;
 
-export const MOVEMENTS = ['NONE', 'SWIPE_UP', 'SWIPE_DOWN', 'SWIPE_LEFT', 'SWIPE_RIGHT', 'TWIST'] as const;
+export const MOVEMENTS = ['NONE', 'SWIPE_UP', 'SWIPE_DOWN', 'SWIPE_LEFT', 'SWIPE_RIGHT', 'TWIST', 'COMPOSITE'] as const;
 export const ORIENTATIONS = ['ANY', 'PALM_UP', 'PALM_DOWN', 'UP', 'DOWN', 'NEUTRAL'] as const;
 export const FLEX_STATES = [0, 1, 2] as const;
 export const ACTIONS = [
   'volume_up', 'volume_down', 'mute', 'play_pause', 'next', 'prev',
+  'next_track', 'prev_track', 'volume_max', 'volume_min', 'hard_mute',
   'scroll_up', 'scroll_down', 'back', 'forward',
   'brightness_up', 'brightness_down',
   'show_desktop', 'open_browser', 'open_url', 'open_app', 'change_mode', 'hotkey',
   'next_slide', 'prev_slide', 'start_present',
   'left_click', 'right_click',
   'execute_cmd', 'sequence', 'delay',
+  'mouse_move', 'scroll', 'mouse_mode',
 ] as const;
 
 export const CONTEXT_LABELS: Record<string, string> = {
@@ -32,6 +34,7 @@ export const MOVEMENT_LABELS: Record<string, string> = {
   SWIPE_LEFT: 'Izquierda ←',
   SWIPE_RIGHT: 'Derecha →',
   TWIST: 'Giro',
+  COMPOSITE: 'Compuesto',
 };
 
 export const ORIENTATION_LABELS: Record<string, string> = {
@@ -59,6 +62,16 @@ export function getOrientationLabel(o: string): string {
 
 export function getFlexStateLabel(s: number): string {
   return FLEX_STATE_LABELS[s] ?? String(s);
+}
+
+export interface MacroStep {
+  action: string;
+  value?: string;
+}
+
+export interface MacroData {
+  steps: MacroStep[];
+  repeat: number;
 }
 
 export interface GestureConfig {

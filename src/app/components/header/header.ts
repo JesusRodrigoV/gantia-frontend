@@ -12,13 +12,23 @@ import { SensorSocket } from '@core/services/sensor-socket';
 import { ClientStatusService } from '@core/services/client-status.service';
 import { PicoTargetService } from '@core/services/pico-target.service';
 import { AuthStore } from '@core/stores/auth.store';
+import { SoundService } from '@core/services/sound.service';
 import { RoundedButton } from '@shared/components/ui/rounded-button';
 import { getContextLabel, CONTEXTS } from '@core/models/gesture-config.model';
 import { env } from '../../../environments/environment';
 
 @Component({
   selector: 'app-header',
-  imports: [NgOptimizedImage, LetrasGantia, RouterLink, RouterLinkActive, RoundedButton, TooltipModule, FormsModule, SelectModule],
+  imports: [
+    NgOptimizedImage,
+    LetrasGantia,
+    RouterLink,
+    RouterLinkActive,
+    RoundedButton,
+    TooltipModule,
+    FormsModule,
+    SelectModule,
+  ],
   templateUrl: './header.html',
   styleUrl: './header.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,6 +43,7 @@ export class Header {
   protected clientStatus = inject(ClientStatusService);
   protected picoTarget = inject(PicoTargetService);
   protected authStore = inject(AuthStore);
+  private soundService = inject(SoundService);
   protected scrolled = signal(false);
   protected mouseModeActive = computed(() => this.sensorSocket.mouseModeActive());
   protected readonly getContextLabel = getContextLabel;
@@ -62,13 +73,13 @@ export class Header {
     this.http.post(`${env.apiUrl}/active-target`, { target }).subscribe();
   }
 
-  links=[
-    {label: "Dashboard", route: "dashboard"},
-    {label: "Visualizador", route: "visualizador"},
-    {label: "Historial", route: "history"},
-    {label: "Ajustes", route: "settings"},
-    {label: "Gestos", route: "config"},
-  ]
+  links = [
+    { label: 'Dashboard', route: 'dashboard' },
+    { label: 'Visualizador', route: 'visualizador' },
+    { label: 'Historial', route: 'history' },
+    { label: 'Ajustes', route: 'settings' },
+    { label: 'Gestos', route: 'config' },
+  ];
 
   private scrollRaf: number | null = null;
 
@@ -95,7 +106,10 @@ export class Header {
         label: 'Salir',
         severity: 'danger',
       },
-      accept: () => this.authStore.logout(),
+      accept: () => {
+        this.soundService.play('droplet');
+        this.authStore.logout();
+      },
     });
   }
 
@@ -103,6 +117,8 @@ export class Header {
     const conn = this.sensorSocket.connectionStatus();
     const flowing = this.sensorSocket.dataFlowing();
     const waiting = this.sensorSocket.waitingForDevice();
+    const retry = this.sensorSocket.retryCount();
+    const max = this.sensorSocket.maxRetries();
     const map: Record<string, string> = {
       connected: flowing
         ? 'Guante conectado — recibiendo datos'
@@ -110,6 +126,7 @@ export class Header {
           ? 'Conectado al servidor — esperando guante'
           : 'Conectado — sin datos',
       connecting: 'Conectando al servidor...',
+      reconnecting: `Reconectando (${retry}/${max})...`,
       disconnected: 'Sin conexion',
       error: 'Error de conexion',
     };

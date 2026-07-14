@@ -34,6 +34,21 @@
     </div>
 
     <div class="settings-card">
+      <h2 class="card-title">Sonido</h2>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">
+            <i class="bx bx-volume-full" aria-hidden="true"></i>
+            <span>Sonidos de interfaz</span>
+          </div>
+          <p class="setting-desc">Reproducir efectos de sonido al interactuar con botones, menús y acciones</p>
+        </div>
+        <p-toggleswitch [ngModel]="soundEnabled()" (ngModelChange)="onSoundToggle($event)" />
+      </div>
+    </div>
+
+    <div class="settings-card">
       <h2 class="card-title">Mouse</h2>
 
       <div class="setting-row">

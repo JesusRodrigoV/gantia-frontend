@@ -1,9 +1,8 @@
 <div class="view-container" [class.show-panels]="hasTelemetry()" [class.is-swapping]="isSwapping()">
   @let flash = gestureFlash();
   @if (flash) {
-    <div class="gesture-flash" @gestureFade>
+    <div class="gesture-flash">
       <div class="gesture-flash-content">
-        <i class="bx bx-gesture"></i>
         <span class="gesture-flash-gesture">{{ flash.gesture }}</span>
         <span class="gesture-flash-arrow">→</span>
         <span class="gesture-flash-action">{{ flash.action }}</span>
@@ -70,6 +69,45 @@
           <h2 class="panel-title">Estado de Flexión</h2>
           <div class="visualizer-space">
             <app-flexion />
+          </div>
+        </div>
+      </div>
+
+      <div data-swapy-slot="health">
+        <div data-swapy-item="health" class="panel">
+          <div class="drag-handle" tabindex="0" role="button" aria-label="Arrastrar para reordenar"><i class="bx bx-grip" aria-hidden="true"></i></div>
+          <h2 class="panel-title">Estado del Guante</h2>
+          <div class="info-space">
+            @let h = healthData();
+            @if (h) {
+              <div class="health-grid">
+                <div class="health-item">
+                  <span class="health-label">Señal WiFi</span>
+                  <div class="health-bars">
+                    @for (b of [1,2,3,4,5]; track b) {
+                      <span class="health-bar" [class.active]="b <= h.bars"></span>
+                    }
+                  </div>
+                  <span class="health-value">{{ h.rssi }} dBm</span>
+                </div>
+                <div class="health-item">
+                  <span class="health-label">Temperatura</span>
+                  <span class="health-value">{{ h.temp?.toFixed(1) }}°C</span>
+                </div>
+                <div class="health-item">
+                  <span class="health-label">Tiempo activo</span>
+                  <span class="health-value">{{ h.uptime }}</span>
+                </div>
+                <div class="health-item">
+                  <span class="health-label">Mouse</span>
+                  <span class="health-value" [class.active]="mouseModeActive()">
+                    {{ mouseModeActive() ? 'ON' : 'OFF' }}
+                  </span>
+                </div>
+              </div>
+            } @else {
+              <p class="health-na">Esperando datos de salud...</p>
+            }
           </div>
         </div>
       </div>

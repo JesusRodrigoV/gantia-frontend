@@ -19,6 +19,7 @@ import { SensorSocket } from '@core/services/sensor-socket';
 import { FLEX_STATE_LABELS, getActionLabel } from '@core/models/glove-telemetry.model';
 import { createSwapy } from 'swapy';
 import type { Swapy } from 'swapy';
+import { HealthService } from '@core/services/health.service';
 
 const STORAGE_KEY = 'gantia-sensor-layout';
 
@@ -31,6 +32,7 @@ const STORAGE_KEY = 'gantia-sensor-layout';
 })
 export default class Sensores implements OnDestroy {
   protected sensorSocket = inject(SensorSocket);
+  protected healthService = inject(HealthService);
   protected FLEX_STATE_LABELS = FLEX_STATE_LABELS;
   private swapyContainer = viewChild<ElementRef<HTMLElement>>('swapyContainer');
   private swapy: Swapy | null = null;
@@ -55,6 +57,19 @@ export default class Sensores implements OnDestroy {
   });
 
   protected waitingForDevice = computed(() => this.sensorSocket.waitingForDevice());
+
+  // ---- Health telemetry (Feature #8) ----
+  protected healthData = computed(() => {
+    const t = this.sensorSocket.telemetry();
+    if (!t || t.rssi === undefined) return null;
+    const totalSec = Math.floor((t.uptime_ms ?? 0) / 1000);
+    const hrs = Math.floor(totalSec / 3600);
+    const min = Math.floor((totalSec % 3600) / 60);
+    const sec = totalSec % 60;
+    const uptimeStr = hrs > 0 ? `${hrs}h ${min}m` : min > 0 ? `${min}m ${sec}s` : `${sec}s`;
+    const bars = t.rssi! >= -50 ? 5 : t.rssi! >= -60 ? 4 : t.rssi! >= -70 ? 3 : t.rssi! >= -80 ? 2 : 1;
+    return { rssi: t.rssi, bars, temp: t.temp_mpu, uptime: uptimeStr };
+  });
 
   protected showDisconnectedOverlay = computed(
     () => this.sensorSocket.connectionStatus() === 'disconnected' && !!this.sensorSocket.telemetry(),
