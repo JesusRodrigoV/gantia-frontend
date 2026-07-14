@@ -14,8 +14,8 @@ const DATA_TIMEOUT_MS = 3000;
 const MAX_RETRIES = 10;
 const BASE_RECONNECT_DELAY = 1000;
 const MAX_RECONNECT_DELAY = 30000;
-const PING_INTERVAL = 30000;
-const PONG_TIMEOUT = 10000;
+const PING_INTERVAL = 25000;
+const PONG_TIMEOUT = 20000;
 
 function isTokenExpired(token: string): boolean {
   try {
@@ -207,7 +207,7 @@ export class SensorSocket implements OnDestroy {
       }
     };
 
-    this.socket.onclose = () => {
+    this.socket.onclose = (event: CloseEvent) => {
       this._isConnecting = false;
       this.connectionStatus.set('disconnected');
       this.dataFlowing.set(false);
@@ -215,6 +215,10 @@ export class SensorSocket implements OnDestroy {
       this.cancelWaitingTimer();
       this.clearPingTimer();
       if (this.dataTimeout) clearTimeout(this.dataTimeout);
+
+      if (event.code !== 1000) {
+        console.warn(`[SensorSocket] Close: code=${event.code} reason="${event.reason}"`);
+      }
 
       if (this.shouldBeConnected) {
         this.scheduleReconnect();
@@ -259,6 +263,7 @@ export class SensorSocket implements OnDestroy {
       if (this.socket && this.socket.readyState === WebSocket.OPEN) {
         this.socket.send(JSON.stringify({ type: 'ping' }));
         this.pongTimeout = setTimeout(() => {
+          console.warn('[SensorSocket] Pong timeout fired — closing socket');
           this.connectionStatus.set('reconnecting');
           this.clearPingTimer();
           this.socket?.close();

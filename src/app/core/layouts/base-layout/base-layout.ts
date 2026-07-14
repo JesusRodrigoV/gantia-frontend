@@ -39,6 +39,7 @@ export default class BaseLayout implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   protected routeLoading = signal(false);
   private lastStatus = '';
+  private disconnectDebounce: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
@@ -57,6 +58,11 @@ export default class BaseLayout implements OnInit, OnDestroy {
       if (status === this.lastStatus) return;
       this.lastStatus = status;
 
+      if (this.disconnectDebounce !== null) {
+        clearTimeout(this.disconnectDebounce);
+        this.disconnectDebounce = null;
+      }
+
       switch (status) {
         case 'connected':
           this.soundService.play('bloom');
@@ -68,20 +74,16 @@ export default class BaseLayout implements OnInit, OnDestroy {
           });
           break;
         case 'disconnected':
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'Desconectado',
-            detail: 'Sin conexión al servidor',
-            life: 4000,
-          });
+          this.disconnectDebounce = setTimeout(() => {
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'Desconectado',
+              detail: 'Sin conexión al servidor',
+              life: 4000,
+            });
+          }, 3000);
           break;
         case 'reconnecting':
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'Reconectando',
-            detail: `Intento ${this.sensorSocket.retryCount()}/${this.sensorSocket.maxRetries()}...`,
-            life: 3000,
-          });
           break;
         case 'error':
           this.messageService.add({
