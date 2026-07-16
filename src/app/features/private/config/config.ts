@@ -320,7 +320,7 @@ export default class Config implements OnInit, OnDestroy {
 
   checkAbsCalibration(): void {
     this.absCalibLoading.set(true);
-    this.http.get(`${env.apiUrl}/absolute-pointer/calibration`).pipe(finalize(() => this.absCalibLoading.set(false))).subscribe({
+    this.http.get(`${env.apiUrl}/config/absolute-pointer/calibration`).pipe(finalize(() => this.absCalibLoading.set(false))).subscribe({
       next: (data: any) => this.absCalibrationData.set(data),
       error: () => this.absCalibrationData.set(null),
     });

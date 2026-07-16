@@ -12,10 +12,10 @@ export class CalibrationService {
   private readonly baseUrl = `${env.apiUrl}`;
 
   getAll(): Observable<CalibrationEntry[]> {
-    return this.http.get<CalibrationEntry[]>(`${this.baseUrl}/calibration`);
+    return this.http.get<CalibrationEntry[]>(`${this.baseUrl}/config/calibration`);
   }
 
   update(sensorName: string, data: Partial<CalibrationEntry>): Observable<CalibrationEntry> {
-    return this.http.put<CalibrationEntry>(`${this.baseUrl}/calibration/${sensorName}`, data);
+    return this.http.put<CalibrationEntry>(`${this.baseUrl}/config/calibration/${sensorName}`, data);
   }
 }

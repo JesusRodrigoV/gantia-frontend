@@ -43,6 +43,7 @@ export class SensorSocket implements OnDestroy {
   private pongTimeout: ReturnType<typeof setTimeout> | null = null;
   private _isConnecting = false;
   private _reconnectScheduled = false;
+  private _refreshingToken = false;
 
   public readonly telemetry = signal<GloveTelemetry | null>(null);
   public readonly connectionStatus = signal<
@@ -90,7 +91,13 @@ export class SensorSocket implements OnDestroy {
     }
 
     if (isTokenExpired(token)) {
-      this.authStore.logout();
+      if (this._refreshingToken) return;
+      this._refreshingToken = true;
+      this.authStore.refresh();
+      setTimeout(() => {
+        this._refreshingToken = false;
+        this.checkToken();
+      }, 1000);
       return;
     }
 

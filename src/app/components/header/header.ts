@@ -65,7 +65,7 @@ export class Header {
 
   changeMode(mode: string): void {
     this.sensorSocket.currentMode.set(mode);
-    this.http.post(`${env.apiUrl}/mode`, { mode }).subscribe();
+    this.http.post(`${env.apiUrl}/config/mode`, { mode }).subscribe();
   }
 
   changeTarget(target: string): void {

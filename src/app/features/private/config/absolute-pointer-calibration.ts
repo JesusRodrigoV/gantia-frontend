@@ -127,7 +127,7 @@ export default class AbsolutePointerCalibration {
       screen_height: this.screenHeight(),
     };
 
-    this.http.put(`${env.apiUrl}/absolute-pointer/calibration`, payload)
+    this.http.put(`${env.apiUrl}/config/absolute-pointer/calibration`, payload)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: () => {
@@ -156,7 +156,7 @@ export default class AbsolutePointerCalibration {
         screen_height: this.screenHeight(),
         status: 'draft' as const,
       };
-      this.http.put(`${env.apiUrl}/absolute-pointer/calibration`, payload).subscribe({
+      this.http.put(`${env.apiUrl}/config/absolute-pointer/calibration`, payload).subscribe({
         error: () => console.warn('Failed to save draft calibration'),
       });
     }

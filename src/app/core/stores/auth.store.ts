@@ -10,12 +10,14 @@ import { AuthRequest } from '@core/models/auth.model';
 
 interface AuthState {
   token: string | null;
+  refreshToken: string | null;
   isLoading: boolean;
   error: string | null;
 }
 
 const initialState: AuthState = {
   token: localStorage.getItem('token'),
+  refreshToken: localStorage.getItem('refreshToken'),
   isLoading: false,
   error: null,
 };
@@ -34,7 +36,8 @@ export const AuthStore = signalStore(
           authService.login(credentials).pipe(
             tap((res) => {
               localStorage.setItem('token', res.access_token);
-              patchState(store, { token: res.access_token, isLoading: false });
+              localStorage.setItem('refreshToken', res.refresh_token);
+              patchState(store, { token: res.access_token, refreshToken: res.refresh_token, isLoading: false });
               soundService.play('success');
               messageService.add({ severity: 'success', summary: 'Bienvenido', detail: 'Inicio de sesión exitoso', life: 2000 });
               router.navigateByUrl('/app/dashboard');
@@ -84,9 +87,33 @@ export const AuthStore = signalStore(
     ),
     logout() {
       localStorage.removeItem('token');
-      patchState(store, { token: null });
+      localStorage.removeItem('refreshToken');
+      patchState(store, { token: null, refreshToken: null });
       router.navigateByUrl('/auth/login');
     },
+    refresh: rxMethod<void>(
+      pipe(
+        tap(() => patchState(store, { isLoading: true })),
+        switchMap(() => {
+          const rt = store.refreshToken();
+          if (!rt) {
+            patchState(store, { isLoading: false });
+            return of(null);
+          }
+          return authService.refresh(rt).pipe(
+            tap((res) => {
+              localStorage.setItem('token', res.access_token);
+              localStorage.setItem('refreshToken', res.refresh_token);
+              patchState(store, { token: res.access_token, refreshToken: res.refresh_token, isLoading: false });
+            }),
+            catchError(() => {
+              store.logout();
+              return of(null);
+            }),
+          );
+        }),
+      ),
+    ),
     clearError() {
       patchState(store, { error: null });
     },
