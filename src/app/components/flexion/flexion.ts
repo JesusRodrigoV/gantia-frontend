@@ -1,6 +1,6 @@
-import { Component, ChangeDetectionStrategy, DestroyRef, effect, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, effect, inject, signal, computed } from '@angular/core';
 import { SensorSocket } from '@core/services/sensor-socket';
-import { FLEX_STATE_LABELS } from '@core/models/glove-telemetry.model';
+import { FLEX_STATE_LABELS } from '@core/models/gesture-config.model';
 
 const GLOW_MS = 300;
 
@@ -24,6 +24,8 @@ export class Flexion {
   private lastMiddleChange = 0;
   private glowRaf: number | null = null;
   protected readonly FLEX_STATE_LABELS = FLEX_STATE_LABELS;
+  protected readonly indexPercent = computed(() => (this.displayIndex() / 2) * 100);
+  protected readonly middlePercent = computed(() => (this.displayMiddle() / 2) * 100);
 
   constructor() {
     this.destroyRef.onDestroy(() => {

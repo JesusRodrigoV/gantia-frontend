@@ -12,23 +12,23 @@
       }
       {{ syncing() ? 'Sincronizando...' : 'Sincronizar' }}
     </button>
-    <button class="btn-action" (click)="exportConfigs()" [disabled]="exporting()" data-cuelume-press data-cuelume-release>
-      @if (exporting()) {
+    <button class="btn-action" (click)="gestureCrud.exportConfigs()" [disabled]="gestureCrud.exporting()" data-cuelume-press data-cuelume-release>
+      @if (gestureCrud.exporting()) {
         <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
       } @else {
         <i class="bx bx-export"></i>
       }
-      {{ exporting() ? 'Exportando...' : 'Exportar' }}
+      {{ gestureCrud.exporting() ? 'Exportando...' : 'Exportar' }}
     </button>
-    <button class="btn-action" (click)="fileInput.click()" [disabled]="importing()" data-cuelume-press data-cuelume-release>
-      @if (importing()) {
+    <button class="btn-action" (click)="fileInput.click()" [disabled]="gestureCrud.importing()" data-cuelume-press data-cuelume-release>
+      @if (gestureCrud.importing()) {
         <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
       } @else {
         <i class="bx bx-import"></i>
       }
-      {{ importing() ? 'Importando...' : 'Importar' }}
+      {{ gestureCrud.importing() ? 'Importando...' : 'Importar' }}
     </button>
-    <input #fileInput type="file" accept=".json" (change)="onImportFile($event)" hidden />
+    <input #fileInput type="file" accept=".json" (change)="gestureCrud.onImportFile($event)" hidden />
     <button class="btn-action danger" (click)="resetToDefaults()" [disabled]="resettando()" data-cuelume-press data-cuelume-release>
       @if (resettando()) {
         <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
@@ -70,7 +70,7 @@
               type="checkbox"
               [checked]="absPointerEnabled()"
               [disabled]="!absCalibrationExists() || absCalibrationIsDraft()"
-              (change)="toggleAbsPointer($any($event.target).checked)"
+              (change)="onToggleAbsPointer($event)"
             />
             <span class="toggle-slider"></span>
           </label>
@@ -111,752 +111,79 @@
     </div>
   }
 
-  <section class="config-section test-section" [class.active-test]="testMode()">
-    <div class="section-header">
-      <h2><i class="bx bx-test-tube"></i> Modo Prueba</h2>
-      <div class="section-actions">
-        @if (testMode()) {
-          <button class="btn-action danger" (click)="stopTestMode()" data-cuelume-press data-cuelume-release>
-            <i class="bx bx-stop" aria-hidden="true"></i> Detener
-          </button>
-        } @else {
-          <button class="btn-action" (click)="startTestMode()" data-cuelume-press data-cuelume-release>
-            <i class="bx bx-play" aria-hidden="true"></i> Iniciar prueba
-          </button>
-        }
-      </div>
-    </div>
+  <app-test-mode />
 
-    @if (testMode()) {
-      <div class="test-grid">
-        <div class="test-panel">
-          <h3>Señal en vivo</h3>
-          @let t = testTelemetry();
-          @if (t) {
-            <div class="live-data">
-              <div class="data-row">
-                <span class="data-label">Botón</span>
-                <span class="data-value" [class.on]="t.button_pressed">
-                  {{ t.button_pressed ? 'ON' : 'OFF' }}
-                </span>
-              </div>
-              <div class="data-row">
-                <span class="data-label">Flex Índice</span>
-                <span class="data-value">{{ t.flex_index }}</span>
-              </div>
-              <div class="data-row">
-                <span class="data-label">Flex Medio</span>
-                <span class="data-value">{{ t.flex_middle }}</span>
-              </div>
-              <div class="data-row">
-                <span class="data-label">Acelerómetro</span>
-                <span class="data-value">{{ t.accel_x | number:'1.0' }} {{ t.accel_y | number:'1.0' }} {{ t.accel_z | number:'1.0' }}</span>
-              </div>
-              <div class="data-row">
-                <span class="data-label">Giroscopio</span>
-                <span class="data-value">{{ t.gyro_x | number:'1.0' }} {{ t.gyro_y | number:'1.0' }} {{ t.gyro_z | number:'1.0' }}</span>
-              </div>
-            </div>
-          } @else {
-            <div class="test-empty">Esperando datos del guante...</div>
-          }
-        </div>
+  <app-learning-wizard #learnWizard [actions]="actions" (saved)="onLearnSaved()" />
 
-        <div class="test-panel">
-          <h3>Gestos detectados</h3>
-          @if (testActions().length === 0) {
-            <div class="test-empty">Hacé gestos con el guante...</div>
-          } @else {
-            <div class="gesture-log">
-              @for (g of testActions(); track g.id) {
-                <div class="gesture-entry">
-                  <span class="gesture-time">{{ g.time }}</span>
-                  <span class="gesture-name">{{ g.action }}</span>
-                </div>
-              }
-            </div>
-          }
-    </div>
-  </div>
-}
-</section>
+  <app-gesture-list
+    [configs]="gestureCrud.gestureConfigs()"
+    [filtered]="gestureCrud.filteredConfigs()"
+    [loading]="gestureCrud.gestureLoading()"
+    [error]="gestureCrud.gestureError()"
+    [activeTab]="gestureCrud.activeContextTab()"
+    [contexts]="contexts"
+    (create)="gestureCrud.openCreateDialog()"
+    (edit)="gestureCrud.openEditDialog($event)"
+    (delete)="gestureCrud.deleteGesture($event.event, $event.id)"
+    (refresh)="gestureCrud.refreshConfigs()"
+    (learn)="openLearnWizard()"
+    (tabChange)="gestureCrud.activeContextTab.set($event)"
+  />
 
-@if (learnOpen()) {
-  <div class="modal-overlay" (click)="closeLearnWizard()">
-    <div class="modal-content learn-wizard" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3><i class="bx bx-gesture"></i> Aprender gesto nuevo</h3>
-        <button class="btn-icon" (click)="closeLearnWizard()"><i class="bx bx-x"></i></button>
-      </div>
-
-      <div class="wizard-steps">
-        <div class="wizard-step-indicator" [class.active]="learnStep() >= 1" [class.done]="learnStep() > 1">
-          <span class="step-num">1</span>
-          <span class="step-label">Inicio</span>
-        </div>
-        <div class="wizard-connector" [class.done]="learnStep() > 1"></div>
-        <div class="wizard-step-indicator" [class.active]="learnStep() >= 2" [class.done]="learnStep() > 2">
-          <span class="step-num">2</span>
-          <span class="step-label">Muestra 1</span>
-        </div>
-        <div class="wizard-connector" [class.done]="learnStep() > 2"></div>
-        <div class="wizard-step-indicator" [class.active]="learnStep() >= 3" [class.done]="learnStep() > 3">
-          <span class="step-num">3</span>
-          <span class="step-label">Muestra 2</span>
-        </div>
-        <div class="wizard-connector" [class.done]="learnStep() > 3"></div>
-        <div class="wizard-step-indicator" [class.active]="learnStep() >= 4" [class.done]="learnStep() > 4">
-          <span class="step-num">4</span>
-          <span class="step-label">Guardar</span>
-        </div>
-      </div>
-
-      <div class="wizard-body">
-        @if (learnStep() === 1) {
-          <div class="learn-step-content">
-            <div class="learn-instruction">
-              <i class="bx bx-run"></i>
-              <p><strong>Preparate para enseñar un gesto nuevo</strong></p>
-              <p class="learn-hint">Vas a realizar el mismo gesto 3 veces seguidas para que el sistema lo aprenda</p>
-            </div>
-            <div class="learn-info">
-              <div class="learn-info-row">
-                <i class="bx bx-handicap"></i>
-                <span>Flex Índice: <strong>{{ learnLiveFlexIndex() }}</strong></span>
-              </div>
-              <div class="learn-info-row">
-                <i class="bx bx-handicap"></i>
-                <span>Flex Medio: <strong>{{ learnLiveFlexMiddle() }}</strong></span>
-              </div>
-            </div>
-            <button class="btn-action primary full-width" (click)="learnStart()">
-              <i class="bx bx-play"></i> Empezar
-            </button>
-          </div>
-        } @else if (learnStep() >= 2 && learnStep() <= 3) {
-          <div class="learn-step-content">
-            <div class="learn-instruction">
-              <i class="bx bx-handicap"></i>
-              <p><strong>Hacé el gesto {{ learnSamplesCollected() < 1 ? 'por primera vez' : 'de nuevo' }}</strong></p>
-              <p class="learn-hint">Realizá el gesto con el guante y presioná "Capturar"</p>
-            </div>
-            <div class="learn-sample-count">
-              <span>Muestras: </span>
-              <strong>{{ learnSamplesCollected() }} / 3</strong>
-            </div>
-            <div class="learn-live">
-              <span>Flex Índice: {{ learnLiveFlexIndex() }}</span>
-              <span>Flex Medio: {{ learnLiveFlexMiddle() }}</span>
-            </div>
-            <button class="btn-action primary full-width" (click)="learnCapture()">
-              <i class="bx bx-camera"></i> Capturar muestra
-            </button>
-          </div>
-        } @else if (learnStep() === 4) {
-          @let analysis = learnAnalysis();
-          <div class="learn-step-content">
-            <div class="learn-instruction">
-              <i class="bx bx-check-double"></i>
-              <p><strong>Gesto analizado</strong></p>
-              <p class="learn-hint">Revisá los valores detectados y asignale una acción</p>
-            </div>
-            @if (analysis) {
-              <div class="learn-analysis">
-                <div class="learn-analysis-row">
-                  <span>Movimiento</span>
-                  <strong>{{ getMovementLabel(analysis.movement) }}</strong>
-                </div>
-                <div class="learn-analysis-row">
-                  <span>Orientación</span>
-                  <strong>{{ getOrientationLabel(analysis.orientation) }}</strong>
-                </div>
-                <div class="learn-analysis-row">
-                  <span>Índice</span>
-                  <strong>{{ getFlexStateLabel(analysis.index_state) }}</strong>
-                </div>
-                <div class="learn-analysis-row">
-                  <span>Medio</span>
-                  <strong>{{ getFlexStateLabel(analysis.middle_state) }}</strong>
-                </div>
-                <div class="learn-analysis-row">
-                  <span>Confianza</span>
-                  <strong>{{ analysis.confidence | percent }}</strong>
-                </div>
-              </div>
-            }
-            <label class="form-field">
-              <span>Acción a ejecutar</span>
-               <select [ngModel]="learnActionKey()" (ngModelChange)="learnActionKey.set($event)" class="form-select">
-                @for (a of actions; track a) {
-                  <option [value]="a">{{ getActionLabel(a) }}</option>
-                }
-              </select>
-            </label>
-            <div class="learn-actions">
-              <button class="btn-action full-width" (click)="learnStep.set(2)">
-                <i class="bx bx-revision"></i> Rehacer
-              </button>
-              <button class="btn-action primary full-width" (click)="learnSave()" [disabled]="learnSaving()">
-                @if (learnSaving()) {
-                  <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
-                } @else {
-                  <i class="bx bx-save"></i>
-                }
-                {{ learnSaving() ? 'Guardando...' : 'Guardar gesto' }}
-              </button>
-            </div>
-          </div>
-        }
-      </div>
-    </div>
-  </div>
-}
-
-  <section class="config-section">
-    <div class="section-header">
-      <h2>Gestos</h2>
-      <div class="section-actions">
-        <button class="btn-action" (click)="openLearnWizard()" data-cuelume-press data-cuelume-release>
-          <i class="bx bx-gesture"></i> Aprender
-        </button>
-        <button class="btn-action" (click)="openCreateDialog()" data-cuelume-press data-cuelume-release>
-          <i class="bx bx-plus" aria-hidden="true"></i> Añadir
-        </button>
-        <button class="btn-action" (click)="refreshConfigs()" data-cuelume-press data-cuelume-release>
-          <i class="bx bx-refresh" aria-hidden="true"></i> Recargar
-        </button>
-      </div>
-    </div>
-
-    <div class="context-tabs">
-      <button
-        class="context-tab"
-        [class.active]="activeContextTab() === 'ALL'"
-        (click)="activeContextTab.set('ALL')"
-        data-cuelume-hover="tick"
-      >Todos</button>
-      @for (c of contexts; track c) {
-        <button
-          class="context-tab"
-          [class.active]="activeContextTab() === c"
-          (click)="activeContextTab.set(c)"
-          data-cuelume-hover="tick"
-        >{{ getContextLabel(c) }}</button>
-      }
-    </div>
-
-    @if (gestureLoading()) {
-      <div class="loading-section">
-        <p-skeleton height="180px" borderRadius="12px" />
-      </div>
-    } @else if (gestureError()) {
-      <div class="state-box error">
-        <i class="bx bx-wifi-off"></i>
-        <p>No se pudo conectar al servidor</p>
-        <button class="btn-retry" (click)="refreshConfigs()" data-cuelume-press data-cuelume-release>Reintentar</button>
-      </div>
-    } @else if (gestureConfigs().length === 0) {
-      <div class="state-box empty">
-        <i class="bx bx-gesture"></i>
-        <p>No hay configuraciones de gestos</p>
-        <button class="btn-action" (click)="openCreateDialog()" data-cuelume-press data-cuelume-release>Crear primera</button>
-      </div>
-    } @else if (filteredConfigs().length === 0) {
-      <div class="state-box empty">
-        <i class="bx bx-filter"></i>
-        <p>No hay gestos en el modo <strong>{{ getContextLabel(activeContextTab()) }}</strong></p>
-        <button class="btn-action" (click)="openCreateDialog()" data-cuelume-press data-cuelume-release>Crear gesto en este modo</button>
-      </div>
-    } @else {
-      <div class="table-wrap">
-        <table class="config-table">
-          <thead>
-            <tr>
-              <th>Movimiento</th>
-              <th>Orientación</th>
-              <th>Índice</th>
-              <th>Medio</th>
-              <th>Acción</th>
-              <th>Contexto</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (cfg of filteredConfigs(); track cfg.id) {
-              <tr>
-                <td>
-                  @if (cfg.movement === 'COMPOSITE') {
-                    <span class="badge composite-badge">COMPUESTO</span>
-                  } @else {
-                    <span class="badge">{{ getMovementLabel(cfg.movement) }}</span>
-                  }
-                </td>
-                <td>{{ getOrientationLabel(cfg.orientation) }}</td>
-                <td>{{ getFlexStateLabel(cfg.index_state) }}</td>
-                <td>{{ getFlexStateLabel(cfg.middle_state) }}</td>
-                <td><span class="action-tag">{{ getActionLabel(cfg.action_key) }}</span></td>
-                <td><span class="context-tag" [class]="'ctx-' + cfg.context.toLowerCase()">{{ getContextLabel(cfg.context) }}</span></td>
-                <td class="row-actions">
-                  <button class="btn-icon" title="Editar" (click)="openEditDialog(cfg)">
-                    <i class="bx bx-pencil"></i>
-                  </button>
-                  <button class="btn-icon danger" title="Eliminar" (click)="deleteGesture($event, cfg.id)">
-                    <i class="bx bx-trash"></i>
-                  </button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
-  </section>
-
-  <section class="config-section">
-    <div class="section-header">
-      <h2>Calibración</h2>
-      <div class="section-actions">
-        <button class="btn-action" (click)="refreshCalibration()">
-          <i class="bx bx-refresh" aria-hidden="true"></i> Recargar
-        </button>
-      </div>
-    </div>
-
-    @if (calibrationLoading()) {
-      <div class="loading-section">
-        <p-skeleton height="120px" borderRadius="12px" />
-      </div>
-    } @else if (calibrationError()) {
-      <div class="state-box error">
-        <i class="bx bx-wifi-off"></i>
-        <p>No se pudo conectar al servidor</p>
-        <button class="btn-retry" (click)="refreshCalibration()" data-cuelume-press data-cuelume-release>Reintentar</button>
-      </div>
-    } @else if (calibration().length === 0) {
-      <div class="state-box empty">
-        <i class="bx bx-adjust"></i>
-        <p>No hay datos de calibración</p>
-      </div>
-    } @else {
-      <div class="table-wrap">
-        <table class="config-table">
-          <thead>
-            <tr>
-              <th>Sensor</th>
-              <th>Mínimo</th>
-              <th>Máximo</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (entry of calibration(); track entry.sensor_name) {
-              <tr>
-                <td><strong>{{ entry.sensor_name }}</strong></td>
-                <td>
-                  <input
-                    class="cal-input"
-                    type="number"
-                    [(ngModel)]="entry.min_value"
-                    (ngModelChange)="updateCalibration(entry)"
-                  />
-                </td>
-                <td>
-                  <input
-                    class="cal-input"
-                    type="number"
-                    [(ngModel)]="entry.max_value"
-                    (ngModelChange)="updateCalibration(entry)"
-                  />
-                </td>
-                <td class="row-actions">
-                  <button class="btn-icon" title="Calibrar con wizard" (click)="openCalibWizard(entry.sensor_name)">
-                    <i class="bx bx-wrench"></i>
-                  </button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
-  </section>
+  <app-calibration-panel
+    [calibration]="calibrationCrud.calibration()"
+    [calibrationLoading]="calibrationCrud.calibrationLoading()"
+    [calibrationError]="calibrationCrud.calibrationError()"
+    [calibWizardOpen]="calibrationCrud.calibWizardOpen()"
+    [calibStep]="calibrationCrud.calibStep()"
+    [calibSensor]="calibrationCrud.calibSensor()"
+    [calibMinValue]="calibrationCrud.calibMinValue()"
+    [calibMaxValue]="calibrationCrud.calibMaxValue()"
+    [calibLiveValue]="calibrationCrud.calibLiveValue()"
+    [calibSaving]="calibrationCrud.calibSaving()"
+    (refresh)="calibrationCrud.refreshCalibration()"
+    (openWizard)="calibrationCrud.openCalibWizard($event)"
+    (closeWizard)="calibrationCrud.closeCalibWizard()"
+    (captureMin)="calibrationCrud.captureCalibMin()"
+    (captureMax)="calibrationCrud.captureCalibMax()"
+    (save)="calibrationCrud.saveCalibration()"
+    (redoFromStep)="calibrationCrud.calibStep.set($event)"
+  />
 </div>
 
-@if (dialogOpen()) {
-  <div class="modal-overlay" (click)="closeDialog()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>{{ editingId() ? 'Editar' : 'Añadir' }} Configuración de Gesto</h3>
-        <button class="btn-icon" (click)="closeDialog()"><i class="bx bx-x"></i></button>
-      </div>
+<app-gesture-form-dialog
+  [open]="gestureCrud.dialogOpen()"
+  [editingId]="gestureCrud.editingId()"
+  [form]="gestureCrud.form()"
+  [saving]="gestureCrud.saving()"
+  [recordedKeys]="gestureCrud.recordedKeys()"
+  [recording]="gestureCrud.recording()"
+  [macroSteps]="gestureCrud.macroSteps()"
+  [macroRepeat]="gestureCrud.macroRepeat()"
+  [isRecording]="gestureCrud.isRecording()"
+  [compositeStep1]="gestureCrud.compositeStep1()"
+  [compositeStep2]="gestureCrud.compositeStep2()"
+  [compositeActionKey]="gestureCrud.compositeActionKey()"
+  [showCompositeEditor]="gestureCrud.showCompositeEditor()"
+  [showKeyRecorder]="gestureCrud.showKeyRecorder()"
+  [showSequenceEditor]="gestureCrud.showSequenceEditor()"
+  (save)="gestureCrud.saveGesture()"
+  (close)="gestureCrud.closeDialog()"
+  (formField)="gestureCrud.onFormField($event.field, $event.value)"
+  (compositeField)="gestureCrud.onCompositeField($event.step, $event.field, $event.value)"
+  (compositeActionKeyChange)="gestureCrud.compositeActionKey.set($event)"
+  (recordingToggle)="gestureCrud.toggleRecording()"
+  (macroStepAction)="gestureCrud.updateMacroStepAction($event.index, $event.action)"
+  (macroStepValue)="gestureCrud.updateMacroStepValue($event.index, $event.value)"
+  (macroStepMoveUp)="gestureCrud.moveMacroStepUp($event)"
+  (macroStepMoveDown)="gestureCrud.moveMacroStepDown($event)"
+  (macroStepRemove)="gestureCrud.removeMacroStep($event)"
+  (macroStepAdd)="gestureCrud.addMacroStep()"
+  (keyRecordStart)="gestureCrud.startRecording()"
+  (keyRecordStop)="gestureCrud.stopRecording()"
+  (keyRecordKeydown)="gestureCrud.onKeyDown($event)"
+  (keyRecordClear)="gestureCrud.clearRecording()"
+  (keyPresetApply)="gestureCrud.applyPreset($event)"
+  (macroRepeatChange)="gestureCrud.macroRepeat.set($event)"
+/>
 
-      <div class="modal-body">
-        <label class="form-field">
-          <span>Movimiento</span>
-          <select [ngModel]="form().movement" (ngModelChange)="onFormField('movement', $event)" class="form-select">
-            @for (m of movements; track m) {
-              <option [value]="m">{{ m }}</option>
-            }
-          </select>
-        </label>
-
-        @if (showCompositeEditor()) {
-          <div class="composite-editor">
-            <h4>Paso 1</h4>
-            <div class="composite-step-row">
-              <select [ngModel]="compositeStep1().movement" (ngModelChange)="onCompositeField(1, 'movement', $event)" class="form-select step-movement">
-                @for (m of movements; track m) {
-                  @if (m !== 'COMPOSITE') {
-                    <option [value]="m">{{ getMovementLabel(m) }}</option>
-                  }
-                }
-              </select>
-              <select [ngModel]="compositeStep1().index_state" (ngModelChange)="onCompositeField(1, 'index_state', $event)" class="form-select step-flex">
-                <option [value]="0">Índice: Abierto</option>
-                <option [value]="1">Índice: Parcial</option>
-                <option [value]="2">Índice: Flexionado</option>
-              </select>
-              <select [ngModel]="compositeStep1().middle_state" (ngModelChange)="onCompositeField(1, 'middle_state', $event)" class="form-select step-flex">
-                <option [value]="0">Medio: Abierto</option>
-                <option [value]="1">Medio: Parcial</option>
-                <option [value]="2">Medio: Flexionado</option>
-              </select>
-            </div>
-
-            <div class="composite-arrow-row">⬇ luego</div>
-
-            <h4>Paso 2</h4>
-            <div class="composite-step-row">
-              <select [ngModel]="compositeStep2().movement" (ngModelChange)="onCompositeField(2, 'movement', $event)" class="form-select step-movement">
-                @for (m of movements; track m) {
-                  @if (m !== 'COMPOSITE') {
-                    <option [value]="m">{{ getMovementLabel(m) }}</option>
-                  }
-                }
-              </select>
-              <select [ngModel]="compositeStep2().index_state" (ngModelChange)="onCompositeField(2, 'index_state', $event)" class="form-select step-flex">
-                <option [value]="0">Índice: Abierto</option>
-                <option [value]="1">Índice: Parcial</option>
-                <option [value]="2">Índice: Flexionado</option>
-              </select>
-              <select [ngModel]="compositeStep2().middle_state" (ngModelChange)="onCompositeField(2, 'middle_state', $event)" class="form-select step-flex">
-                <option [value]="0">Medio: Abierto</option>
-                <option [value]="1">Medio: Parcial</option>
-                <option [value]="2">Medio: Flexionado</option>
-              </select>
-            </div>
-
-            <label class="form-field">
-              <span>Acción compuesta</span>
-              <select [ngModel]="compositeActionKey()" (ngModelChange)="compositeActionKey.set($event)" class="form-select">
-                @for (a of actions; track a) {
-                  <option [value]="a">{{ getActionLabel(a) }}</option>
-                }
-              </select>
-            </label>
-          </div>
-        } @else {
-          <label class="form-field">
-            <span>Orientación</span>
-            <select [ngModel]="form().orientation" (ngModelChange)="onFormField('orientation', $event)" class="form-select">
-              @for (o of orientations; track o) {
-                <option [value]="o">{{ o }}</option>
-              }
-            </select>
-          </label>
-
-          <label class="form-field">
-            <span>Estado del Índice</span>
-            <select [ngModel]="form().index_state" (ngModelChange)="onFormField('index_state', $event)" class="form-select">
-              @for (s of flexStates; track s) {
-                <option [value]="s">{{ s === 0 ? 'Abierto' : s === 1 ? 'Parcial' : 'Flexionado' }}</option>
-              }
-            </select>
-          </label>
-
-          <label class="form-field">
-            <span>Estado del Medio</span>
-            <select [ngModel]="form().middle_state" (ngModelChange)="onFormField('middle_state', $event)" class="form-select">
-              @for (s of flexStates; track s) {
-                <option [value]="s">{{ s === 0 ? 'Abierto' : s === 1 ? 'Parcial' : 'Flexionado' }}</option>
-              }
-            </select>
-          </label>
-
-          <label class="form-field">
-            <span>Acción</span>
-            <select [ngModel]="form().action_key" (ngModelChange)="onFormField('action_key', $event)" class="form-select">
-              @for (a of actions; track a) {
-                <option [value]="a">{{ a }}</option>
-              }
-            </select>
-          </label>
-        }
-
-        <label class="form-field">
-          <span>Contexto</span>
-          <select [ngModel]="form().context" (ngModelChange)="onFormField('context', $event)" class="form-select">
-            @for (c of contexts; track c) {
-              <option [value]="c">{{ getContextLabel(c) }}</option>
-            }
-          </select>
-        </label>
-
-        @if (!showCompositeEditor()) {
-          @if (showSequenceEditor()) {
-            <div class="macro-step-editor">
-              <div class="macro-recording-bar">
-                <button class="btn-small" type="button" (click)="toggleRecording()">
-                  @if (isRecording()) {
-                    <i class="bx bx-stop" aria-hidden="true"></i> Detener grabación
-                  } @else {
-                    <i class="bx bx-circle" aria-hidden="true"></i> Grabar movimientos
-                  }
-                </button>
-              </div>
-
-              <label class="form-field">
-                <span>Repetir</span>
-                <input
-                  class="form-input"
-                  type="number"
-                  [value]="macroRepeat()"
-                  (input)="macroRepeat.set(+$any($event.target).value)"
-                  min="1"
-                />
-              </label>
-
-              @if (macroSteps().length > 0) {
-                <div class="macro-step-list">
-                  @for (step of macroSteps(); track $index; let i = $index) {
-                    <div class="macro-step-row">
-                      <select
-                        class="form-select step-action"
-                        [value]="step.action"
-                        (change)="updateMacroStepAction(i, $any($event.target).value)"
-                      >
-                        <option value="hotkey">Hotkey</option>
-                        <option value="type_string">Type text</option>
-                        <option value="delay">Delay (s)</option>
-                        <option value="left_click">Left click</option>
-                        <option value="right_click">Right click</option>
-                        <option value="volume_up">Volume up</option>
-                        <option value="volume_down">Volume down</option>
-                        <option value="scroll_up">Scroll up</option>
-                        <option value="scroll_down">Scroll down</option>
-                        <option value="mute">Mute</option>
-                        <option value="play_pause">Play/Pause</option>
-                        <option value="next">Next track</option>
-                        <option value="prev">Previous track</option>
-                        <option value="open_browser">Open browser</option>
-                        <option value="open_url">Open URL</option>
-                        <option value="open_app">Open app</option>
-                        <option value="execute_cmd">Execute command</option>
-                        <option value="mouse_move">Mouse move</option>
-                        <option value="scroll">Scroll</option>
-                        <option value="change_mode">Change mode</option>
-                        <option value="switch_target">Switch target</option>
-                        <option value="show_desktop">Show desktop</option>
-                        <option value="back">Back</option>
-                        <option value="forward">Forward</option>
-                      </select>
-
-                      <input
-                        class="form-input step-value"
-                        type="text"
-                        [value]="step.value ?? ''"
-                        (input)="updateMacroStepValue(i, $any($event.target).value)"
-                        placeholder="Value (optional)"
-                      />
-
-                      <div class="step-actions">
-                        <button class="btn-icon" type="button" (click)="moveMacroStepUp(i)" [disabled]="i === 0">
-                          <i class="bx bx-chevron-up"></i>
-                        </button>
-                        <button class="btn-icon" type="button" (click)="moveMacroStepDown(i)" [disabled]="i === macroSteps().length - 1">
-                          <i class="bx bx-chevron-down"></i>
-                        </button>
-                        <button class="btn-icon danger" type="button" (click)="removeMacroStep(i)">
-                          <i class="bx bx-x"></i>
-                        </button>
-                      </div>
-                    </div>
-                  }
-                </div>
-              } @else {
-                <div class="macro-empty">
-                  <i class="bx bx-list-plus"></i>
-                  <p>Agregá pasos a la secuencia o grabá movimientos con el guante</p>
-                </div>
-              }
-
-              <button class="btn-action full-width" type="button" (click)="addMacroStep()" [disabled]="macroSteps().length >= 20">
-                <i class="bx bx-plus"></i> Agregar paso ({{ macroSteps().length }}/20)
-              </button>
-            </div>
-          } @else if (showKeyRecorder()) {
-            <label class="form-field">
-              <span>Combinación de teclas</span>
-              <div
-                class="key-recorder"
-                [class.recording]="recording()"
-                tabindex="0"
-                (focus)="startRecording()"
-                (blur)="stopRecording()"
-                (keydown)="onKeyDown($event)"
-              >
-                @for (key of recordedKeys(); track $index) {
-                  <span class="key-chip">{{ key }}</span>
-                }
-                @if (recordedKeys().length === 0) {
-                  <span class="key-recorder-hint">Presioná las teclas...</span>
-                }
-              </div>
-              <div class="key-recorder-actions">
-                <button class="btn-small" type="button" (click)="clearRecording()">
-                  <i class="bx bx-x" aria-hidden="true"></i> Limpiar
-                </button>
-              </div>
-              <div class="key-presets">
-                @for (p of hotkeyPresets; track p.value) {
-                  <button class="preset-chip" type="button" (click)="applyPreset(p.value)">
-                    {{ p.label }}
-                  </button>
-                }
-              </div>
-            </label>
-          } @else {
-            <label class="form-field">
-              <span>Valor adicional</span>
-              <input
-                class="form-input"
-                type="text"
-                [ngModel]="form().action_value" (ngModelChange)="onFormField('action_value', $event)"
-                placeholder="Ej: open_browser:url|delay:2|hotkey:f11"
-              />
-              <small class="form-hint">Para secuencias: <code>accion:valor|accion:valor</code>. Para comandos: el texto del comando.</small>
-            </label>
-          }
-        }
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn-cancel" (click)="closeDialog()">Cancelar</button>
-        <button class="btn-save" (click)="saveGesture()" [disabled]="saving()">
-          @if (saving()) {
-            <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
-          } @else {
-            <i class="bx bx-save"></i>
-          }
-          {{ saving() ? 'Guardando...' : 'Guardar' }}
-        </button>
-      </div>
-    </div>
-  </div>
-}
-
-@if (calibWizardOpen()) {
-  <div class="modal-overlay" (click)="closeCalibWizard()">
-    <div class="modal-content calib-wizard" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>
-          <i class="bx bx-wrench"></i>
-          Calibrar {{ calibSensor() === 'index_finger' ? 'Índice' : 'Medio' }}
-        </h3>
-        <button class="btn-icon" (click)="closeCalibWizard()"><i class="bx bx-x"></i></button>
-      </div>
-
-      <div class="wizard-steps">
-        <div class="wizard-step-indicator" [class.active]="calibStep() >= 1" [class.done]="calibStep() > 1">
-          <span class="step-num">1</span>
-          <span class="step-label">Mínimo</span>
-        </div>
-        <div class="wizard-connector" [class.done]="calibStep() > 1"></div>
-        <div class="wizard-step-indicator" [class.active]="calibStep() >= 2" [class.done]="calibStep() > 2">
-          <span class="step-num">2</span>
-          <span class="step-label">Máximo</span>
-        </div>
-        <div class="wizard-connector" [class.done]="calibStep() > 2"></div>
-        <div class="wizard-step-indicator" [class.active]="calibStep() >= 3">
-          <span class="step-num">3</span>
-          <span class="step-label">Guardar</span>
-        </div>
-      </div>
-
-      <div class="wizard-body">
-        @if (calibStep() === 1) {
-          <div class="calib-step-content">
-            <div class="calib-instruction">
-              <i class="bx bx-handicap"></i>
-              <p><strong>Abre completamente el dedo {{ calibSensor() === 'index_finger' ? 'índice' : 'medio' }}</strong></p>
-              <p class="calib-hint">Mantenlo así unos segundos hasta que el valor se estabilice</p>
-            </div>
-            <div class="calib-live-value">
-              <span class="calib-label">Valor actual</span>
-              <span class="calib-number">{{ calibLiveValue() }}</span>
-            </div>
-            <button class="btn-action primary full-width" (click)="captureCalibMin()">
-              <i class="bx bx-check"></i> Registrar mínimo ({{ calibLiveValue() }})
-            </button>
-          </div>
-        } @else if (calibStep() === 2) {
-          <div class="calib-step-content">
-            <div class="calib-instruction">
-              <i class="bx bx-handicap"></i>
-              <p><strong>Flexiona completamente el dedo {{ calibSensor() === 'index_finger' ? 'índice' : 'medio' }}</strong></p>
-              <p class="calib-hint">Dobla el dedo al maximo y mantenlo</p>
-            </div>
-            <div class="calib-live-value">
-              <span class="calib-label">Valor actual</span>
-              <span class="calib-number">{{ calibLiveValue() }}</span>
-            </div>
-            <div class="calib-recorded">
-              Mínimo registrado: <strong>{{ calibMinValue() }}</strong>
-            </div>
-            <button class="btn-action primary full-width" (click)="captureCalibMax()">
-              <i class="bx bx-check"></i> Registrar máximo ({{ calibLiveValue() }})
-            </button>
-          </div>
-        } @else {
-          <div class="calib-step-content">
-            <div class="calib-instruction">
-              <i class="bx bx-check-double"></i>
-              <p><strong>Resumen de calibración</strong></p>
-            </div>
-            <div class="calib-summary">
-              <div class="calib-summary-row">
-                <span>Sensor</span>
-                <strong>{{ calibSensor() === 'index_finger' ? 'Índice' : 'Medio' }}</strong>
-              </div>
-              <div class="calib-summary-row">
-                <span>Mínimo</span>
-                <strong class="min-val">{{ calibMinValue() }}</strong>
-              </div>
-              <div class="calib-summary-row">
-                <span>Máximo</span>
-                <strong class="max-val">{{ calibMaxValue() }}</strong>
-              </div>
-              <div class="calib-summary-row">
-                <span>Rango</span>
-                <strong>{{ (calibMaxValue() ?? 0) - (calibMinValue() ?? 0) }}</strong>
-              </div>
-            </div>
-            <div class="calib-actions">
-              <button class="btn-action full-width" (click)="calibStep.set(1)">
-                <i class="bx bx-revision"></i> Empezar de nuevo
-              </button>
-              <button class="btn-action primary full-width" (click)="saveCalibration()" [disabled]="calibSaving()">
-                @if (calibSaving()) {
-                  <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
-                } @else {
-                  <i class="bx bx-save"></i>
-                }
-                {{ calibSaving() ? 'Guardando...' : 'Guardar calibración' }}
-              </button>
-            </div>
-          </div>
-        }
-      </div>
-    </div>
-  </div>
-}

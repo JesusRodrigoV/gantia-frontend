@@ -13,53 +13,18 @@ import {
 import { DecimalPipe, NgClass } from '@angular/common';
 import uPlot from 'uplot';
 import { SensorSocket } from '@core/services/sensor-socket';
-import { GloveTelemetry } from '@core/models/glove-telemetry.model';
+import { SensorChartConfig } from './sensor-chart.model';
+import { buildChartOptions } from './sensor-chart-options';
 
-export interface SensorChartConfig {
-  title: string;
-  unitLabel: string;
-  seriesColors: [string, string, string];
-  seriesLabels?: [string, string, string];
-  extractValues: (telemetry: GloveTelemetry) => [number, number, number];
-}
-
-const SYNC_KEY = 'gantia-sensors';
+export type { SensorChartConfig };
 
 @Component({
   selector: 'app-sensor-chart',
   imports: [NgClass, DecimalPipe],
-  template: `
-    <button
-      class="pause-btn"
-      [ngClass]="{ paused: paused() }"
-      (click)="togglePause()"
-      [title]="paused() ? 'Reanudar' : 'Pausar'"
-    >
-      <i [class]="paused() ? 'bx bx-play' : 'bx bx-pause'" aria-hidden="true"></i>
-    </button>
-
-    @if (!lastValues()) {
-      <div class="empty-state">
-        <i class="bx bx-line-chart" aria-hidden="true"></i>
-        <span>Esperando datos...</span>
-      </div>
-    }
-
-    @if (lastValues(); as v) {
-      <div class="last-values">
-        <span class="lv-item" [style.color]="config().seriesColors[0]">{{ seriesLabels()[0] }}: {{ v[0] | number:'1.1' }}</span>
-        <span class="lv-item" [style.color]="config().seriesColors[1]">{{ seriesLabels()[1] }}: {{ v[1] | number:'1.1' }}</span>
-        <span class="lv-item" [style.color]="config().seriesColors[2]">{{ seriesLabels()[2] }}: {{ v[2] | number:'1.1' }}</span>
-      </div>
-    }
-
-    <div #chartContainer class="uplot-container"></div>
-  `,
+  templateUrl: './sensor-chart.html',
   styleUrl: '../chart.styles.scss',
+  host: { '(window:resize)': 'onResize()' },
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    '(window:resize)': 'onResize()',
-  },
 })
 export class SensorChart implements OnDestroy {
   config = input.required<SensorChartConfig>();
@@ -97,13 +62,17 @@ export class SensorChart implements OnDestroy {
     });
   }
 
+  private readonly DISPLAY_THROTTLE_MS = 100;
+
   private scheduleDisplayUpdate(values: [number, number, number]): void {
     const now = performance.now();
-    if (now - this.lastDisplayUpdate >= 100) {
+    if (now - this.lastDisplayUpdate >= this.DISPLAY_THROTTLE_MS) {
       this.lastValues.set(values);
       this.lastDisplayUpdate = now;
     }
   }
+
+  private readonly RESIZE_DEBOUNCE_MS = 100;
 
   protected togglePause(): void {
     this.paused.update((v) => !v);
@@ -119,7 +88,7 @@ export class SensorChart implements OnDestroy {
           height: container.offsetHeight,
         });
       }
-    }, 100);
+    }, this.RESIZE_DEBOUNCE_MS);
   }
 
   private initializeChart(): void {
@@ -128,69 +97,7 @@ export class SensorChart implements OnDestroy {
     const labels = cfg.seriesLabels ?? ['X', 'Y', 'Z'];
     this.seriesLabels.set(labels);
 
-    const opts: uPlot.Options = {
-      width: container.offsetWidth,
-      height: container.offsetHeight,
-      title: cfg.title,
-      cursor: {
-        show: true,
-        x: true,
-        y: true,
-        drag: { x: false, y: false },
-        sync: { key: SYNC_KEY },
-      },
-      scales: {
-        x: { time: true },
-        y: { auto: true },
-      },
-      axes: [
-        {
-          space: 80,
-          stroke: 'var(--p-surface-400)',
-          grid: { stroke: 'color-mix(in srgb, var(--p-surface-900) 6%, transparent)' },
-        },
-        {
-          label: cfg.unitLabel,
-          stroke: 'var(--p-surface-400)',
-          grid: { stroke: 'color-mix(in srgb, var(--p-surface-900) 6%, transparent)' },
-        },
-      ],
-      series: [
-        {
-          value: (_, v) => {
-            if (v === null) return '--';
-            const d = new Date(v * 1000);
-            return (
-              d.toLocaleTimeString('es-BO', { hour12: false }) +
-              '.' +
-              d.getMilliseconds().toString().padStart(3, '0')
-            );
-          },
-        },
-        {
-          label: labels[0],
-          stroke: cfg.seriesColors[0],
-          width: 2,
-          fill: cfg.seriesColors[0] + '15',
-          points: { show: false },
-        },
-        {
-          label: labels[1],
-          stroke: cfg.seriesColors[1],
-          width: 2,
-          fill: cfg.seriesColors[1] + '15',
-          points: { show: false },
-        },
-        {
-          label: labels[2],
-          stroke: cfg.seriesColors[2],
-          width: 2,
-          fill: cfg.seriesColors[2] + '15',
-          points: { show: false },
-        },
-      ],
-    };
-
+    const opts = buildChartOptions(container, cfg);
     this.uplotInstance = new uPlot(opts, this.plotData, container);
   }
 

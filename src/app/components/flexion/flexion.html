@@ -17,7 +17,7 @@
         <span class="finger-value" [class.glowing]="glowingIndex()">{{ FLEX_STATE_LABELS[flexState] }}</span>
       </div>
       <div class="gauge-track">
-        <div class="gauge-fill index-fill" [class.glowing]="glowingIndex()" [style.width.%]="(flexState / 2) * 100"></div>
+        <div class="gauge-fill index-fill" [class.glowing]="glowingIndex()" [style.width.%]="indexPercent()"></div>
       </div>
     </div>
 
@@ -27,7 +27,7 @@
         <span class="finger-value" [class.glowing]="glowingMiddle()">{{ FLEX_STATE_LABELS[middleState] }}</span>
       </div>
       <div class="gauge-track">
-        <div class="gauge-fill middle-fill" [class.glowing]="glowingMiddle()" [style.width.%]="(middleState / 2) * 100"></div>
+        <div class="gauge-fill middle-fill" [class.glowing]="glowingMiddle()" [style.width.%]="middlePercent()"></div>
       </div>
     </div>
   </div>

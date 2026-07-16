@@ -16,8 +16,8 @@ import { providePrimeNG } from 'primeng/config';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { routes } from './app.routes';
 import { CustomPreset } from '../theme/theme';
-import { ThemeHandler } from '@core/services/theme-handler';
-import { tokenInterceptor } from '@core/services/token.interceptor';
+import { ThemeHandler } from '@core/utils/theme-handler';
+import { tokenInterceptor } from '@core/interceptors/token.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [

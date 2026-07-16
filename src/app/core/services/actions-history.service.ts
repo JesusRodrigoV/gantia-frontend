@@ -2,19 +2,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { env } from '../../../environments/environment';
 import { inject, Injectable } from '@angular/core';
+import { ActionHistoryEntry, ActionHistoryResponse } from '@core/models/actions-history.model';
 
-export interface ActionHistoryEntry {
-  action: string;
-  value: unknown;
-  target: string;
-  result: string;
-  timestamp: number;
-}
-
-export interface ActionHistoryResponse {
-  data: ActionHistoryEntry[];
-  total: number;
-}
+export type { ActionHistoryEntry, ActionHistoryResponse };
 
 @Injectable({
   providedIn: 'root',

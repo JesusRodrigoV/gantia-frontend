@@ -11,12 +11,13 @@ import {
   effect,
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { AcelerometerChart } from '@components/acelerometer-chart';
+import { AcelerometerChart } from '@components/charts/acelerometer-chart';
 import { Flexion } from '@components/flexion';
-import { GyroscopeChart } from '@components/gyroscope-chart';
+import { GyroscopeChart } from '@components/charts/gyroscope-chart';
 import { Skeleton } from 'primeng/skeleton';
 import { SensorSocket } from '@core/services/sensor-socket';
-import { FLEX_STATE_LABELS, getActionLabel } from '@core/models/glove-telemetry.model';
+import { getActionLabel } from '@core/models/glove-telemetry.model';
+import { FLEX_STATE_LABELS } from '@core/models/gesture-config.model';
 import { createSwapy } from 'swapy';
 import type { Swapy } from 'swapy';
 import { HealthService } from '@core/services/health.service';
@@ -41,7 +42,8 @@ export default class Sensores implements OnDestroy {
   protected orientation = computed(() => {
     const t = this.sensorSocket.telemetry();
     if (!t) return null;
-    const pitch = Math.atan2(t.accel_x, Math.sqrt(t.accel_y ** 2 + t.accel_z ** 2)) * (180 / Math.PI);
+    const pitch =
+      Math.atan2(t.accel_x, Math.sqrt(t.accel_y ** 2 + t.accel_z ** 2)) * (180 / Math.PI);
     const roll = Math.atan2(t.accel_y, t.accel_z) * (180 / Math.PI);
     return { pitch, roll };
   });
@@ -67,12 +69,14 @@ export default class Sensores implements OnDestroy {
     const min = Math.floor((totalSec % 3600) / 60);
     const sec = totalSec % 60;
     const uptimeStr = hrs > 0 ? `${hrs}h ${min}m` : min > 0 ? `${min}m ${sec}s` : `${sec}s`;
-    const bars = t.rssi! >= -50 ? 5 : t.rssi! >= -60 ? 4 : t.rssi! >= -70 ? 3 : t.rssi! >= -80 ? 2 : 1;
+    const bars =
+      t.rssi! >= -50 ? 5 : t.rssi! >= -60 ? 4 : t.rssi! >= -70 ? 3 : t.rssi! >= -80 ? 2 : 1;
     return { rssi: t.rssi, bars, temp: t.temp_mpu, uptime: uptimeStr };
   });
 
   protected showDisconnectedOverlay = computed(
-    () => this.sensorSocket.connectionStatus() === 'disconnected' && !!this.sensorSocket.telemetry(),
+    () =>
+      this.sensorSocket.connectionStatus() === 'disconnected' && !!this.sensorSocket.telemetry(),
   );
 
   protected wsError = computed(
@@ -98,7 +102,9 @@ export default class Sensores implements OnDestroy {
               slot.appendChild(item);
             }
           }
-        } catch {}
+        } catch {
+          /* swapy layout may not have these slots */
+        }
       }
 
       this.swapy = createSwapy(container, {

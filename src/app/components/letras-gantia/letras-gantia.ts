@@ -32,8 +32,8 @@ export class LetrasGantia implements OnInit, OnDestroy {
     this.isvisible.set(true);
   }
 
-  onEnter(event: any): void {
-    const el = event.target;
+  onEnter(event: MouseEvent): void {
+    const el = event.target as HTMLElement;
     this.animEl = el;
 
     gsap.fromTo(
@@ -48,19 +48,17 @@ export class LetrasGantia implements OnInit, OnDestroy {
           revealDelay: 0.2,
           speed: 0.75,
         },
-        onComplete: () => event.animationComplete(),
       },
     );
   }
 
-  onLeave(event: any): void {
-    const el = event.target;
+  onLeave(event: MouseEvent): void {
+    const el = event.target as HTMLElement;
 
     gsap.to(el, {
       duration: 0.8,
       opacity: 0,
       x: -20,
-      onComplete: () => event.animationComplete(),
     });
   }
 }

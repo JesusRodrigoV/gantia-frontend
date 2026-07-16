@@ -1,5 +1,5 @@
 @if (isvisible()) {
-  <div (animate.enter)="onEnter($event)" (animate.leave)="onLeave($event)" class="terminal-text">
+  <div (mouseenter)="onEnter($event)" (mouseleave)="onLeave($event)" class="terminal-text">
     CARGANDO...
   </div>
 }

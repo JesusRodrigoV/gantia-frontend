@@ -1,0 +1,48 @@
+:root {
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  --space-4xl: 6rem;
+
+  --text-xs: 0.625rem;
+  --text-sm: 0.75rem;
+  --text-base: 0.875rem;
+  --text-lg: 1rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 2rem;
+  --text-4xl: 3rem;
+
+  --tracking-tight: 0.5px;
+  --tracking-normal: 1px;
+  --tracking-wide: 2px;
+
+  --color-bg-page: var(--p-surface-50);
+  --color-bg-card: var(--p-surface-0);
+  --color-bg-inset: var(--p-surface-100);
+  --color-text-body: var(--p-surface-700);
+  --color-text-secondary: var(--p-surface-600);
+  --color-text-muted: var(--p-surface-500);
+  --color-text-disabled: var(--p-surface-400);
+  --color-border: var(--p-surface-200);
+  --color-border-light: var(--p-surface-100);
+  --color-accent: #c9a94e;
+}
+
+.app-dark {
+  --color-bg-page: var(--p-surface-950);
+  --color-bg-card: var(--p-surface-900);
+  --color-bg-inset: var(--p-surface-800);
+  --color-text-body: var(--p-surface-200);
+  --color-text-secondary: var(--p-surface-300);
+  --color-text-muted: var(--p-surface-400);
+  --color-text-disabled: var(--p-surface-500);
+  --color-border: var(--p-surface-700);
+  --color-border-light: var(--p-surface-800);
+}

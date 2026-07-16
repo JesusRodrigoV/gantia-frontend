@@ -1,0 +1,130 @@
+@if (learnOpen()) {
+  <div class="modal-overlay" (click)="close()">
+    <div class="modal-content learn-wizard" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="bx bx-gesture"></i> Aprender gesto nuevo</h3>
+        <button class="btn-icon" (click)="close()"><i class="bx bx-x"></i></button>
+      </div>
+
+      <div class="wizard-steps">
+        <div class="wizard-step-indicator" [class.active]="learnStep() >= 1" [class.done]="learnStep() > 1">
+          <span class="step-num">1</span>
+          <span class="step-label">Inicio</span>
+        </div>
+        <div class="wizard-connector" [class.done]="learnStep() > 1"></div>
+        <div class="wizard-step-indicator" [class.active]="learnStep() >= 2" [class.done]="learnStep() > 2">
+          <span class="step-num">2</span>
+          <span class="step-label">Muestra 1</span>
+        </div>
+        <div class="wizard-connector" [class.done]="learnStep() > 2"></div>
+        <div class="wizard-step-indicator" [class.active]="learnStep() >= 3" [class.done]="learnStep() > 3">
+          <span class="step-num">3</span>
+          <span class="step-label">Muestra 2</span>
+        </div>
+        <div class="wizard-connector" [class.done]="learnStep() > 3"></div>
+        <div class="wizard-step-indicator" [class.active]="learnStep() >= 4" [class.done]="learnStep() > 4">
+          <span class="step-num">4</span>
+          <span class="step-label">Guardar</span>
+        </div>
+      </div>
+
+      <div class="wizard-body">
+        @if (learnStep() === 1) {
+          <div class="learn-step-content">
+            <div class="learn-instruction">
+              <i class="bx bx-run"></i>
+              <p><strong>Preparate para enseñar un gesto nuevo</strong></p>
+              <p class="learn-hint">Vas a realizar el mismo gesto 3 veces seguidas para que el sistema lo aprenda</p>
+            </div>
+            <div class="learn-info">
+              <div class="learn-info-row">
+                <i class="bx bx-handicap"></i>
+                <span>Flex Índice: <strong>{{ learnLiveFlexIndex() }}</strong></span>
+              </div>
+              <div class="learn-info-row">
+                <i class="bx bx-handicap"></i>
+                <span>Flex Medio: <strong>{{ learnLiveFlexMiddle() }}</strong></span>
+              </div>
+            </div>
+            <button class="btn-action primary full-width" (click)="start()">
+              <i class="bx bx-play"></i> Empezar
+            </button>
+          </div>
+        } @else if (learnStep() >= 2 && learnStep() <= 3) {
+          <div class="learn-step-content">
+            <div class="learn-instruction">
+              <i class="bx bx-handicap"></i>
+              <p><strong>Hacé el gesto {{ learnSamplesCollected() < 1 ? 'por primera vez' : 'de nuevo' }}</strong></p>
+              <p class="learn-hint">Realizá el gesto con el guante y presioná "Capturar"</p>
+            </div>
+            <div class="learn-sample-count">
+              <span>Muestras: </span>
+              <strong>{{ learnSamplesCollected() }} / 3</strong>
+            </div>
+            <div class="learn-live">
+              <span>Flex Índice: {{ learnLiveFlexIndex() }}</span>
+              <span>Flex Medio: {{ learnLiveFlexMiddle() }}</span>
+            </div>
+            <button class="btn-action primary full-width" (click)="capture()">
+              <i class="bx bx-camera"></i> Capturar muestra
+            </button>
+          </div>
+        } @else if (learnStep() === 4) {
+          @let analysis = learnAnalysis();
+          <div class="learn-step-content">
+            <div class="learn-instruction">
+              <i class="bx bx-check-double"></i>
+              <p><strong>Gesto analizado</strong></p>
+              <p class="learn-hint">Revisá los valores detectados y asignale una acción</p>
+            </div>
+            @if (analysis) {
+              <div class="learn-analysis">
+                <div class="learn-analysis-row">
+                  <span>Movimiento</span>
+                  <strong>{{ getMovementLabel(analysis.movement) }}</strong>
+                </div>
+                <div class="learn-analysis-row">
+                  <span>Orientación</span>
+                  <strong>{{ getOrientationLabel(analysis.orientation) }}</strong>
+                </div>
+                <div class="learn-analysis-row">
+                  <span>Índice</span>
+                  <strong>{{ getFlexStateLabel(analysis.index_state) }}</strong>
+                </div>
+                <div class="learn-analysis-row">
+                  <span>Medio</span>
+                  <strong>{{ getFlexStateLabel(analysis.middle_state) }}</strong>
+                </div>
+                <div class="learn-analysis-row">
+                  <span>Confianza</span>
+                  <strong>{{ analysis.confidence | percent }}</strong>
+                </div>
+              </div>
+            }
+            <label class="form-field">
+              <span>Acción a ejecutar</span>
+              <select [ngModel]="learnActionKey()" (ngModelChange)="learnActionKey.set($event)" class="form-select">
+                @for (a of actions(); track a) {
+                  <option [value]="a">{{ getActionLabel(a) }}</option>
+                }
+              </select>
+            </label>
+            <div class="learn-actions">
+              <button class="btn-action full-width" (click)="learnStep.set(2)">
+                <i class="bx bx-revision"></i> Rehacer
+              </button>
+              <button class="btn-action primary full-width" (click)="save()" [disabled]="learnSaving()">
+                @if (learnSaving()) {
+                  <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
+                } @else {
+                  <i class="bx bx-save"></i>
+                }
+                {{ learnSaving() ? 'Guardando...' : 'Guardar gesto' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

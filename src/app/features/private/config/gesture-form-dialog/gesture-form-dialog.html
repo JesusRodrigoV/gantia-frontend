@@ -1,0 +1,272 @@
+@if (open()) {
+  <div class="modal-overlay" (click)="close.emit()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editingId() ? 'Editar' : 'Añadir' }} Configuración de Gesto</h3>
+        <button class="btn-icon" (click)="close.emit()"><i class="bx bx-x"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <label class="form-field">
+          <span>Movimiento</span>
+          <select [ngModel]="form().movement" (ngModelChange)="formField.emit({ field: 'movement', value: $event })" class="form-select">
+            @for (m of movements; track m) {
+              <option [value]="m">{{ m }}</option>
+            }
+          </select>
+        </label>
+
+        @if (showCompositeEditor()) {
+          <div class="composite-editor">
+            <h4>Paso 1</h4>
+            <div class="composite-step-row">
+              <select [ngModel]="compositeStep1().movement" (ngModelChange)="compositeField.emit({ step: 1, field: 'movement', value: $event })" class="form-select step-movement">
+                @for (m of movements; track m) {
+                  @if (m !== 'COMPOSITE') {
+                    <option [value]="m">{{ getMovementLabel(m) }}</option>
+                  }
+                }
+              </select>
+              <select [ngModel]="compositeStep1().index_state" (ngModelChange)="compositeField.emit({ step: 1, field: 'index_state', value: $event })" class="form-select step-flex">
+                <option [value]="0">Índice: Abierto</option>
+                <option [value]="1">Índice: Parcial</option>
+                <option [value]="2">Índice: Flexionado</option>
+              </select>
+              <select [ngModel]="compositeStep1().middle_state" (ngModelChange)="compositeField.emit({ step: 1, field: 'middle_state', value: $event })" class="form-select step-flex">
+                <option [value]="0">Medio: Abierto</option>
+                <option [value]="1">Medio: Parcial</option>
+                <option [value]="2">Medio: Flexionado</option>
+              </select>
+            </div>
+
+            <div class="composite-arrow-row">⬇ luego</div>
+
+            <h4>Paso 2</h4>
+            <div class="composite-step-row">
+              <select [ngModel]="compositeStep2().movement" (ngModelChange)="compositeField.emit({ step: 2, field: 'movement', value: $event })" class="form-select step-movement">
+                @for (m of movements; track m) {
+                  @if (m !== 'COMPOSITE') {
+                    <option [value]="m">{{ getMovementLabel(m) }}</option>
+                  }
+                }
+              </select>
+              <select [ngModel]="compositeStep2().index_state" (ngModelChange)="compositeField.emit({ step: 2, field: 'index_state', value: $event })" class="form-select step-flex">
+                <option [value]="0">Índice: Abierto</option>
+                <option [value]="1">Índice: Parcial</option>
+                <option [value]="2">Índice: Flexionado</option>
+              </select>
+              <select [ngModel]="compositeStep2().middle_state" (ngModelChange)="compositeField.emit({ step: 2, field: 'middle_state', value: $event })" class="form-select step-flex">
+                <option [value]="0">Medio: Abierto</option>
+                <option [value]="1">Medio: Parcial</option>
+                <option [value]="2">Medio: Flexionado</option>
+              </select>
+            </div>
+
+            <label class="form-field">
+              <span>Acción compuesta</span>
+              <select [ngModel]="compositeActionKey()" (ngModelChange)="compositeActionKeyChange.emit($event)" class="form-select">
+                @for (a of actions; track a) {
+                  <option [value]="a">{{ getActionLabel(a) }}</option>
+                }
+              </select>
+            </label>
+          </div>
+        } @else {
+          <label class="form-field">
+            <span>Orientación</span>
+            <select [ngModel]="form().orientation" (ngModelChange)="formField.emit({ field: 'orientation', value: $event })" class="form-select">
+              @for (o of orientations; track o) {
+                <option [value]="o">{{ o }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span>Estado del Índice</span>
+            <select [ngModel]="form().index_state" (ngModelChange)="formField.emit({ field: 'index_state', value: $event })" class="form-select">
+              @for (s of flexStates; track s) {
+                <option [value]="s">{{ s === 0 ? 'Abierto' : s === 1 ? 'Parcial' : 'Flexionado' }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span>Estado del Medio</span>
+            <select [ngModel]="form().middle_state" (ngModelChange)="formField.emit({ field: 'middle_state', value: $event })" class="form-select">
+              @for (s of flexStates; track s) {
+                <option [value]="s">{{ s === 0 ? 'Abierto' : s === 1 ? 'Parcial' : 'Flexionado' }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span>Acción</span>
+            <select [ngModel]="form().action_key" (ngModelChange)="formField.emit({ field: 'action_key', value: $event })" class="form-select">
+              @for (a of actions; track a) {
+                <option [value]="a">{{ a }}</option>
+              }
+            </select>
+          </label>
+        }
+
+        <label class="form-field">
+          <span>Contexto</span>
+          <select [ngModel]="form().context" (ngModelChange)="formField.emit({ field: 'context', value: $event })" class="form-select">
+            @for (c of contexts; track c) {
+              <option [value]="c">{{ getContextLabel(c) }}</option>
+            }
+          </select>
+        </label>
+
+        @if (!showCompositeEditor()) {
+          @if (showSequenceEditor()) {
+            <div class="macro-step-editor">
+              <div class="macro-recording-bar">
+                <button class="btn-small" type="button" (click)="recordingToggle.emit()">
+                  @if (isRecording()) {
+                    <i class="bx bx-stop" aria-hidden="true"></i> Detener grabación
+                  } @else {
+                    <i class="bx bx-circle" aria-hidden="true"></i> Grabar movimientos
+                  }
+                </button>
+              </div>
+
+              <label class="form-field">
+                <span>Repetir</span>
+                <input
+                  class="form-input"
+                  type="number"
+                  [value]="macroRepeat()"
+                  (input)="macroRepeatChange.emit(+$any($event.target).value)"
+                  min="1"
+                />
+              </label>
+
+              @if (macroSteps().length > 0) {
+                <div class="macro-step-list">
+                  @for (step of macroSteps(); track $index; let i = $index) {
+                    <div class="macro-step-row">
+                      <select
+                        class="form-select step-action"
+                        [value]="step.action"
+                        (change)="macroStepAction.emit({ index: i, action: $any($event.target).value })"
+                      >
+                        <option value="hotkey">Hotkey</option>
+                        <option value="type_string">Type text</option>
+                        <option value="delay">Delay (s)</option>
+                        <option value="left_click">Left click</option>
+                        <option value="right_click">Right click</option>
+                        <option value="volume_up">Volume up</option>
+                        <option value="volume_down">Volume down</option>
+                        <option value="scroll_up">Scroll up</option>
+                        <option value="scroll_down">Scroll down</option>
+                        <option value="mute">Mute</option>
+                        <option value="play_pause">Play/Pause</option>
+                        <option value="next">Next track</option>
+                        <option value="prev">Previous track</option>
+                        <option value="open_browser">Open browser</option>
+                        <option value="open_url">Open URL</option>
+                        <option value="open_app">Open app</option>
+                        <option value="execute_cmd">Execute command</option>
+                        <option value="mouse_move">Mouse move</option>
+                        <option value="scroll">Scroll</option>
+                        <option value="change_mode">Change mode</option>
+                        <option value="switch_target">Switch target</option>
+                        <option value="show_desktop">Show desktop</option>
+                        <option value="back">Back</option>
+                        <option value="forward">Forward</option>
+                      </select>
+
+                      <input
+                        class="form-input step-value"
+                        type="text"
+                        [value]="step.value ?? ''"
+                        (input)="macroStepValue.emit({ index: i, value: $any($event.target).value })"
+                        placeholder="Value (optional)"
+                      />
+
+                      <div class="step-actions">
+                        <button class="btn-icon" type="button" (click)="macroStepMoveUp.emit(i)" [disabled]="i === 0">
+                          <i class="bx bx-chevron-up"></i>
+                        </button>
+                        <button class="btn-icon" type="button" (click)="macroStepMoveDown.emit(i)" [disabled]="i === macroSteps().length - 1">
+                          <i class="bx bx-chevron-down"></i>
+                        </button>
+                        <button class="btn-icon danger" type="button" (click)="macroStepRemove.emit(i)">
+                          <i class="bx bx-x"></i>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="macro-empty">
+                  <i class="bx bx-list-plus"></i>
+                  <p>Agregá pasos a la secuencia o grabá movimientos con el guante</p>
+                </div>
+              }
+
+              <button class="btn-action full-width" type="button" (click)="macroStepAdd.emit()" [disabled]="macroSteps().length >= 20">
+                <i class="bx bx-plus"></i> Agregar paso ({{ macroSteps().length }}/20)
+              </button>
+            </div>
+          } @else if (showKeyRecorder()) {
+            <label class="form-field">
+              <span>Combinación de teclas</span>
+              <div
+                class="key-recorder"
+                [class.recording]="recording()"
+                tabindex="0"
+                (focus)="keyRecordStart.emit()"
+                (blur)="keyRecordStop.emit()"
+                (keydown)="keyRecordKeydown.emit($event)"
+              >
+                @for (key of recordedKeys(); track $index) {
+                  <span class="key-chip">{{ key }}</span>
+                }
+                @if (recordedKeys().length === 0) {
+                  <span class="key-recorder-hint">Presioná las teclas...</span>
+                }
+              </div>
+              <div class="key-recorder-actions">
+                <button class="btn-small" type="button" (click)="keyRecordClear.emit()">
+                  <i class="bx bx-x" aria-hidden="true"></i> Limpiar
+                </button>
+              </div>
+              <div class="key-presets">
+                @for (p of hotkeyPresets; track p.value) {
+                  <button class="preset-chip" type="button" (click)="keyPresetApply.emit(p.value)">
+                    {{ p.label }}
+                  </button>
+                }
+              </div>
+            </label>
+          } @else {
+            <label class="form-field">
+              <span>Valor adicional</span>
+              <input
+                class="form-input"
+                type="text"
+                [ngModel]="form().action_value" (ngModelChange)="formField.emit({ field: 'action_value', value: $event })"
+                placeholder="Ej: open_browser:url|delay:2|hotkey:f11"
+              />
+              <small class="form-hint">Para secuencias: <code>accion:valor|accion:valor</code>. Para comandos: el texto del comando.</small>
+            </label>
+          }
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="close.emit()">Cancelar</button>
+        <button class="btn-save" (click)="save.emit()" [disabled]="saving()">
+          @if (saving()) {
+            <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
+          } @else {
+            <i class="bx bx-save"></i>
+          }
+          {{ saving() ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { SensorChart, SensorChartConfig } from '@components/sensor-chart';
+import { SensorChart, SensorChartConfig } from '@components/charts/sensor-chart';
 
 const ACCEL_CONFIG: SensorChartConfig = {
   title: 'Acelerómetro',
@@ -13,7 +13,7 @@ const ACCEL_CONFIG: SensorChartConfig = {
   selector: 'app-acelerometer-chart',
   imports: [SensorChart],
   templateUrl: './acelerometer-chart.html',
-  styles: [`:host { display: block; width: 100%; height: 100%; }`],
+  styleUrl: './acelerometer-chart.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AcelerometerChart {

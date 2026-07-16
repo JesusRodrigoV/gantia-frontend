@@ -1,0 +1,27 @@
+:host { display: contents; }
+.modal-overlay { position: fixed; inset: 0; background-color: color-mix(in srgb, var(--p-surface-900) 40%, transparent); display: flex; align-items: center; justify-content: center; z-index: 1000; animation: modal-in 0.2s ease-out; }
+@keyframes modal-in { from { opacity: 0; } to { opacity: 1; } }
+.modal-content { background-color: var(--p-surface-50); border-radius: 16px; padding: 1.5rem; max-width: 600px; width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px color-mix(in srgb, var(--p-surface-900) 20%, transparent); animation: modal-slide 0.25s ease-out; }
+@keyframes modal-slide { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.modal-header h3 { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--p-surface-700); }
+.modal-body { display: flex; flex-direction: column; gap: 0.75rem; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--p-surface-200); }
+.composite-editor { background-color: var(--p-surface-0); padding: 1rem; border-radius: 12px; }
+.composite-step-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.composite-arrow-row { text-align: center; padding: 0.5rem 0; font-size: 1.5rem; color: var(--p-primary-400); }
+.macro-step-editor { background-color: var(--p-surface-0); padding: 1rem; border-radius: 12px; }
+.macro-recording-bar { margin-bottom: 0.75rem; }
+.macro-step-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; }
+.macro-step-row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.macro-empty { text-align: center; padding: 1.5rem; color: var(--p-surface-400); }
+.macro-empty i { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+.step-actions { display: flex; gap: 0.25rem; }
+.key-recorder { border: 2px dashed var(--p-surface-300); border-radius: 12px; padding: 0.75rem; min-height: 48px; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; cursor: text; transition: border-color 0.2s ease; }
+.key-recorder.recording { border-color: var(--p-primary-500); background-color: color-mix(in srgb, var(--p-primary-500) 4%, transparent); }
+.key-recorder-hint { color: var(--p-surface-400); font-size: 0.85rem; }
+.key-chip { display: inline-block; padding: 0.2rem 0.5rem; background-color: var(--p-surface-200); border-radius: 4px; font-size: 0.8rem; font-weight: 600; color: var(--p-surface-700); font-family: monospace; }
+.key-recorder-actions { margin-top: 0.5rem; }
+.key-presets { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
+.preset-chip { padding: 0.2rem 0.5rem; border: 1px solid var(--p-surface-200); border-radius: 4px; font-size: 0.7rem; font-family: var(--font-ui); cursor: pointer; background-color: var(--p-surface-0); color: var(--p-surface-600); transition: all 0.15s ease; }
+.preset-chip:hover { border-color: var(--p-primary-300); color: var(--p-primary-600); }

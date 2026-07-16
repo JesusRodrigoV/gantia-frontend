@@ -1,0 +1,87 @@
+<section class="config-section">
+  <div class="section-header">
+    <h2>Gestos</h2>
+    <div class="section-actions">
+      <button class="btn-action" (click)="learn.emit()" data-cuelume-press data-cuelume-release>
+        <i class="bx bx-gesture"></i> Aprender
+      </button>
+      <button class="btn-action" (click)="create.emit()" data-cuelume-press data-cuelume-release>
+        <i class="bx bx-plus" aria-hidden="true"></i> Añadir
+      </button>
+      <button class="btn-action" (click)="refresh.emit()" data-cuelume-press data-cuelume-release>
+        <i class="bx bx-refresh" aria-hidden="true"></i> Recargar
+      </button>
+    </div>
+  </div>
+
+  <div class="context-tabs">
+    <button class="context-tab" [class.active]="activeTab() === 'ALL'" (click)="tabChange.emit('ALL')" data-cuelume-hover="tick">Todos</button>
+    @for (c of contexts(); track c) {
+      <button class="context-tab" [class.active]="activeTab() === c" (click)="tabChange.emit(c)" data-cuelume-hover="tick">{{ getContextLabel(c) }}</button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="loading-section"><p-skeleton height="180px" borderRadius="12px" /></div>
+  } @else if (error()) {
+    <div class="state-box error">
+      <i class="bx bx-wifi-off"></i>
+      <p>No se pudo conectar al servidor</p>
+      <button class="btn-retry" (click)="refresh.emit()" data-cuelume-press data-cuelume-release>Reintentar</button>
+    </div>
+  } @else if (filtered().length === 0 && configs().length === 0) {
+    <div class="state-box empty">
+      <i class="bx bx-gesture"></i>
+      <p>No hay configuraciones de gestos</p>
+      <button class="btn-action" (click)="create.emit()" data-cuelume-press data-cuelume-release>Crear primera</button>
+    </div>
+  } @else if (filtered().length === 0) {
+    <div class="state-box empty">
+      <i class="bx bx-filter"></i>
+      <p>No hay gestos en el modo <strong>{{ getContextLabel(activeTab()) }}</strong></p>
+      <button class="btn-action" (click)="create.emit()" data-cuelume-press data-cuelume-release>Crear gesto en este modo</button>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="config-table">
+        <thead>
+          <tr>
+            <th>Movimiento</th>
+            <th>Orientación</th>
+            <th>Índice</th>
+            <th>Medio</th>
+            <th>Acción</th>
+            <th>Contexto</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (cfg of filtered(); track cfg.id) {
+            <tr>
+              <td>
+                @if (cfg.movement === 'COMPOSITE') {
+                  <span class="badge composite-badge">COMPUESTO</span>
+                } @else {
+                  <span class="badge">{{ getMovementLabel(cfg.movement) }}</span>
+                }
+              </td>
+              <td>{{ getOrientationLabel(cfg.orientation) }}</td>
+              <td>{{ getFlexStateLabel(cfg.index_state) }}</td>
+              <td>{{ getFlexStateLabel(cfg.middle_state) }}</td>
+              <td><span class="action-tag">{{ getActionLabel(cfg.action_key) }}</span></td>
+              <td><span class="context-tag" [class]="'ctx-' + cfg.context.toLowerCase()">{{ getContextLabel(cfg.context) }}</span></td>
+              <td class="row-actions">
+                <button class="btn-icon" title="Editar" (click)="edit.emit(cfg)">
+                  <i class="bx bx-pencil"></i>
+                </button>
+                <button class="btn-icon danger" title="Eliminar" (click)="onDelete($event, cfg.id)">
+                  <i class="bx bx-trash"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

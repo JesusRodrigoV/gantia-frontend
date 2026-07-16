@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, DestroyRef, inject, OnDestroy, effect, viewChild, ElementRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, DestroyRef, inject, effect, viewChild, ElementRef, OnDestroy } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Skeleton } from 'primeng/skeleton';
@@ -7,22 +7,22 @@ import { ActionsHistoryService, ActionHistoryEntry } from '@core/services/action
 import { HistoryReading } from '@core/models/reading-history.model';
 import { getActionLabel } from '@core/models/glove-telemetry.model';
 import { finalize } from 'rxjs';
-import uPlot, { AlignedData } from 'uplot';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HistoryChart } from './history-chart';
 
 @Component({
   selector: 'app-history',
   imports: [DecimalPipe, DatePipe, FormsModule, Skeleton],
   templateUrl: './history.html',
   styleUrl: './history.scss',
+  host: { '(window:resize)': 'onResize()' },
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    '(window:resize)': 'onResize()',
-  },
 })
-export default class History {
+export default class History implements OnDestroy {
   private readonly service = inject(ReadingsHistoryService);
   private readonly actionsService = inject(ActionsHistoryService);
   private destroyRef = inject(DestroyRef);
+  private chart = new HistoryChart();
 
   protected tab = signal<'readings' | 'actions'>('readings');
 
@@ -45,8 +45,6 @@ export default class History {
   protected actionsLimit = 50;
 
   private chartEl = viewChild<ElementRef<HTMLDivElement>>('chartContainer');
-  private plot: uPlot | null = null;
-  private resizeTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly getActionLabel = getActionLabel;
 
@@ -55,13 +53,12 @@ export default class History {
     this.search();
 
     effect(() => {
-      if (this.readings().length > 0 && this.plot === null) {
-        setTimeout(() => {
-          this.initChart();
-          if (this.plot) {
-            this.updateChart(this.readings());
-          }
-        });
+      if (this.readings().length > 0) {
+        const container = this.chartEl()?.nativeElement;
+        if (container) {
+          this.chart.init(container);
+          this.chart.update(this.readings(), this.chartType());
+        }
       }
     });
   }
@@ -84,12 +81,12 @@ export default class History {
     const untilISO = this.until ? new Date(this.until).toISOString() : undefined;
 
     this.service.getHistory(sinceISO, untilISO, this.limit)
-      .pipe(finalize(() => this.loading.set(false)))
+      .pipe(finalize(() => this.loading.set(false)), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
           this.readings.set(res.data);
           this.total.set(res.total);
-          this.updateChart(res.data);
+          this.chart.update(res.data, this.chartType());
         },
         error: () => this.error.set(true),
       });
@@ -98,150 +95,28 @@ export default class History {
   changeChartType(type: 'accel' | 'gyro' | 'flex'): void {
     this.chartType.set(type);
     if (this.readings().length > 0) {
-      this.updateChart(this.readings());
+      this.chart.update(this.readings(), type);
     }
-  }
-
-  private initChart(): void {
-    const container = this.chartEl()?.nativeElement;
-    if (!container) return;
-
-    const opts: uPlot.Options = {
-      width: container.clientWidth,
-      height: 280,
-      cursor: {
-        points: { show: false },
-      },
-      scales: {
-        x: { time: false },
-      },
-      axes: [
-        {
-          label: 'Índice',
-          labelSize: 14,
-          stroke: '#6366f1',
-          font: '11px inherit',
-        },
-        {
-          label: 'Valor',
-          labelSize: 14,
-          stroke: '#94a3b8',
-          font: '11px inherit',
-        },
-      ],
-      series: [
-        {},
-        {
-          label: 'Serie 1',
-          stroke: '#6366f1',
-          width: 1.5,
-          points: { show: false },
-        },
-        {
-          label: 'Serie 2',
-          stroke: '#8b5cf6',
-          width: 1.5,
-          points: { show: false },
-        },
-        {
-          label: 'Serie 3',
-          stroke: '#a78bfa',
-          width: 1.5,
-          points: { show: false },
-        },
-      ],
-      legend: {
-        show: true,
-        live: false,
-      },
-    };
-
-    const data: AlignedData = [[], [], [], []];
-    this.plot = new uPlot(opts, data, container);
-  }
-
-  private updateChart(data: HistoryReading[]): void {
-    if (!this.plot || data.length === 0) return;
-
-    const type = this.chartType();
-    const timestamps = new Float64Array(data.map((_, i) => i));
-
-    let series1: Float64Array, series2: Float64Array, series3: Float64Array;
-    let label1: string, label2: string, label3: string;
-    let color1: string, color2: string, color3: string;
-
-    if (type === 'accel') {
-      series1 = new Float64Array(data.map(r => r.accel_x));
-      series2 = new Float64Array(data.map(r => r.accel_y));
-      series3 = new Float64Array(data.map(r => r.accel_z));
-      label1 = 'Accel X';
-      label2 = 'Accel Y';
-      label3 = 'Accel Z';
-      color1 = '#6366f1';
-      color2 = '#8b5cf6';
-      color3 = '#a78bfa';
-    } else if (type === 'gyro') {
-      series1 = new Float64Array(data.map(r => r.gyro_x));
-      series2 = new Float64Array(data.map(r => r.gyro_y));
-      series3 = new Float64Array(data.map(r => r.gyro_z));
-      label1 = 'Gyro X';
-      label2 = 'Gyro Y';
-      label3 = 'Gyro Z';
-      color1 = '#f59e0b';
-      color2 = '#f97316';
-      color3 = '#ef4444';
-    } else {
-      series1 = new Float64Array(data.map(r => r.flex_index));
-      series2 = new Float64Array(data.map(r => r.flex_middle));
-      series3 = new Float64Array(data.map(() => 0));
-      label1 = 'Flex Índice';
-      label2 = 'Flex Medio';
-      label3 = '';
-      color1 = '#10b981';
-      color2 = '#06b6d4';
-      color3 = 'transparent';
-    }
-
-    const chartData: AlignedData = [timestamps, series1, series2, series3];
-    this.plot.setData(chartData);
-
-    const series = this.plot.series;
-    if (series[1]) {
-      (series[1] as any).label = label1;
-      (series[1] as any).stroke = color1;
-    }
-    if (series[2]) {
-      (series[2] as any).label = label2;
-      (series[2] as any).stroke = color2;
-    }
-    if (series[3]) {
-      (series[3] as any).label = label3;
-      (series[3] as any).stroke = color3;
-    }
-
-    this.plot.redraw();
   }
 
   ngOnDestroy(): void {
-    if (this.resizeTimer !== null) {
-      clearTimeout(this.resizeTimer);
-    }
-    if (this.plot) {
-      this.plot.destroy();
-      this.plot = null;
-    }
+    this.chart.destroy();
   }
 
   onResize(): void {
-    if (this.resizeTimer !== null) clearTimeout(this.resizeTimer);
-    this.resizeTimer = setTimeout(() => {
-      if (this.plot && this.chartEl()) {
-        this.plot.setSize({
-          width: this.chartEl()!.nativeElement.clientWidth,
-          height: 280,
-        });
-      }
-    }, 100);
+    this.chart.onResize(this.chartEl()?.nativeElement ?? null);
+  }
+
+  protected loadActions(): void {
+    this.actionsLoading.set(true);
+    this.actionsError.set(false);
+    this.actionsService.getHistory(this.actionsLimit).pipe(finalize(() => this.actionsLoading.set(false)), takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (res) => {
+        this.actions.set(res.data);
+        this.actionsTotal.set(res.total);
+      },
+      error: () => this.actionsError.set(true),
+    });
   }
 
   protected formatActionValue(entry: ActionHistoryEntry): string {
@@ -252,18 +127,6 @@ export default class History {
 
   protected formatActionTimestamp(ts: number): string {
     return new Date(ts * 1000).toLocaleString();
-  }
-
-  protected loadActions(): void {
-    this.actionsLoading.set(true);
-    this.actionsError.set(false);
-    this.actionsService.getHistory(this.actionsLimit).pipe(finalize(() => this.actionsLoading.set(false))).subscribe({
-      next: (res) => {
-        this.actions.set(res.data);
-        this.actionsTotal.set(res.total);
-      },
-      error: () => this.actionsError.set(true),
-    });
   }
 
   protected switchTab(t: 'readings' | 'actions'): void {

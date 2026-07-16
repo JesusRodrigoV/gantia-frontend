@@ -1,3 +1,5 @@
+@use 'sass:list';
+
 :host {
   display: block;
   height: 100%;
@@ -589,9 +591,9 @@
   background-color: var(--p-surface-300);
   transition: background-color 0.3s ease;
 
-  $heights: 4px, 7px, 10px, 13px, 16px;
-  @each $h in $heights {
-    $i: index($heights, $h);
+  $sens-heights: 4px, 7px, 10px, 13px, 16px;
+  @each $h in $sens-heights {
+    $i: list.index($sens-heights, $h);
     &:nth-child(#{$i}) {
       height: $h;
     }

@@ -1,1 +1,1 @@
-export * from './sensores';
+export { default as Sensores } from './sensores';

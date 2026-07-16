@@ -1,0 +1,69 @@
+<section class="config-section test-section" [class.active-test]="mode()">
+  <div class="section-header">
+    <h2><i class="bx bx-test-tube"></i> Modo Prueba</h2>
+    <div class="section-actions">
+      @if (mode()) {
+        <button class="btn-action danger" (click)="stop()" data-cuelume-press data-cuelume-release>
+          <i class="bx bx-stop" aria-hidden="true"></i> Detener
+        </button>
+      } @else {
+        <button class="btn-action" (click)="start()" data-cuelume-press data-cuelume-release>
+          <i class="bx bx-play" aria-hidden="true"></i> Iniciar prueba
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (mode()) {
+    <div class="test-grid">
+      <div class="test-panel">
+        <h3>Señal en vivo</h3>
+        @let t = telemetry();
+        @if (t) {
+          <div class="live-data">
+            <div class="data-row">
+              <span class="data-label">Botón</span>
+              <span class="data-value" [class.on]="t.button_pressed">
+                {{ t.button_pressed ? 'ON' : 'OFF' }}
+              </span>
+            </div>
+            <div class="data-row">
+              <span class="data-label">Flex Índice</span>
+              <span class="data-value">{{ t.flex_index }}</span>
+            </div>
+            <div class="data-row">
+              <span class="data-label">Flex Medio</span>
+              <span class="data-value">{{ t.flex_middle }}</span>
+            </div>
+            <div class="data-row">
+              <span class="data-label">Acelerómetro</span>
+              <span class="data-value">{{ t.accel_x | number:'1.0' }} {{ t.accel_y | number:'1.0' }} {{ t.accel_z | number:'1.0' }}</span>
+            </div>
+            <div class="data-row">
+              <span class="data-label">Giroscopio</span>
+              <span class="data-value">{{ t.gyro_x | number:'1.0' }} {{ t.gyro_y | number:'1.0' }} {{ t.gyro_z | number:'1.0' }}</span>
+            </div>
+          </div>
+        } @else {
+          <div class="test-empty">Esperando datos del guante...</div>
+        }
+      </div>
+
+      <div class="test-panel">
+        <h3>Gestos detectados</h3>
+        @if (actions().length === 0) {
+          <div class="test-empty">Hacé gestos con el guante...</div>
+        } @else {
+          <div class="gesture-log">
+            @for (g of actions(); track g.id) {
+              <div class="gesture-entry">
+                <span class="gesture-time">{{ g.time }}</span>
+                <span class="gesture-name">{{ g.action }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</section>

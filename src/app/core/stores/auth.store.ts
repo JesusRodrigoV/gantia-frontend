@@ -3,7 +3,7 @@ import { signalStore, patchState, withMethods, withState, withComputed } from '@
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap, catchError, of } from 'rxjs';
 import { MessageService } from 'primeng/api';
-import { AuthService } from '../services/auth';
+import { AuthService } from '../services/auth.service';
 import { SoundService } from '../services/sound.service';
 import { Router } from '@angular/router';
 import { AuthRequest } from '@core/models/auth.model';
@@ -27,6 +27,14 @@ export const AuthStore = signalStore(
   withState(initialState),
   withComputed((state) => ({
     isAuthenticated: computed(() => !!state.token()),
+  })),
+  withMethods((store, router = inject(Router)) => ({
+    logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      patchState(store, { token: null, refreshToken: null });
+      router.navigateByUrl('/auth/login');
+    },
   })),
   withMethods((store, authService = inject(AuthService), router = inject(Router), messageService = inject(MessageService), soundService = inject(SoundService)) => ({
     login: rxMethod<AuthRequest>(
@@ -85,12 +93,6 @@ export const AuthStore = signalStore(
         ),
       ),
     ),
-    logout() {
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
-      patchState(store, { token: null, refreshToken: null });
-      router.navigateByUrl('/auth/login');
-    },
     refresh: rxMethod<void>(
       pipe(
         tap(() => patchState(store, { isLoading: true })),

@@ -1,0 +1,172 @@
+<section class="config-section">
+  <div class="section-header">
+    <h2>Calibración</h2>
+    <div class="section-actions">
+      <button class="btn-action" (click)="refresh.emit()">
+        <i class="bx bx-refresh" aria-hidden="true"></i> Recargar
+      </button>
+    </div>
+  </div>
+
+  @if (calibrationLoading()) {
+    <div class="loading-section">
+      <p-skeleton height="120px" borderRadius="12px" />
+    </div>
+  } @else if (calibrationError()) {
+    <div class="state-box error">
+      <i class="bx bx-wifi-off"></i>
+      <p>No se pudo conectar al servidor</p>
+      <button class="btn-retry" (click)="refresh.emit()" data-cuelume-press data-cuelume-release>Reintentar</button>
+    </div>
+  } @else if (calibration().length === 0) {
+    <div class="state-box empty">
+      <i class="bx bx-adjust"></i>
+      <p>No hay datos de calibración</p>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="config-table">
+        <thead>
+          <tr>
+            <th>Sensor</th>
+            <th>Mínimo</th>
+            <th>Máximo</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entry of calibration(); track entry.sensor_name) {
+            <tr>
+              <td><strong>{{ entry.sensor_name }}</strong></td>
+              <td>
+                <input
+                  class="cal-input"
+                  type="number"
+                  [(ngModel)]="entry.min_value"
+                />
+              </td>
+              <td>
+                <input
+                  class="cal-input"
+                  type="number"
+                  [(ngModel)]="entry.max_value"
+                />
+              </td>
+              <td class="row-actions">
+                <button class="btn-icon" title="Calibrar con wizard" (click)="openWizard.emit(entry.sensor_name)">
+                  <i class="bx bx-wrench"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+@if (calibWizardOpen()) {
+  <div class="modal-overlay" (click)="closeWizard.emit()">
+    <div class="modal-content calib-wizard" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>
+          <i class="bx bx-wrench"></i>
+          Calibrar {{ calibSensor() === 'index_finger' ? 'Índice' : 'Medio' }}
+        </h3>
+        <button class="btn-icon" (click)="closeWizard.emit()"><i class="bx bx-x"></i></button>
+      </div>
+
+      <div class="wizard-steps">
+        <div class="wizard-step-indicator" [class.active]="calibStep() >= 1" [class.done]="calibStep() > 1">
+          <span class="step-num">1</span>
+          <span class="step-label">Mínimo</span>
+        </div>
+        <div class="wizard-connector" [class.done]="calibStep() > 1"></div>
+        <div class="wizard-step-indicator" [class.active]="calibStep() >= 2" [class.done]="calibStep() > 2">
+          <span class="step-num">2</span>
+          <span class="step-label">Máximo</span>
+        </div>
+        <div class="wizard-connector" [class.done]="calibStep() > 2"></div>
+        <div class="wizard-step-indicator" [class.active]="calibStep() >= 3">
+          <span class="step-num">3</span>
+          <span class="step-label">Guardar</span>
+        </div>
+      </div>
+
+      <div class="wizard-body">
+        @if (calibStep() === 1) {
+          <div class="calib-step-content">
+            <div class="calib-instruction">
+              <i class="bx bx-handicap"></i>
+              <p><strong>Abre completamente el dedo {{ calibSensor() === 'index_finger' ? 'índice' : 'medio' }}</strong></p>
+              <p class="calib-hint">Mantenlo así unos segundos hasta que el valor se estabilice</p>
+            </div>
+            <div class="calib-live-value">
+              <span class="calib-label">Valor actual</span>
+              <span class="calib-number">{{ calibLiveValue() }}</span>
+            </div>
+            <button class="btn-action primary full-width" (click)="captureMin.emit()">
+              <i class="bx bx-check"></i> Registrar mínimo ({{ calibLiveValue() }})
+            </button>
+          </div>
+        } @else if (calibStep() === 2) {
+          <div class="calib-step-content">
+            <div class="calib-instruction">
+              <i class="bx bx-handicap"></i>
+              <p><strong>Flexiona completamente el dedo {{ calibSensor() === 'index_finger' ? 'índice' : 'medio' }}</strong></p>
+              <p class="calib-hint">Dobla el dedo al maximo y mantenlo</p>
+            </div>
+            <div class="calib-live-value">
+              <span class="calib-label">Valor actual</span>
+              <span class="calib-number">{{ calibLiveValue() }}</span>
+            </div>
+            <div class="calib-recorded">
+              Mínimo registrado: <strong>{{ calibMinValue() }}</strong>
+            </div>
+            <button class="btn-action primary full-width" (click)="captureMax.emit()">
+              <i class="bx bx-check"></i> Registrar máximo ({{ calibLiveValue() }})
+            </button>
+          </div>
+        } @else {
+          <div class="calib-step-content">
+            <div class="calib-instruction">
+              <i class="bx bx-check-double"></i>
+              <p><strong>Resumen de calibración</strong></p>
+            </div>
+            <div class="calib-summary">
+              <div class="calib-summary-row">
+                <span>Sensor</span>
+                <strong>{{ calibSensor() === 'index_finger' ? 'Índice' : 'Medio' }}</strong>
+              </div>
+              <div class="calib-summary-row">
+                <span>Mínimo</span>
+                <strong class="min-val">{{ calibMinValue() }}</strong>
+              </div>
+              <div class="calib-summary-row">
+                <span>Máximo</span>
+                <strong class="max-val">{{ calibMaxValue() }}</strong>
+              </div>
+              <div class="calib-summary-row">
+                <span>Rango</span>
+                <strong>{{ (calibMaxValue() ?? 0) - (calibMinValue() ?? 0) }}</strong>
+              </div>
+            </div>
+            <div class="calib-actions">
+              <button class="btn-action full-width" (click)="redoFromStep.emit(1)">
+                <i class="bx bx-revision"></i> Empezar de nuevo
+              </button>
+              <button class="btn-action primary full-width" (click)="save.emit()" [disabled]="calibSaving()">
+                @if (calibSaving()) {
+                  <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
+                } @else {
+                  <i class="bx bx-save"></i>
+                }
+                {{ calibSaving() ? 'Guardando...' : 'Guardar calibración' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,25 @@
+<button
+  class="pause-btn"
+  [ngClass]="{ paused: paused() }"
+  (click)="togglePause()"
+  [title]="paused() ? 'Reanudar' : 'Pausar'"
+>
+  <i [class]="paused() ? 'bx bx-play' : 'bx bx-pause'" aria-hidden="true"></i>
+</button>
+
+@if (!lastValues()) {
+  <div class="empty-state">
+    <i class="bx bx-line-chart" aria-hidden="true"></i>
+    <span>Esperando datos...</span>
+  </div>
+}
+
+@if (lastValues(); as v) {
+  <div class="last-values">
+    <span class="lv-item" [style.color]="config().seriesColors[0]">{{ seriesLabels()[0] }}: {{ v[0] | number:'1.1' }}</span>
+    <span class="lv-item" [style.color]="config().seriesColors[1]">{{ seriesLabels()[1] }}: {{ v[1] | number:'1.1' }}</span>
+    <span class="lv-item" [style.color]="config().seriesColors[2]">{{ seriesLabels()[2] }}: {{ v[2] | number:'1.1' }}</span>
+  </div>
+}
+
+<div #chartContainer class="uplot-container"></div>

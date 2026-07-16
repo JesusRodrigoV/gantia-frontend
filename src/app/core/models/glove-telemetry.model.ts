@@ -16,11 +16,6 @@ export interface GloveTelemetry {
   uptime_ms?: number;
 }
 
-export const FLEX_STATE_LABELS: Record<number, string> = {
-  0: 'Abierto',
-  1: 'Parcial',
-  2: 'Flexionado',
-};
 
 export interface ActionEvent {
   action: string;
@@ -34,7 +29,7 @@ export interface GestureDetectedEvent {
 }
 
 export function isGestureDetected(data: unknown): data is GestureDetectedEvent {
-  return typeof data === 'object' && data !== null && (data as any).type === 'gesture_detected';
+  return typeof data === 'object' && data !== null && (data as { type: string }).type === 'gesture_detected';
 }
 
 const ACTION_LABELS: Record<string, string> = {

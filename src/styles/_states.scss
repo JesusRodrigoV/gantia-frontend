@@ -1,0 +1,35 @@
+@use 'tokens';
+
+.state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-3xl) var(--space-md);
+  text-align: center;
+  border-radius: 12px;
+
+  i {
+    font-size: var(--space-2xl);
+    color: var(--p-surface-400);
+  }
+
+  p {
+    margin: 0;
+    font-size: var(--text-base);
+    color: var(--color-text-muted);
+    font-weight: 500;
+  }
+
+  &.error {
+    i { color: var(--p-red-400); }
+    p { color: var(--p-red-500); }
+  }
+}
+
+.loading-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}

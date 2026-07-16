@@ -1,19 +1,12 @@
-import { Component, ChangeDetectionStrategy, inject, Injector, signal, computed, effect, runInInjectionContext, output, EffectRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, Injector, signal, computed, effect, runInInjectionContext, output, EffectRef, DestroyRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { SensorSocket } from '@core/services/sensor-socket';
-import { env } from '../../../../environments/environment';
+import { env } from '../../../../../environments/environment';
 import { finalize } from 'rxjs';
-
-type CornerName = 'tl' | 'tr' | 'bl' | 'br';
-
-interface CornerStep {
-  key: CornerName;
-  label: string;
-  description: string;
-  icon: string;
-}
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CornerName, CornerStep } from '../models/absolute-pointer-calibration.model';
 
 const CORNER_STEPS: CornerStep[] = [
   { key: 'tl', label: 'Esquina Superior Izquierda', description: 'Incliná la mano hacia arriba-izquierda', icon: 'bx bx-arrow-to-top-left' },
@@ -29,10 +22,11 @@ const CORNER_STEPS: CornerStep[] = [
   styleUrl: './absolute-pointer-calibration.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class AbsolutePointerCalibration {
+export class AbsolutePointerCalibration {
   private readonly sensorSocket = inject(SensorSocket);
   private readonly http = inject(HttpClient);
   private readonly injector = inject(Injector);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly close = output<void>();
   readonly saved = output<void>();
@@ -128,7 +122,7 @@ export default class AbsolutePointerCalibration {
     };
 
     this.http.put(`${env.apiUrl}/config/absolute-pointer/calibration`, payload)
-      .pipe(finalize(() => this.saving.set(false)))
+      .pipe(finalize(() => this.saving.set(false)), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.cleanup();
@@ -156,7 +150,7 @@ export default class AbsolutePointerCalibration {
         screen_height: this.screenHeight(),
         status: 'draft' as const,
       };
-      this.http.put(`${env.apiUrl}/config/absolute-pointer/calibration`, payload).subscribe({
+      this.http.put(`${env.apiUrl}/config/absolute-pointer/calibration`, payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         error: () => console.warn('Failed to save draft calibration'),
       });
     }

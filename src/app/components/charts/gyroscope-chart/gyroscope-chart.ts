@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { SensorChart, SensorChartConfig } from '@components/sensor-chart';
+import { SensorChart, SensorChartConfig } from '@components/charts/sensor-chart';
 
 const GYRO_CONFIG: SensorChartConfig = {
   title: 'Giroscopio',
@@ -13,7 +13,7 @@ const GYRO_CONFIG: SensorChartConfig = {
   selector: 'app-gyroscope-chart',
   imports: [SensorChart],
   templateUrl: './gyroscope-chart.html',
-  styles: [`:host { display: block; width: 100%; height: 100%; }`],
+  styleUrl: './gyroscope-chart.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GyroscopeChart {

@@ -1,14 +1,11 @@
 import { GloveTelemetry } from '@core/models/glove-telemetry.model';
+import { HandOrientation } from '@core/models/hand-orientation.model';
 
 const ALPHA = 0.96;
 const BETA = 0.04;
 const DEG_TO_RAD = Math.PI / 180;
 
-export interface HandOrientation {
-  pitch: number;
-  roll: number;
-  yaw: number;
-}
+export type { HandOrientation };
 
 export class HandOrientationTracker {
   private pitch = 0;

@@ -103,7 +103,7 @@
                       [max]="f.max"
                       [step]="f.step"
                       [value]="s[key]"
-                      (input)="updateSensitivity(key, $any($event.target).valueAsNumber || $any($event.target).value)"
+                      (input)="onRangeInput(key, $event)"
                       class="sens-range"
                     />
                     <span class="sens-value">{{ s[key] | number:'1.2-2' }}</span>

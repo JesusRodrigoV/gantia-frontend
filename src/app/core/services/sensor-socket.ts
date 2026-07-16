@@ -16,6 +16,7 @@ const BASE_RECONNECT_DELAY = 1000;
 const MAX_RECONNECT_DELAY = 30000;
 const PING_INTERVAL = 25000;
 const PONG_TIMEOUT = 20000;
+const WAITING_TIMEOUT_MS = 7000;
 
 function isTokenExpired(token: string): boolean {
   try {
@@ -127,110 +128,116 @@ export class SensorSocket implements OnDestroy {
     this.connectionStatus.set('connecting');
     this.socket = new WebSocket(`${env.wsUrl}/ws/dashboard?token=${token}`);
 
-    this.socket.onopen = () => {
-      this._isConnecting = false;
-      this.resetRetryState();
-      this.startPingTimer();
-      this.waitingForDevice.set(false);
-      this.waitingTimer = setTimeout(() => {
-        if (!this.telemetry()) {
-          this.waitingForDevice.set(true);
-        }
-      }, 7000);
-    };
+    this.socket.onopen = () => this.onSocketOpen();
+    this.socket.onmessage = (event) => this.onSocketMessage(event);
+    this.socket.onerror = () => this.onSocketError();
+    this.socket.onclose = (event) => this.onSocketClose(event);
+  }
 
-    this.socket.onmessage = (event: MessageEvent) => {
-      try {
-        const data = JSON.parse(event.data);
-
-        if (data.type === 'pong') {
-          if (this.pongTimeout) {
-            clearTimeout(this.pongTimeout);
-            this.pongTimeout = null;
-          }
-          return;
-        }
-
-        if (data.type === 'ping') {
-          this.socket?.send(JSON.stringify({ type: 'pong' }));
-          return;
-        }
-
-        if (isGestureDetected(data)) {
-          this.gestureDetected.set(data);
-          return;
-        }
-
-          if (isActionMessage(data)) {
-            const msg = data as any;
-            const evt: ActionEvent =
-              msg.action === 'action_triggered'
-                ? { action: String(msg.action_key ?? ''), action_value: msg.action_value }
-                : data;
-
-            this.actionEvent.set(evt);
-
-            this.recentActions.update((prev) => [evt, ...prev].slice(0, MAX_RECENT_ACTIONS));
-
-            if (evt.action === 'mouse_mode') {
-              const newVal = data.action_value;
-              if (newVal !== this.lastMouseModeValue) {
-                this.lastMouseModeValue = newVal;
-                this.mouseModeActive.set(newVal === true || newVal === 'ON');
-              }
-            }
-
-            if (evt.action === 'mode_changed') {
-              this.currentMode.set(String(evt.action_value).toUpperCase());
-            }
-
-            return;
-          }
-
-          // Absolute pointer status message
-          if (data && data.type === 'absolute_pointer_status') {
-            this.absolutePointerEnabled.set(data.enabled === true);
-            return;
-          }
-
-        if (data && typeof data.accel_x !== 'undefined') {
-          this.scheduleTelemetryUpdate(data as GloveTelemetry);
-          this.cancelWaitingTimer();
-          this.waitingForDevice.set(false);
-          this.resetDataTimeout();
-        }
-      } catch (error) {
-        console.warn('[SensorSocket] Failed to parse WebSocket message:', event.data);
+  private onSocketOpen(): void {
+    this._isConnecting = false;
+    this.resetRetryState();
+    this.startPingTimer();
+    this.waitingForDevice.set(false);
+    this.waitingTimer = setTimeout(() => {
+      if (!this.telemetry()) {
+        this.waitingForDevice.set(true);
       }
-    };
+    }, WAITING_TIMEOUT_MS);
+  }
 
-    this.socket.onerror = () => {
-      this._isConnecting = false;
-      this.connectionStatus.set('error');
-      this.telemetry.set(null);
-      this.dataFlowing.set(false);
-      if (this.shouldBeConnected) {
-        this.scheduleReconnect();
-      }
-    };
+  private onSocketMessage(event: MessageEvent): void {
+    try {
+      const data = JSON.parse(event.data);
 
-    this.socket.onclose = (event: CloseEvent) => {
-      this._isConnecting = false;
-      this.connectionStatus.set('disconnected');
-      this.dataFlowing.set(false);
-      this.waitingForDevice.set(false);
-      this.cancelWaitingTimer();
-      this.clearPingTimer();
-      if (this.dataTimeout) clearTimeout(this.dataTimeout);
-
-      if (event.code !== 1000) {
-        console.warn(`[SensorSocket] Close: code=${event.code} reason="${event.reason}"`);
+      if (data.type === 'pong') {
+        if (this.pongTimeout) {
+          clearTimeout(this.pongTimeout);
+          this.pongTimeout = null;
+        }
+        return;
       }
 
-      if (this.shouldBeConnected) {
-        this.scheduleReconnect();
+      if (data.type === 'ping') {
+        this.socket?.send(JSON.stringify({ type: 'pong' }));
+        return;
       }
-    };
+
+      if (isGestureDetected(data)) {
+        this.gestureDetected.set(data);
+        return;
+      }
+
+      if (isActionMessage(data)) {
+        this.handleActionMessage(data);
+        return;
+      }
+
+      if (data && data.type === 'absolute_pointer_status') {
+        this.absolutePointerEnabled.set(data.enabled === true);
+        return;
+      }
+
+      if (data && typeof data.accel_x !== 'undefined') {
+        this.scheduleTelemetryUpdate(data as GloveTelemetry);
+        this.cancelWaitingTimer();
+        this.waitingForDevice.set(false);
+        this.resetDataTimeout();
+      }
+    } catch (error) {
+      console.warn('[SensorSocket] Failed to parse WebSocket message:', event.data);
+    }
+  }
+
+  private onSocketError(): void {
+    this._isConnecting = false;
+    this.connectionStatus.set('error');
+    this.telemetry.set(null);
+    this.dataFlowing.set(false);
+    if (this.shouldBeConnected) {
+      this.scheduleReconnect();
+    }
+  }
+
+  private onSocketClose(event: CloseEvent): void {
+    this._isConnecting = false;
+    this.connectionStatus.set('disconnected');
+    this.dataFlowing.set(false);
+    this.waitingForDevice.set(false);
+    this.cancelWaitingTimer();
+    this.clearPingTimer();
+    if (this.dataTimeout) clearTimeout(this.dataTimeout);
+
+    if (event.code !== 1000) {
+      console.warn(`[SensorSocket] Close: code=${event.code} reason="${event.reason}"`);
+    }
+
+    if (this.shouldBeConnected) {
+      this.scheduleReconnect();
+    }
+  }
+
+  private handleActionMessage(data: ActionEvent): void {
+    const msg = data as ActionEvent & { action_key?: string };
+    const evt: ActionEvent =
+      msg.action === 'action_triggered'
+        ? { action: String(msg.action_key ?? ''), action_value: msg.action_value }
+        : data;
+
+    this.actionEvent.set(evt);
+    this.recentActions.update((prev) => [evt, ...prev].slice(0, MAX_RECENT_ACTIONS));
+
+    if (evt.action === 'mouse_mode') {
+      const newVal = data.action_value;
+      if (newVal !== this.lastMouseModeValue) {
+        this.lastMouseModeValue = newVal;
+        this.mouseModeActive.set(newVal === true || newVal === 'ON');
+      }
+    }
+
+    if (evt.action === 'mode_changed') {
+      this.currentMode.set(String(evt.action_value).toUpperCase());
+    }
   }
 
   private scheduleReconnect(): void {

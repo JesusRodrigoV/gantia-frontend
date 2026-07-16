@@ -1,5 +1,5 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -7,7 +7,7 @@ import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { LetrasGantia } from '@components/letras-gantia/letras-gantia';
-import { ThemeHandler } from '@core/services/theme-handler';
+import { ThemeHandler } from '@core/utils/theme-handler';
 import { SensorSocket } from '@core/services/sensor-socket';
 import { ClientStatusService } from '@core/services/client-status.service';
 import { PicoTargetService } from '@core/services/pico-target.service';
@@ -16,6 +16,7 @@ import { SoundService } from '@core/services/sound.service';
 import { RoundedButton } from '@shared/components/ui/rounded-button';
 import { getContextLabel, CONTEXTS } from '@core/models/gesture-config.model';
 import { env } from '../../../environments/environment';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-header',
@@ -38,6 +39,7 @@ import { env } from '../../../environments/environment';
 })
 export class Header {
   private http = inject(HttpClient);
+  private destroyRef = inject(DestroyRef);
   themeService = inject(ThemeHandler);
   protected sensorSocket = inject(SensorSocket);
   protected clientStatus = inject(ClientStatusService);
@@ -58,19 +60,19 @@ export class Header {
   protected selectedTarget = signal('auto');
 
   constructor() {
-    this.http.get<{ target: string }>(`${env.apiUrl}/active-target`).subscribe({
+    this.http.get<{ target: string }>(`${env.apiUrl}/active-target`).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (r) => this.selectedTarget.set(r.target),
     });
   }
 
   changeMode(mode: string): void {
     this.sensorSocket.currentMode.set(mode);
-    this.http.post(`${env.apiUrl}/config/mode`, { mode }).subscribe();
+    this.http.post(`${env.apiUrl}/config/mode`, { mode }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   changeTarget(target: string): void {
     this.selectedTarget.set(target);
-    this.http.post(`${env.apiUrl}/active-target`, { target }).subscribe();
+    this.http.post(`${env.apiUrl}/active-target`, { target }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   links = [
