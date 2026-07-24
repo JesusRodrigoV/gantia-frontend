@@ -1,20 +1,15 @@
 import {
-  Component,
-  ChangeDetectionStrategy,
-  inject,
-  OnInit,
-  OnDestroy,
-  signal,
-  DestroyRef,
+  Component, ChangeDetectionStrategy, inject, OnInit, OnDestroy,
+  signal, DestroyRef,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { MessageService } from 'primeng/api';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { Toast } from 'primeng/toast';
 import { Skeleton } from 'primeng/skeleton';
-import { InputNumberModule } from 'primeng/inputnumber';
+import { MessageService } from 'primeng/api';
 import { MouseConfigService } from '@core/services/mouse-config.service';
 import { MouseConfig } from '@core/models/mouse-config.model';
 import { PicoTargetService, PicoTarget } from '@core/services/pico-target.service';
@@ -28,13 +23,8 @@ import { SENS_FIELDS, SENS_GROUPS, TARGET_OPTIONS } from './sensitivity-fields';
 @Component({
   selector: 'app-settings',
   imports: [
-    FormsModule,
-    DecimalPipe,
-    ToggleSwitchModule,
-    RadioButtonModule,
-    InputNumberModule,
-    Toast,
-    Skeleton,
+    FormsModule, DecimalPipe, ToggleSwitchModule, RadioButtonModule,
+    InputNumberModule, Toast, Skeleton,
   ],
   templateUrl: './settings.html',
   styleUrl: './settings.scss',
@@ -59,64 +49,43 @@ export default class Settings implements OnInit, OnDestroy {
   private readonly sensTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   protected soundEnabled = this.soundService.enabled;
-
-  protected onSoundToggle(value: boolean): void {
-    this.soundService.setEnabled(value);
-  }
-
   protected readonly sensFields = SENS_FIELDS;
   protected readonly sensGroups = SENS_GROUPS;
   protected readonly targetOptions = TARGET_OPTIONS;
-
   protected selectedTarget = signal<PicoTarget>('auto');
 
   ngOnInit(): void {
-    this.mouseConfigService
-      .getConfig()
-      .pipe(
-        finalize(() => this.loading.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (config) => {
-          this.invertRoll.set(config.invert_roll);
-          this.invertPitch.set(config.invert_pitch);
-        },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'No se pudo cargar la configuracion del mouse',
-            life: 4000,
-          });
-        },
-      });
+    this.mouseConfigService.getConfig().pipe(
+      finalize(() => this.loading.set(false)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (config) => {
+        this.invertRoll.set(config.invert_roll);
+        this.invertPitch.set(config.invert_pitch);
+      },
+      error: () => this.messageService.add({
+        severity: 'error', summary: 'Error',
+        detail: 'No se pudo cargar la configuracion del mouse', life: 4000,
+      }),
+    });
 
     this.picoTargetService.load();
     this.selectedTarget.set(this.picoTargetService.target());
-
     this.loadSensitivity();
   }
 
   protected loadSensitivity(): void {
     this.sensLoading.set(true);
-    this.sensitivityService
-      .getSettings()
-      .pipe(
-        finalize(() => this.sensLoading.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (s) => this.sens.set(s),
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'No se pudieron cargar los parámetros de sensibilidad',
-            life: 4000,
-          });
-        },
-      });
+    this.sensitivityService.getSettings().pipe(
+      finalize(() => this.sensLoading.set(false)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (s) => this.sens.set(s),
+      error: () => this.messageService.add({
+        severity: 'error', summary: 'Error',
+        detail: 'No se pudieron cargar los parámetros de sensibilidad', life: 4000,
+      }),
+    });
   }
 
   isRangeField(key: keyof SensitivitySettings): boolean {
@@ -140,100 +109,61 @@ export default class Settings implements OnInit, OnDestroy {
 
     const existing = this.sensTimers.get(key);
     if (existing) clearTimeout(existing);
-    this.sensTimers.set(
-      key,
-      setTimeout(() => {
-        this.sensTimers.delete(key);
-        this.sensitivityService
-          .updateSettings({ [key]: value })
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: () =>
-              this.savingKeys.update((s) => {
-                s.delete(key);
-                return new Set(s);
-              }),
-            error: () => {
-              this.savingKeys.update((s) => {
-                s.delete(key);
-                return new Set(s);
-              });
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: `No se pudo guardar ${key}`,
-                life: 4000,
-              });
-              this.loadSensitivity();
-            },
-          });
-      }, 300),
-    );
+    this.sensTimers.set(key, setTimeout(() => {
+      this.sensTimers.delete(key);
+      this.sensitivityService.updateSettings({ [key]: value })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => this.savingKeys.update((s) => { s.delete(key); return new Set(s); }),
+          error: () => {
+            this.savingKeys.update((s) => { s.delete(key); return new Set(s); });
+            this.messageService.add({
+              severity: 'error', summary: 'Error',
+              detail: `No se pudo guardar ${key}`, life: 4000,
+            });
+            this.loadSensitivity();
+          },
+        });
+    }, 300));
   }
 
-  onRollChange(value: boolean): void {
-    this.mouseConfigService
-      .updateConfig({ invert_roll: value })
+  protected onToggleChange(field: 'roll' | 'pitch', value: boolean): void {
+    const update = field === 'roll' ? { invert_roll: value } : { invert_pitch: value };
+    const signal = field === 'roll' ? this.invertRoll : this.invertPitch;
+    const label = field === 'roll' ? 'Balanceo invertido' : 'Inclinacion invertida';
+
+    this.mouseConfigService.updateConfig(update)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (config: MouseConfig) => {
-          this.invertRoll.set(config.invert_roll);
+          signal.set(field === 'roll' ? config.invert_roll : config.invert_pitch);
           this.messageService.add({
-            severity: 'success',
-            summary: 'Guardado',
-            detail: `Balanceo invertido: ${config.invert_roll ? 'SÍ' : 'NO'}`,
-            life: 2000,
+            severity: 'success', summary: 'Guardado',
+            detail: `${label}: ${value ? 'SÍ' : 'NO'}`, life: 2000,
           });
         },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'No se pudo guardar la configuracion',
-            life: 4000,
-          });
-        },
+        error: () => this.messageService.add({
+          severity: 'error', summary: 'Error',
+          detail: 'No se pudo guardar la configuracion', life: 4000,
+        }),
       });
-  }
-
-  onPitchChange(value: boolean): void {
-    this.mouseConfigService
-      .updateConfig({ invert_pitch: value })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (config: MouseConfig) => {
-          this.invertPitch.set(config.invert_pitch);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Guardado',
-            detail: `Inclinacion invertida: ${config.invert_pitch ? 'SÍ' : 'NO'}`,
-            life: 2000,
-          });
-        },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'No se pudo guardar la configuracion',
-            life: 4000,
-          });
-        },
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.sensTimers.forEach((t) => clearTimeout(t));
-    this.sensTimers.clear();
   }
 
   onTargetChange(target: PicoTarget): void {
     this.selectedTarget.set(target);
     this.picoTargetService.setTarget(target);
     this.messageService.add({
-      severity: 'info',
-      summary: 'Target cambiado',
-      detail: `Modo de control: ${this.picoTargetService.targetLabel()}`,
-      life: 2500,
+      severity: 'info', summary: 'Target cambiado',
+      detail: `Modo de control: ${this.picoTargetService.targetLabel()}`, life: 2500,
     });
+  }
+
+  protected onSoundToggle(value: boolean): void {
+    this.soundService.setEnabled(value);
+  }
+
+  ngOnDestroy(): void {
+    this.sensTimers.forEach((t) => clearTimeout(t));
+    this.sensTimers.clear();
   }
 }

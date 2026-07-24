@@ -7,7 +7,7 @@ import { CalibrationEntry } from '@core/models/calibration.model';
   selector: 'app-calibration-panel',
   imports: [FormsModule, Skeleton],
   templateUrl: './calibration-panel.html',
-  styleUrl: './calibration-panel.scss',
+  styleUrls: ['./calibration-panel.scss', '../shared.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CalibrationPanel {

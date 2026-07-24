@@ -1,5 +1,5 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy, DestroyRef, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -37,10 +37,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     '(window:scroll)': 'onScroll()',
   },
 })
-export class Header {
+export class Header implements OnInit {
   private http = inject(HttpClient);
   private destroyRef = inject(DestroyRef);
-  themeService = inject(ThemeHandler);
+  protected themeService = inject(ThemeHandler);
   protected sensorSocket = inject(SensorSocket);
   protected clientStatus = inject(ClientStatusService);
   protected picoTarget = inject(PicoTargetService);
@@ -59,7 +59,7 @@ export class Header {
   ];
   protected selectedTarget = signal('auto');
 
-  constructor() {
+  ngOnInit(): void {
     this.http.get<{ target: string }>(`${env.apiUrl}/active-target`).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (r) => this.selectedTarget.set(r.target),
     });

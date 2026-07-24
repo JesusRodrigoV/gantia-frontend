@@ -3,7 +3,7 @@ import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@ang
 import { LetrasGantia } from '@components/letras-gantia/letras-gantia';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthStore } from '@core/stores/auth.store';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -14,9 +14,8 @@ import { Router, RouterLink } from '@angular/router';
 })
 export default class Login implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
-  public readonly authStore = inject(AuthStore);
-  router = inject(Router);
-  showPassword = signal(false);
+  protected readonly authStore = inject(AuthStore);
+  protected showPassword = signal(false);
 
   ngOnInit(): void {
     this.authStore.clearError();

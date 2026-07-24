@@ -1,27 +1,275 @@
 :host { display: contents; }
-.modal-overlay { position: fixed; inset: 0; background-color: color-mix(in srgb, var(--p-surface-900) 40%, transparent); display: flex; align-items: center; justify-content: center; z-index: 1000; animation: modal-in 0.2s ease-out; }
-@keyframes modal-in { from { opacity: 0; } to { opacity: 1; } }
-.modal-content { background-color: var(--p-surface-50); border-radius: 16px; padding: 1.5rem; max-width: 600px; width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px color-mix(in srgb, var(--p-surface-900) 20%, transparent); animation: modal-slide 0.25s ease-out; }
-@keyframes modal-slide { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
-.modal-header h3 { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--p-surface-700); }
-.modal-body { display: flex; flex-direction: column; gap: 0.75rem; }
-.modal-footer { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--p-surface-200); }
-.composite-editor { background-color: var(--p-surface-0); padding: 1rem; border-radius: 12px; }
-.composite-step-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.composite-arrow-row { text-align: center; padding: 0.5rem 0; font-size: 1.5rem; color: var(--p-primary-400); }
-.macro-step-editor { background-color: var(--p-surface-0); padding: 1rem; border-radius: 12px; }
-.macro-recording-bar { margin-bottom: 0.75rem; }
-.macro-step-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; }
-.macro-step-row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-.macro-empty { text-align: center; padding: 1.5rem; color: var(--p-surface-400); }
-.macro-empty i { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
-.step-actions { display: flex; gap: 0.25rem; }
-.key-recorder { border: 2px dashed var(--p-surface-300); border-radius: 12px; padding: 0.75rem; min-height: 48px; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; cursor: text; transition: border-color 0.2s ease; }
-.key-recorder.recording { border-color: var(--p-primary-500); background-color: color-mix(in srgb, var(--p-primary-500) 4%, transparent); }
-.key-recorder-hint { color: var(--p-surface-400); font-size: 0.85rem; }
-.key-chip { display: inline-block; padding: 0.2rem 0.5rem; background-color: var(--p-surface-200); border-radius: 4px; font-size: 0.8rem; font-weight: 600; color: var(--p-surface-700); font-family: monospace; }
-.key-recorder-actions { margin-top: 0.5rem; }
-.key-presets { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
-.preset-chip { padding: 0.2rem 0.5rem; border: 1px solid var(--p-surface-200); border-radius: 4px; font-size: 0.7rem; font-family: var(--font-ui); cursor: pointer; background-color: var(--p-surface-0); color: var(--p-surface-600); transition: all 0.15s ease; }
-.preset-chip:hover { border-color: var(--p-primary-300); color: var(--p-primary-600); }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: color-mix(in srgb, var(--p-surface-900) 40%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: modal-in 0.2s ease-out;
+}
+
+@keyframes modal-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background-color: var(--p-surface-50);
+  border-radius: 16px;
+  padding: 1.5rem;
+  max-width: 600px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px color-mix(in srgb, var(--p-surface-900) 20%, transparent);
+  animation: modal-slide 0.25s ease-out;
+}
+
+@keyframes modal-slide {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--p-surface-700);
+  }
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--p-surface-200);
+}
+
+// ── Composite editor ──
+
+.composite-editor {
+  background-color: var(--p-surface-0);
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+.composite-step-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.composite-arrow-row {
+  text-align: center;
+  padding: 0.5rem 0;
+  font-size: 1.5rem;
+  color: var(--p-primary-400);
+}
+
+// ── Key recorder ──
+
+.key-recorder {
+  min-height: 44px;
+  padding: 0.5rem;
+  border: 2px solid var(--p-surface-200);
+  border-radius: 10px;
+  background-color: var(--p-surface-0);
+  box-shadow: var(--shadow-inset-sm);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: text;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    border-color: var(--p-primary-400);
+  }
+
+  &.recording {
+    border-color: var(--p-amber-500);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-amber-500) 20%, transparent);
+  }
+}
+
+.key-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--font-ui);
+  background: linear-gradient(135deg, var(--p-surface-100), var(--p-surface-0));
+  color: var(--p-surface-700);
+  box-shadow: var(--shadow-inset-sm);
+  border: 1px solid var(--p-surface-200);
+  text-transform: lowercase;
+  letter-spacing: 0.3px;
+
+  &::before {
+    content: '[';
+    color: var(--p-amber-600);
+    margin-right: 1px;
+  }
+
+  &::after {
+    content: ']';
+    color: var(--p-amber-600);
+    margin-left: 1px;
+  }
+}
+
+.key-recorder-hint {
+  font-size: 0.78rem;
+  color: var(--p-surface-400);
+  font-style: italic;
+}
+
+.key-recorder-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.btn-small {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.6rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  color: var(--p-surface-600);
+  background-color: var(--p-surface-100);
+  transition: all 0.15s ease;
+
+  i {
+    font-size: 0.8rem;
+  }
+
+  &:hover {
+    background-color: var(--p-surface-200);
+    color: var(--p-red-500);
+  }
+}
+
+.key-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+
+.preset-chip {
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--p-surface-200);
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  color: var(--p-primary-600);
+  background-color: var(--p-surface-0);
+  transition: all 0.15s ease;
+
+  &:hover {
+    background-color: var(--p-primary-500);
+    color: white;
+    border-color: var(--p-primary-500);
+  }
+}
+
+// ── Macro step editor ──
+
+.macro-step-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background-color: var(--p-surface-0);
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+.macro-recording-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.macro-step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.macro-step-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  padding: 0.4rem;
+  background-color: var(--p-surface-0);
+  border-radius: 8px;
+  box-shadow: var(--shadow-inset-sm);
+  border: 1px solid var(--p-surface-200);
+
+  .step-action {
+    min-width: 130px;
+    font-size: 0.72rem;
+    padding: 0.35rem 0.4rem;
+  }
+
+  .step-value {
+    flex: 1;
+    min-width: 80px;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.5rem;
+  }
+
+  .step-actions {
+    display: flex;
+    gap: 0.15rem;
+  }
+}
+
+.macro-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: var(--p-surface-400);
+
+  i {
+    font-size: 1.5rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.78rem;
+  }
+}

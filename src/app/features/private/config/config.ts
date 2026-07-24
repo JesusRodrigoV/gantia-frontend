@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, OnDestroy, signal, computed, DestroyRef, viewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, DestroyRef, viewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Toast } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -27,7 +27,7 @@ import { AbsCalibrationData } from './models/config.model';
   styleUrl: './config.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class Config implements OnInit, OnDestroy {
+export default class Config implements OnInit {
   protected readonly gestureCrud = inject(GestureCrudService);
   protected readonly calibrationCrud = inject(CalibrationCrudService);
   private readonly configService = inject(ConfigService);
@@ -64,10 +64,6 @@ export default class Config implements OnInit, OnDestroy {
     this.gestureCrud.loadGestureConfigs();
     this.calibrationCrud.loadCalibration();
     this.checkAbsCalibration();
-  }
-
-  ngOnDestroy(): void {
-    // handled by child components
   }
 
   protected onToggleAbsPointer(event: Event): void {

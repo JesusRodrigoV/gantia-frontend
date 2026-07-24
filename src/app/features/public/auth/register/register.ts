@@ -20,9 +20,9 @@ import { AuthStore } from '@core/stores/auth.store';
 })
 export default class Register implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
-  public readonly authStore = inject(AuthStore);
-  showPassword = signal(false);
-  showConfirmPassword = signal(false);
+  protected readonly authStore = inject(AuthStore);
+  protected showPassword = signal(false);
+  protected showConfirmPassword = signal(false);
 
   ngOnInit(): void {
     this.authStore.clearError();

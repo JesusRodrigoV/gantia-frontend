@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, DestroyRef, inject, effect, viewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, DestroyRef, inject, effect, viewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Skeleton } from 'primeng/skeleton';
@@ -18,7 +18,7 @@ import { HistoryChart } from './history-chart';
   host: { '(window:resize)': 'onResize()' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class History implements OnDestroy {
+export default class History implements OnInit, OnDestroy {
   private readonly service = inject(ReadingsHistoryService);
   private readonly actionsService = inject(ActionsHistoryService);
   private destroyRef = inject(DestroyRef);
@@ -50,7 +50,6 @@ export default class History implements OnDestroy {
 
   constructor() {
     this.setDefaultToday();
-    this.search();
 
     effect(() => {
       if (this.readings().length > 0) {
@@ -61,6 +60,10 @@ export default class History implements OnDestroy {
         }
       }
     });
+  }
+
+  ngOnInit(): void {
+    this.search();
   }
 
   setDefaultToday(): void {

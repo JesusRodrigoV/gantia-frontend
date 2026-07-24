@@ -7,7 +7,7 @@ import { getActionLabel } from '@core/models/glove-telemetry.model';
   selector: 'app-gesture-list',
   imports: [Skeleton],
   templateUrl: './gesture-list.html',
-  styleUrl: './gesture-list.scss',
+  styleUrls: ['./gesture-list.scss', '../shared.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GestureList {

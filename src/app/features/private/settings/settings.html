@@ -59,7 +59,7 @@
           </div>
           <p class="setting-desc">Invierte el eje de balanceo (roll) del movimiento del mouse</p>
         </div>
-        <p-toggleswitch [ngModel]="invertRoll()" (ngModelChange)="onRollChange($event)" />
+        <p-toggleswitch [ngModel]="invertRoll()" (ngModelChange)="onToggleChange('roll', $event)" />
       </div>
 
       <div class="setting-divider"></div>
@@ -72,7 +72,7 @@
           </div>
           <p class="setting-desc">Invierte el eje de inclinacion (pitch) del movimiento del mouse</p>
         </div>
-        <p-toggleswitch [ngModel]="invertPitch()" (ngModelChange)="onPitchChange($event)" />
+        <p-toggleswitch [ngModel]="invertPitch()" (ngModelChange)="onToggleChange('pitch', $event)" />
       </div>
     </div>
 

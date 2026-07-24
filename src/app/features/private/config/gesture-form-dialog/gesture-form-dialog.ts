@@ -11,7 +11,7 @@ import { getActionLabel } from '@core/models/glove-telemetry.model';
   selector: 'app-gesture-form-dialog',
   imports: [FormsModule],
   templateUrl: './gesture-form-dialog.html',
-  styleUrl: './gesture-form-dialog.scss',
+  styleUrls: ['./gesture-form-dialog.scss', '../shared.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GestureFormDialog {

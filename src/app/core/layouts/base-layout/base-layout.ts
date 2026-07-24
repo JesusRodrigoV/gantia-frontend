@@ -102,6 +102,10 @@ export default class BaseLayout implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.disconnectDebounce !== null) {
+      clearTimeout(this.disconnectDebounce);
+      this.disconnectDebounce = null;
+    }
     this.sensorSocket.disconnect();
   }
 }

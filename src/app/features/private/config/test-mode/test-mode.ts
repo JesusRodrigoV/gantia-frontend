@@ -10,7 +10,7 @@ import { GloveTelemetry, getActionLabel } from '@core/models/glove-telemetry.mod
   selector: 'app-test-mode',
   imports: [DecimalPipe],
   templateUrl: './test-mode.html',
-  styleUrl: './test-mode.scss',
+  styleUrls: ['./test-mode.scss', '../shared.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TestMode {

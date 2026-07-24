@@ -17,7 +17,7 @@ import { getActionLabel } from '@core/models/glove-telemetry.model';
   selector: 'app-learning-wizard',
   imports: [FormsModule, PercentPipe],
   templateUrl: './learning-wizard.html',
-  styleUrl: './learning-wizard.scss',
+  styleUrls: ['./learning-wizard.scss', '../shared.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LearningWizard {
