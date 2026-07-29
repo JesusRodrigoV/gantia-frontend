@@ -126,9 +126,12 @@ export class SensorSocket implements OnDestroy {
 
     this.clearReconnectTimer();
     this.connectionStatus.set('connecting');
-    this.socket = new WebSocket(`${env.wsUrl}/ws/dashboard?token=${token}`);
+    this.socket = new WebSocket(`${env.wsUrl}/ws/dashboard`);
 
-    this.socket.onopen = () => this.onSocketOpen();
+    this.socket.onopen = () => {
+      this.socket?.send(JSON.stringify({ type: 'auth', token }));
+      this.onSocketOpen();
+    };
     this.socket.onmessage = (event) => this.onSocketMessage(event);
     this.socket.onerror = () => this.onSocketError();
     this.socket.onclose = (event) => this.onSocketClose(event);
