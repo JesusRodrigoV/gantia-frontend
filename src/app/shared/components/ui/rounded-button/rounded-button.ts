@@ -12,11 +12,11 @@ export class RoundedButton {
   rounded = input<boolean>(true);
   label = input<string | undefined>(undefined);
   icon = input<string | undefined>(undefined);
-  variant = input<string>('');
-  severity = input<string | undefined>(undefined);
+  variant = input<'outlined' | 'text' | ''>('');
+  severity = input<'secondary' | 'danger' | undefined>(undefined);
   disabled = input<boolean>(false);
   loading = input<boolean>(false);
   type = input<string>('button');
-  size = input<string | undefined>(undefined);
+  size = input<'small' | 'large' | undefined>(undefined);
   styleClass = input<string>('');
 }
