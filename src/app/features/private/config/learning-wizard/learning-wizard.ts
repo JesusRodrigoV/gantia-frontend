@@ -12,10 +12,11 @@ import { SoundService } from '@core/services/sound.service';
 import { ToastService } from '@core/services/toast.service';
 import { getMovementLabel, getOrientationLabel, getFlexStateLabel } from '@core/models/gesture-config.model';
 import { getActionLabel } from '@core/models/glove-telemetry.model';
+import { RoundedButton } from '@shared/components/ui/rounded-button';
 
 @Component({
   selector: 'app-learning-wizard',
-  imports: [FormsModule, PercentPipe],
+  imports: [FormsModule, PercentPipe, RoundedButton],
   templateUrl: './learning-wizard.html',
   styleUrls: ['./learning-wizard.scss', '../shared.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

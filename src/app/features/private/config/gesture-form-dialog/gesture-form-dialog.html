@@ -206,9 +206,14 @@
                 </div>
               }
 
-              <button class="btn-action full-width" type="button" (click)="macroStepAdd.emit()" [disabled]="macroSteps().length >= 20">
-                <i class="bx bx-plus"></i> Agregar paso ({{ macroSteps().length }}/20)
-              </button>
+              <app-rounded-button
+                [label]="'Agregar paso (' + macroSteps().length + '/20)'"
+                icon="bx bx-plus"
+                (click)="macroStepAdd.emit()"
+                [disabled]="macroSteps().length >= 20"
+                class="full-width"
+                type="button"
+              />
             </div>
           } @else if (showKeyRecorder()) {
             <label class="form-field">
@@ -257,16 +262,15 @@
       </div>
 
       <div class="modal-footer">
-        <button class="btn-cancel" (click)="close.emit()">Cancelar</button>
-        <button class="btn-save" (click)="save.emit()" [disabled]="saving()">
-          @if (saving()) {
-            <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
-          } @else {
-            <i class="bx bx-save"></i>
-          }
-          {{ saving() ? 'Guardando...' : 'Guardar' }}
-        </button>
+        <app-rounded-button label="Cancelar" (click)="close.emit()" severity="secondary" variant="text" type="button" />
+        <app-rounded-button
+          [label]="saving() ? 'Guardando...' : 'Guardar'"
+          icon="bx bx-save"
+          (click)="save.emit()"
+          [disabled]="saving()"
+          [loading]="saving()"
+          type="button"
+        />
       </div>
-    </div>
   </div>
 }

@@ -9,10 +9,11 @@ import { getActionLabel } from '@core/models/glove-telemetry.model';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HistoryChart } from './history-chart';
+import { RoundedButton } from '@shared/components/ui/rounded-button';
 
 @Component({
   selector: 'app-history',
-  imports: [DecimalPipe, DatePipe, FormsModule, Skeleton],
+  imports: [DecimalPipe, DatePipe, FormsModule, Skeleton, RoundedButton],
   templateUrl: './history.html',
   styleUrl: './history.scss',
   host: { '(window:resize)': 'onResize()' },

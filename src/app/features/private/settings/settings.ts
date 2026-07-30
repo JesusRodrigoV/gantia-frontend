@@ -19,12 +19,13 @@ import { SensitivitySettings } from '@core/models/sensitivity.model';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SENS_FIELDS, SENS_GROUPS, TARGET_OPTIONS } from './sensitivity-fields';
+import { RoundedButton } from '@shared/components/ui/rounded-button';
 
 @Component({
   selector: 'app-settings',
   imports: [
     FormsModule, DecimalPipe, ToggleSwitchModule, RadioButtonModule,
-    InputNumberModule, Toast, Skeleton,
+    InputNumberModule, Toast, Skeleton, RoundedButton,
   ],
   templateUrl: './settings.html',
   styleUrl: './settings.scss',

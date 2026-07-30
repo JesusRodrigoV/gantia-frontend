@@ -8,6 +8,7 @@ import { env } from '../../../../../environments/environment';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CornerName, CornerStep } from '../models/absolute-pointer-calibration.model';
+import { RoundedButton } from '@shared/components/ui/rounded-button';
 
 const CORNER_STEPS: CornerStep[] = [
   { key: 'tl', label: 'Esquina Superior Izquierda', description: 'Incliná la mano hacia arriba-izquierda', icon: 'bx bx-arrow-to-top-left' },
@@ -18,7 +19,7 @@ const CORNER_STEPS: CornerStep[] = [
 
 @Component({
   selector: 'app-absolute-pointer-calibration',
-  imports: [FormsModule, DecimalPipe],
+  imports: [FormsModule, DecimalPipe, RoundedButton],
   templateUrl: './absolute-pointer-calibration.html',
   styleUrl: './absolute-pointer-calibration.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

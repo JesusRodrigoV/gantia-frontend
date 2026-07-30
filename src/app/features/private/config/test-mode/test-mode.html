@@ -3,13 +3,9 @@
     <h2><i class="bx bx-test-tube"></i> Modo Prueba</h2>
     <div class="section-actions">
       @if (mode()) {
-        <button class="btn-action danger" (click)="stop()" data-cuelume-press data-cuelume-release>
-          <i class="bx bx-stop" aria-hidden="true"></i> Detener
-        </button>
+        <app-rounded-button label="Detener" icon="bx bx-stop" (click)="stop()" severity="danger" variant="text" />
       } @else {
-        <button class="btn-action" (click)="start()" data-cuelume-press data-cuelume-release>
-          <i class="bx bx-play" aria-hidden="true"></i> Iniciar prueba
-        </button>
+        <app-rounded-button label="Iniciar prueba" icon="bx bx-play" (click)="start()" variant="text" />
       }
     </div>
   </div>

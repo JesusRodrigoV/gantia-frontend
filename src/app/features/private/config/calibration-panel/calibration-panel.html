@@ -2,9 +2,7 @@
   <div class="section-header">
     <h2>Calibración</h2>
     <div class="section-actions">
-      <button class="btn-action" (click)="refresh.emit()">
-        <i class="bx bx-refresh" aria-hidden="true"></i> Recargar
-      </button>
+      <app-rounded-button label="Recargar" icon="bx bx-refresh" (click)="refresh.emit()" variant="text" />
     </div>
   </div>
 
@@ -105,9 +103,13 @@
               <span class="calib-label">Valor actual</span>
               <span class="calib-number">{{ calibLiveValue() }}</span>
             </div>
-            <button class="btn-action primary full-width" (click)="captureMin.emit()">
-              <i class="bx bx-check"></i> Registrar mínimo ({{ calibLiveValue() }})
-            </button>
+            <app-rounded-button
+              [label]="'Registrar mínimo (' + calibLiveValue() + ')'"
+              icon="bx bx-check"
+              (click)="captureMin.emit()"
+              variant="text"
+              class="full-width"
+            />
           </div>
         } @else if (calibStep() === 2) {
           <div class="calib-step-content">
@@ -123,9 +125,13 @@
             <div class="calib-recorded">
               Mínimo registrado: <strong>{{ calibMinValue() }}</strong>
             </div>
-            <button class="btn-action primary full-width" (click)="captureMax.emit()">
-              <i class="bx bx-check"></i> Registrar máximo ({{ calibLiveValue() }})
-            </button>
+            <app-rounded-button
+              [label]="'Registrar máximo (' + calibLiveValue() + ')'"
+              icon="bx bx-check"
+              (click)="captureMax.emit()"
+              variant="text"
+              class="full-width"
+            />
           </div>
         } @else {
           <div class="calib-step-content">
@@ -152,17 +158,16 @@
               </div>
             </div>
             <div class="calib-actions">
-              <button class="btn-action full-width" (click)="redoFromStep.emit(1)">
-                <i class="bx bx-revision"></i> Empezar de nuevo
-              </button>
-              <button class="btn-action primary full-width" (click)="save.emit()" [disabled]="calibSaving()">
-                @if (calibSaving()) {
-                  <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
-                } @else {
-                  <i class="bx bx-save"></i>
-                }
-                {{ calibSaving() ? 'Guardando...' : 'Guardar calibración' }}
-              </button>
+              <app-rounded-button label="Empezar de nuevo" icon="bx bx-revision" (click)="redoFromStep.emit(1)" variant="text" class="full-width" />
+              <app-rounded-button
+                [label]="calibSaving() ? 'Guardando...' : 'Guardar calibración'"
+                icon="bx bx-save"
+                (click)="save.emit()"
+                [disabled]="calibSaving()"
+                [loading]="calibSaving()"
+                variant="text"
+                class="full-width"
+              />
             </div>
           </div>
         }

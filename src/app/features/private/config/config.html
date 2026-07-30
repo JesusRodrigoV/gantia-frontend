@@ -4,39 +4,40 @@
   <div class="config-header">
     <i class="bx bx-gesture" aria-hidden="true"></i>
     <h1>Gestos</h1>
-    <button class="btn-action" (click)="syncFromSupabase()" [disabled]="syncing()" data-cuelume-press data-cuelume-release>
-      @if (syncing()) {
-        <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
-      } @else {
-        <i class="bx bx-cloud-download" aria-hidden="true"></i>
-      }
-      {{ syncing() ? 'Sincronizando...' : 'Sincronizar' }}
-    </button>
-    <button class="btn-action" (click)="gestureCrud.exportConfigs()" [disabled]="gestureCrud.exporting()" data-cuelume-press data-cuelume-release>
-      @if (gestureCrud.exporting()) {
-        <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
-      } @else {
-        <i class="bx bx-export"></i>
-      }
-      {{ gestureCrud.exporting() ? 'Exportando...' : 'Exportar' }}
-    </button>
-    <button class="btn-action" (click)="fileInput.click()" [disabled]="gestureCrud.importing()" data-cuelume-press data-cuelume-release>
-      @if (gestureCrud.importing()) {
-        <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
-      } @else {
-        <i class="bx bx-import"></i>
-      }
-      {{ gestureCrud.importing() ? 'Importando...' : 'Importar' }}
-    </button>
+    <app-rounded-button
+      [label]="syncing() ? 'Sincronizando...' : 'Sincronizar'"
+      icon="bx bx-cloud-download"
+      (click)="syncFromSupabase()"
+      [disabled]="syncing()"
+      [loading]="syncing()"
+      variant="text"
+    />
+    <app-rounded-button
+      [label]="gestureCrud.exporting() ? 'Exportando...' : 'Exportar'"
+      icon="bx bx-export"
+      (click)="gestureCrud.exportConfigs()"
+      [disabled]="gestureCrud.exporting()"
+      [loading]="gestureCrud.exporting()"
+      variant="text"
+    />
+    <app-rounded-button
+      [label]="gestureCrud.importing() ? 'Importando...' : 'Importar'"
+      icon="bx bx-import"
+      (click)="fileInput.click()"
+      [disabled]="gestureCrud.importing()"
+      [loading]="gestureCrud.importing()"
+      variant="text"
+    />
     <input #fileInput type="file" accept=".json" (change)="gestureCrud.onImportFile($event)" hidden />
-    <button class="btn-action danger" (click)="resetToDefaults()" [disabled]="resettando()" data-cuelume-press data-cuelume-release>
-      @if (resettando()) {
-        <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
-      } @else {
-        <i class="bx bx-reset"></i>
-      }
-      {{ resettando() ? 'Reseteando...' : 'Reset' }}
-    </button>
+    <app-rounded-button
+      [label]="resettando() ? 'Reseteando...' : 'Reset'"
+      icon="bx bx-reset"
+      (click)="resetToDefaults()"
+      [disabled]="resettando()"
+      [loading]="resettando()"
+      severity="danger"
+      variant="text"
+    />
   </div>
 
   <section class="config-section">
@@ -88,10 +89,13 @@
           </p>
         }
 
-        <button class="btn-action primary full-width" (click)="openAbsCalibWizard()" data-cuelume-press data-cuelume-release>
-          <i class="bx bx-wrench"></i>
-          {{ absCalibrationExists() ? 'Recalibrar' : 'Iniciar Calibración' }}
-        </button>
+        <app-rounded-button
+          [label]="absCalibrationExists() ? 'Recalibrar' : 'Iniciar Calibración'"
+          icon="bx bx-wrench"
+          (click)="openAbsCalibWizard()"
+          variant="text"
+          class="full-width"
+        />
       </div>
     </div>
   </section>

@@ -5,10 +5,11 @@ import {
 import { DecimalPipe } from '@angular/common';
 import { SensorSocket } from '@core/services/sensor-socket';
 import { GloveTelemetry, getActionLabel } from '@core/models/glove-telemetry.model';
+import { RoundedButton } from '@shared/components/ui/rounded-button';
 
 @Component({
   selector: 'app-test-mode',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, RoundedButton],
   templateUrl: './test-mode.html',
   styleUrls: ['./test-mode.scss', '../shared.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

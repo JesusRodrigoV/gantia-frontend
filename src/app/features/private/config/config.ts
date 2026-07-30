@@ -18,10 +18,11 @@ import { CalibrationPanel } from './calibration-panel/calibration-panel';
 import { GestureCrudService } from './services/gesture-crud.service';
 import { CalibrationCrudService } from './services/calibration-crud.service';
 import { AbsCalibrationData } from './models/config.model';
+import { RoundedButton } from '@shared/components/ui/rounded-button';
 
 @Component({
   selector: 'app-config',
-  imports: [Toast, AbsolutePointerCalibration, TestMode, GestureList, GestureFormDialog, LearningWizard, CalibrationPanel],
+  imports: [Toast, AbsolutePointerCalibration, TestMode, GestureList, GestureFormDialog, LearningWizard, CalibrationPanel, RoundedButton],
   templateUrl: './config.html',
   styleUrl: './config.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

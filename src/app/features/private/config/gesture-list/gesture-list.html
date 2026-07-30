@@ -2,15 +2,9 @@
   <div class="section-header">
     <h2>Gestos</h2>
     <div class="section-actions">
-      <button class="btn-action" (click)="learn.emit()" data-cuelume-press data-cuelume-release>
-        <i class="bx bx-gesture"></i> Aprender
-      </button>
-      <button class="btn-action" (click)="create.emit()" data-cuelume-press data-cuelume-release>
-        <i class="bx bx-plus" aria-hidden="true"></i> Añadir
-      </button>
-      <button class="btn-action" (click)="refresh.emit()" data-cuelume-press data-cuelume-release>
-        <i class="bx bx-refresh" aria-hidden="true"></i> Recargar
-      </button>
+      <app-rounded-button label="Aprender" icon="bx bx-gesture" (click)="learn.emit()" variant="text" />
+      <app-rounded-button label="Añadir" icon="bx bx-plus" (click)="create.emit()" variant="text" />
+      <app-rounded-button label="Recargar" icon="bx bx-refresh" (click)="refresh.emit()" variant="text" />
     </div>
   </div>
 
@@ -33,13 +27,13 @@
     <div class="state-box empty">
       <i class="bx bx-gesture"></i>
       <p>No hay configuraciones de gestos</p>
-      <button class="btn-action" (click)="create.emit()" data-cuelume-press data-cuelume-release>Crear primera</button>
+      <app-rounded-button label="Crear primera" (click)="create.emit()" variant="text" />
     </div>
   } @else if (filtered().length === 0) {
     <div class="state-box empty">
       <i class="bx bx-filter"></i>
       <p>No hay gestos en el modo <strong>{{ getContextLabel(activeTab()) }}</strong></p>
-      <button class="btn-action" (click)="create.emit()" data-cuelume-press data-cuelume-release>Crear gesto en este modo</button>
+      <app-rounded-button label="Crear gesto en este modo" (click)="create.emit()" variant="text" />
     </div>
   } @else {
     <div class="table-wrap">

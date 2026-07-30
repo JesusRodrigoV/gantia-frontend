@@ -49,17 +49,13 @@
         </div>
       }
 
-      <button
+      <app-rounded-button
+        [label]="authStore.isLoading() ? 'Iniciando...' : 'Iniciar Sesión'"
         type="submit"
-        class="btn-submit"
         [disabled]="loginForm.invalid || authStore.isLoading()"
-      >
-        @if (authStore.isLoading()) {
-          <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
-        } @else {
-          Iniciar Sesion
-        }
-      </button>
+        [loading]="authStore.isLoading()"
+        class="full-width"
+      />
     </form>
 
     <div class="auth-footer">

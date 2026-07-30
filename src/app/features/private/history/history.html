@@ -34,15 +34,15 @@
           </select>
         </label>
         <div class="filter-actions">
-          <button class="btn-action" (click)="setDefaultToday()">Últimas 6h</button>
-          <button class="btn-action primary" (click)="search()" [disabled]="loading()">
-            @if (loading()) {
-              <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
-            } @else {
-              <i class="bx bx-search" aria-hidden="true"></i>
-            }
-            Buscar
-          </button>
+          <app-rounded-button label="Últimas 6h" (click)="setDefaultToday()" variant="text" />
+          <app-rounded-button
+            label="Buscar"
+            icon="bx bx-search"
+            (click)="search()"
+            [disabled]="loading()"
+            [loading]="loading()"
+            variant="text"
+          />
         </div>
       </div>
     </div>
@@ -55,7 +55,7 @@
     <div class="state-box error">
       <i class="bx bx-wifi-off"></i>
       <p>No se pudieron cargar los datos históricos</p>
-      <button class="btn-action" (click)="search()">Reintentar</button>
+      <app-rounded-button label="Reintentar" (click)="search()" variant="text" />
     </div>
   } @else if (searched() && readings().length === 0) {
     <div class="state-box empty">
@@ -153,14 +153,14 @@
           </select>
         </label>
         <div class="filter-actions">
-          <button class="btn-action primary" (click)="loadActions()" [disabled]="actionsLoading()">
-            @if (actionsLoading()) {
-              <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
-            } @else {
-              <i class="bx bx-refresh" aria-hidden="true"></i>
-            }
-            Cargar
-          </button>
+          <app-rounded-button
+            label="Cargar"
+            icon="bx bx-refresh"
+            (click)="loadActions()"
+            [disabled]="actionsLoading()"
+            [loading]="actionsLoading()"
+            variant="text"
+          />
         </div>
       </div>
     </div>
@@ -173,7 +173,7 @@
       <div class="state-box error">
         <i class="bx bx-wifi-off"></i>
         <p>No se pudieron cargar las acciones</p>
-        <button class="btn-action" (click)="loadActions()">Reintentar</button>
+        <app-rounded-button label="Reintentar" (click)="loadActions()" variant="text" />
       </div>
     } @else if (actions().length === 0) {
       <div class="state-box empty">

@@ -10,10 +10,11 @@ import {
   Validators,
 } from '@angular/forms';
 import { AuthStore } from '@core/stores/auth.store';
+import { RoundedButton } from '@shared/components/ui/rounded-button';
 
 @Component({
   selector: 'app-register',
-  imports: [NgOptimizedImage, LetrasGantia, ReactiveFormsModule, RouterLink],
+  imports: [NgOptimizedImage, LetrasGantia, ReactiveFormsModule, RouterLink, RoundedButton],
   templateUrl: './register.html',
   styleUrl: '../auth.styles.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

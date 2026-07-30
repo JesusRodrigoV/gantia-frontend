@@ -86,17 +86,13 @@
         <div class="auth-alert" role="alert">Las contraseñas no coinciden</div>
       }
 
-      <button
+      <app-rounded-button
+        [label]="authStore.isLoading() ? 'Creando...' : 'Crear Cuenta'"
         type="submit"
-        class="btn-submit"
         [disabled]="registerForm.invalid || authStore.isLoading()"
-      >
-        @if (authStore.isLoading()) {
-          <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
-        } @else {
-          Crear Cuenta
-        }
-      </button>
+        [loading]="authStore.isLoading()"
+        class="full-width"
+      />
     </form>
 
     <div class="auth-footer">

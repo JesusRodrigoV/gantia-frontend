@@ -2,10 +2,11 @@ import { Component, ChangeDetectionStrategy, input, output } from '@angular/core
 import { FormsModule } from '@angular/forms';
 import { Skeleton } from 'primeng/skeleton';
 import { CalibrationEntry } from '@core/models/calibration.model';
+import { RoundedButton } from '@shared/components/ui/rounded-button';
 
 @Component({
   selector: 'app-calibration-panel',
-  imports: [FormsModule, Skeleton],
+  imports: [FormsModule, Skeleton, RoundedButton],
   templateUrl: './calibration-panel.html',
   styleUrls: ['./calibration-panel.scss', '../shared.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

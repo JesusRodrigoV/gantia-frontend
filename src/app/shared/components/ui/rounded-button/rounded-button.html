@@ -1,1 +1,12 @@
-<p-button [rounded]="rounded()" [label]="label()" [icon]="icon()" [variant]="variant()" />
+<p-button
+  [rounded]="rounded()"
+  [label]="label()"
+  [icon]="icon()"
+  [variant]="variant() || undefined"
+  [severity]="severity()"
+  [disabled]="disabled()"
+  [loading]="loading()"
+  [type]="type()"
+  [size]="size()"
+  [styleClass]="styleClass()"
+/>

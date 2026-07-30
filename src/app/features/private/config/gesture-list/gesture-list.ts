@@ -2,10 +2,11 @@ import { Component, ChangeDetectionStrategy, input, output } from '@angular/core
 import { Skeleton } from 'primeng/skeleton';
 import { GestureConfig, getMovementLabel, getOrientationLabel, getFlexStateLabel, getContextLabel } from '@core/models/gesture-config.model';
 import { getActionLabel } from '@core/models/glove-telemetry.model';
+import { RoundedButton } from '@shared/components/ui/rounded-button';
 
 @Component({
   selector: 'app-gesture-list',
-  imports: [Skeleton],
+  imports: [Skeleton, RoundedButton],
   templateUrl: './gesture-list.html',
   styleUrls: ['./gesture-list.scss', '../shared.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

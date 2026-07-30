@@ -6,10 +6,11 @@ import {
   CONTEXTS, MOVEMENTS, ORIENTATIONS, FLEX_STATES, ACTIONS
 } from '@core/models/gesture-config.model';
 import { getActionLabel } from '@core/models/glove-telemetry.model';
+import { RoundedButton } from '@shared/components/ui/rounded-button';
 
 @Component({
   selector: 'app-gesture-form-dialog',
-  imports: [FormsModule],
+  imports: [FormsModule, RoundedButton],
   templateUrl: './gesture-form-dialog.html',
   styleUrls: ['./gesture-form-dialog.scss', '../shared.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

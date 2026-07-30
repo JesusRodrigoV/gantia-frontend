@@ -63,12 +63,15 @@
           </div>
 
           <div class="capture-actions">
-            <button class="btn-action primary full-width" (click)="captureCorner()" [disabled]="!hasGloveData()">
-              <i class="bx bx-check"></i> Capturar {{ corner.label }}
-            </button>
-            <button class="btn-action full-width" (click)="cancel()">
-              <i class="bx bx-x"></i> Cancelar
-            </button>
+            <app-rounded-button
+              [label]="'Capturar ' + corner.label"
+              icon="bx bx-check"
+              (click)="captureCorner()"
+              [disabled]="!hasGloveData()"
+              variant="text"
+              class="full-width"
+            />
+            <app-rounded-button label="Cancelar" icon="bx bx-x" (click)="cancel()" severity="secondary" variant="text" class="full-width" />
           </div>
         </div>
       }
@@ -119,16 +122,16 @@
         }
 
         <div class="review-actions">
-          <button class="btn-action primary full-width" (click)="save()" [disabled]="saving()">
-            @if (saving()) {
-              <i class="bx bx-loader-alt bx-spin"></i> Guardando...
-            } @else {
-              <i class="bx bx-save"></i> Guardar Calibración
-            }
-          </button>
-          <button class="btn-action full-width" (click)="cancel()">
-            <i class="bx bx-x"></i> Cancelar
-          </button>
+          <app-rounded-button
+            [label]="saving() ? 'Guardando...' : 'Guardar Calibración'"
+            icon="bx bx-save"
+            (click)="save()"
+            [disabled]="saving()"
+            [loading]="saving()"
+            variant="text"
+            class="full-width"
+          />
+          <app-rounded-button label="Cancelar" icon="bx bx-x" (click)="cancel()" severity="secondary" variant="text" class="full-width" />
         </div>
       </div>
     }
@@ -140,12 +143,8 @@
           <i class="bx bx-target-lock"></i>
         </div>
         <p class="start-text">Este asistente te guiará para calibrar las 4 esquinas de la pantalla. Vas a inclinar tu mano hacia cada esquina mientras presionás el botón del guante para registrar la posición.</p>
-        <button class="btn-action primary full-width" (click)="start()">
-          <i class="bx bx-play"></i> Iniciar Calibración
-        </button>
-        <button class="btn-action full-width" (click)="close.emit()">
-          <i class="bx bx-x"></i> Cerrar
-        </button>
+        <app-rounded-button label="Iniciar Calibración" icon="bx bx-play" (click)="start()" variant="text" class="full-width" />
+        <app-rounded-button label="Cerrar" icon="bx bx-x" (click)="close.emit()" severity="secondary" variant="text" class="full-width" />
       </div>
     }
   </div>

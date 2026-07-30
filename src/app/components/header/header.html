@@ -63,6 +63,7 @@
         class="theme-toggle"
         (click)="themeService.toggleTheme()"
         [icon]="themeService.isDarkMode() ? 'bx bx-sun' : 'bx bx-moon'"
+        variant="text"
       />
       <ul>
         @for (link of links; track link.route) {

@@ -46,9 +46,7 @@
                 <span>Flex Medio: <strong>{{ learnLiveFlexMiddle() }}</strong></span>
               </div>
             </div>
-            <button class="btn-action primary full-width" (click)="start()">
-              <i class="bx bx-play"></i> Empezar
-            </button>
+            <app-rounded-button label="Empezar" icon="bx bx-play" (click)="start()" variant="text" class="full-width" />
           </div>
         } @else if (learnStep() >= 2 && learnStep() <= 3) {
           <div class="learn-step-content">
@@ -65,9 +63,7 @@
               <span>Flex Índice: {{ learnLiveFlexIndex() }}</span>
               <span>Flex Medio: {{ learnLiveFlexMiddle() }}</span>
             </div>
-            <button class="btn-action primary full-width" (click)="capture()">
-              <i class="bx bx-camera"></i> Capturar muestra
-            </button>
+            <app-rounded-button label="Capturar muestra" icon="bx bx-camera" (click)="capture()" variant="text" class="full-width" />
           </div>
         } @else if (learnStep() === 4) {
           @let analysis = learnAnalysis();
@@ -110,17 +106,16 @@
               </select>
             </label>
             <div class="learn-actions">
-              <button class="btn-action full-width" (click)="learnStep.set(2)">
-                <i class="bx bx-revision"></i> Rehacer
-              </button>
-              <button class="btn-action primary full-width" (click)="save()" [disabled]="learnSaving()">
-                @if (learnSaving()) {
-                  <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
-                } @else {
-                  <i class="bx bx-save"></i>
-                }
-                {{ learnSaving() ? 'Guardando...' : 'Guardar gesto' }}
-              </button>
+              <app-rounded-button label="Rehacer" icon="bx bx-revision" (click)="learnStep.set(2)" variant="text" class="full-width" />
+              <app-rounded-button
+                [label]="learnSaving() ? 'Guardando...' : 'Guardar gesto'"
+                icon="bx bx-save"
+                (click)="save()"
+                [disabled]="learnSaving()"
+                [loading]="learnSaving()"
+                variant="text"
+                class="full-width"
+              />
             </div>
           </div>
         }

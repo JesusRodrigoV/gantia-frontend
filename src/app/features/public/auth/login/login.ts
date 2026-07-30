@@ -4,10 +4,11 @@ import { LetrasGantia } from '@components/letras-gantia/letras-gantia';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthStore } from '@core/stores/auth.store';
 import { RouterLink } from '@angular/router';
+import { RoundedButton } from '@shared/components/ui/rounded-button';
 
 @Component({
   selector: 'app-login',
-  imports: [NgOptimizedImage, LetrasGantia, ReactiveFormsModule, RouterLink],
+  imports: [NgOptimizedImage, LetrasGantia, ReactiveFormsModule, RouterLink, RoundedButton],
   templateUrl: './login.html',
   styleUrl: '../auth.styles.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
