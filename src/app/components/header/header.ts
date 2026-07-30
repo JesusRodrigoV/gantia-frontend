@@ -47,6 +47,15 @@ export class Header implements OnInit {
   protected authStore = inject(AuthStore);
   private soundService = inject(SoundService);
   protected scrolled = signal(false);
+  protected menuOpen = signal(false);
+
+  protected toggleMenu(): void {
+    this.menuOpen.update((v) => !v);
+  }
+
+  protected closeMenu(): void {
+    this.menuOpen.set(false);
+  }
   protected mouseModeActive = computed(() => this.sensorSocket.mouseModeActive());
   protected readonly getContextLabel = getContextLabel;
   protected picoTargetLabel = computed(() => this.picoTarget.targetLabel());

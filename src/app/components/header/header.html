@@ -14,6 +14,10 @@
       <app-letras-gantia />
     </div>
 
+    <button class="hamburger" (click)="toggleMenu()" [attr.aria-label]="menuOpen() ? 'Cerrar menú' : 'Abrir menú'" aria-expanded="menuOpen()">
+      <i [class]="menuOpen() ? 'bx bx-x' : 'bx bx-menu'"></i>
+    </button>
+
     <nav class="main-nav">
       <div
         class="connection-status"
@@ -65,10 +69,10 @@
         [icon]="themeService.isDarkMode() ? 'bx bx-sun' : 'bx bx-moon'"
         variant="text"
       />
-      <ul>
+      <ul class="desktop-nav">
         @for (link of links; track link.route) {
           <li>
-            <a [routerLink]="link.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" data-cuelume-hover="tick">{{ link.label }}</a>
+            <a [routerLink]="link.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" (click)="closeMenu()" data-cuelume-hover="tick">{{ link.label }}</a>
           </li>
         }
         <li
@@ -86,4 +90,22 @@
       </ul>
     </nav>
   </div>
+
+  @if (menuOpen()) {
+    <div class="mobile-menu">
+      <ul>
+        @for (link of links; track link.route) {
+          <li>
+            <a [routerLink]="link.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" (click)="closeMenu()" data-cuelume-hover="tick">{{ link.label }}</a>
+          </li>
+        }
+      </ul>
+      <div class="mobile-actions">
+        <button class="mobile-logout" (click)="closeMenu(); confirmLogout($event)">
+          <i class="bx bx-log-out"></i>
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
+    </div>
+  }
 </header>
