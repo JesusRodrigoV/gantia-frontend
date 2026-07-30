@@ -37,12 +37,12 @@ export function buildChartOptions(
     axes: [
       {
         space: 80,
-        stroke: 'var(--p-surface-400)',
+        stroke: 'var(--p-surface-600)',
         grid: { stroke: 'color-mix(in srgb, var(--p-surface-900) 6%, transparent)' },
       },
       {
         label: cfg.unitLabel,
-        stroke: 'var(--p-surface-400)',
+        stroke: 'var(--p-surface-600)',
         grid: { stroke: 'color-mix(in srgb, var(--p-surface-900) 6%, transparent)' },
       },
     ],

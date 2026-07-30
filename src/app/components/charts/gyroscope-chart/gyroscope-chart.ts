@@ -6,8 +6,8 @@ const GYRO_CONFIG: SensorChartConfig = {
   unitLabel: '°/s',
   seriesColors: ['#ff0000', '#2bff00', '#0080ff'],
   seriesLabels: ['X', 'Y', 'Z'],
-  minY: -250,
-  maxY: 250,
+  minY: -100,
+  maxY: 100,
   extractValues: (t) => [t.gyro_x, t.gyro_y, t.gyro_z],
 };
 

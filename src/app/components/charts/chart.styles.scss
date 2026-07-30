@@ -24,12 +24,13 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .pause-btn {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: -2px;
+  right: -2px;
   z-index: 10;
   width: 32px;
   height: 32px;
