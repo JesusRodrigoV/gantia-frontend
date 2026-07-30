@@ -6,6 +6,8 @@ const ACCEL_CONFIG: SensorChartConfig = {
   unitLabel: 'G',
   seriesColors: ['#dc3545', '#28a745', '#0f4d92'],
   seriesLabels: ['X', 'Y', 'Z'],
+  minY: -2.5,
+  maxY: 2.5,
   extractValues: (t) => [t.accel_x, t.accel_y, t.accel_z],
 };
 

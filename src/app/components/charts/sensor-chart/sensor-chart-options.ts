@@ -2,6 +2,7 @@ import uPlot from 'uplot';
 import { SensorChartConfig } from './sensor-chart.model';
 
 const SYNC_KEY = 'gantia-sensors';
+const WINDOW_SECS = 10;
 
 export function buildChartOptions(
   container: HTMLElement,
@@ -21,8 +22,17 @@ export function buildChartOptions(
       sync: { key: SYNC_KEY },
     },
     scales: {
-      x: { time: true },
-      y: { auto: true },
+      x: {
+        time: true,
+        range: (u: uPlot) => {
+          const data = u.data[0];
+          if (data.length < 2) return [0, WINDOW_SECS];
+          const max = data[data.length - 1];
+          const min = max - WINDOW_SECS;
+          return [min, max];
+        },
+      },
+      y: { range: [cfg.minY, cfg.maxY] },
     },
     axes: [
       {
