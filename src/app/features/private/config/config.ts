@@ -1,11 +1,11 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, DestroyRef, viewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Toast } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { ConfigService } from '@core/services/config.service';
 import { SensorSocket } from '@core/services/sensor-socket';
 import { CONTEXTS, MOVEMENTS, ORIENTATIONS, FLEX_STATES, ACTIONS } from '@core/models/gesture-config.model';
 import { SoundService } from '@core/services/sound.service';
+import { ToastService } from '@core/services/toast.service';
 import { env } from '../../../../environments/environment';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -22,7 +22,6 @@ import { AbsCalibrationData } from './models/config.model';
 @Component({
   selector: 'app-config',
   imports: [Toast, AbsolutePointerCalibration, TestMode, GestureList, GestureFormDialog, LearningWizard, CalibrationPanel],
-  providers: [MessageService],
   templateUrl: './config.html',
   styleUrl: './config.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,7 +30,7 @@ export default class Config implements OnInit {
   protected readonly gestureCrud = inject(GestureCrudService);
   protected readonly calibrationCrud = inject(CalibrationCrudService);
   private readonly configService = inject(ConfigService);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly http = inject(HttpClient);
   private readonly sensorSocket = inject(SensorSocket);
   private readonly soundService = inject(SoundService);
@@ -78,12 +77,7 @@ export default class Config implements OnInit {
   protected onAbsCalibSaved(): void {
     this.absCalibWizardOpen.set(false);
     this.checkAbsCalibration();
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Calibración guardada',
-      detail: 'El puntero absoluto ya está calibrado',
-      life: 3000,
-    });
+    this.toast.success('Calibración guardada', 'El puntero absoluto ya está calibrado');
   }
 
   protected closeAbsCalibWizard(): void {
@@ -102,7 +96,9 @@ export default class Config implements OnInit {
     this.absCalibLoading.set(true);
     this.http.get(`${env.apiUrl}/config/absolute-pointer/calibration`).pipe(finalize(() => this.absCalibLoading.set(false)), takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data: AbsCalibrationData) => this.absCalibrationData.set(data),
-      error: () => this.absCalibrationData.set(null),
+      error: () => {
+        this.absCalibrationData.set(null);
+      },
     });
   }
 
@@ -114,14 +110,9 @@ export default class Config implements OnInit {
         this.calibrationCrud.loadCalibration();
         this.soundService.play('success');
       },
-      error: () => {
+      error: (err) => {
         this.soundService.play('droplet');
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo sincronizar con Supabase',
-          life: 4000,
-        });
+        this.toast.httpError(err, 'Error', 'No se pudo sincronizar con Supabase');
       },
     });
   }
@@ -132,20 +123,10 @@ export default class Config implements OnInit {
       next: () => {
         this.gestureCrud.loadGestureConfigs();
         this.calibrationCrud.loadCalibration();
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Reset completo',
-          detail: 'Todas las configuraciones volvieron a sus valores por defecto',
-          life: 4000,
-        });
+        this.toast.success('Reset completo', 'Todas las configuraciones volvieron a sus valores por defecto');
       },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudieron resetear las configuraciones',
-          life: 4000,
-        });
+      error: (err) => {
+        this.toast.httpError(err, 'Error', 'No se pudieron resetear las configuraciones');
       },
     });
   }

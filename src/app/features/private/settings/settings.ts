@@ -9,12 +9,12 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { Toast } from 'primeng/toast';
 import { Skeleton } from 'primeng/skeleton';
-import { MessageService } from 'primeng/api';
 import { MouseConfigService } from '@core/services/mouse-config.service';
 import { MouseConfig } from '@core/models/mouse-config.model';
 import { PicoTargetService, PicoTarget } from '@core/services/pico-target.service';
 import { SensitivityService } from '@core/services/sensitivity.service';
 import { SoundService } from '@core/services/sound.service';
+import { ToastService } from '@core/services/toast.service';
 import { SensitivitySettings } from '@core/models/sensitivity.model';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -28,7 +28,6 @@ import { SENS_FIELDS, SENS_GROUPS, TARGET_OPTIONS } from './sensitivity-fields';
   ],
   templateUrl: './settings.html',
   styleUrl: './settings.scss',
-  providers: [MessageService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class Settings implements OnInit, OnDestroy {
@@ -36,7 +35,7 @@ export default class Settings implements OnInit, OnDestroy {
   private readonly picoTargetService = inject(PicoTargetService);
   private readonly sensitivityService = inject(SensitivityService);
   private readonly soundService = inject(SoundService);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected loading = signal(true);
@@ -63,10 +62,7 @@ export default class Settings implements OnInit, OnDestroy {
         this.invertRoll.set(config.invert_roll);
         this.invertPitch.set(config.invert_pitch);
       },
-      error: () => this.messageService.add({
-        severity: 'error', summary: 'Error',
-        detail: 'No se pudo cargar la configuracion del mouse', life: 4000,
-      }),
+      error: (err) => this.toast.httpError(err, 'Error', 'No se pudo cargar la configuración del mouse'),
     });
 
     this.picoTargetService.load();
@@ -81,10 +77,7 @@ export default class Settings implements OnInit, OnDestroy {
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (s) => this.sens.set(s),
-      error: () => this.messageService.add({
-        severity: 'error', summary: 'Error',
-        detail: 'No se pudieron cargar los parámetros de sensibilidad', life: 4000,
-      }),
+      error: (err) => this.toast.httpError(err, 'Error', 'No se pudieron cargar los parámetros de sensibilidad'),
     });
   }
 
@@ -115,12 +108,10 @@ export default class Settings implements OnInit, OnDestroy {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => this.savingKeys.update((s) => { s.delete(key); return new Set(s); }),
-          error: () => {
+          error: (err) => {
             this.savingKeys.update((s) => { s.delete(key); return new Set(s); });
-            this.messageService.add({
-              severity: 'error', summary: 'Error',
-              detail: `No se pudo guardar ${key}`, life: 4000,
-            });
+            const label = this.getField(key)?.label || key;
+            this.toast.httpError(err, 'Error', `No se pudo guardar ${label}`);
             this.loadSensitivity();
           },
         });
@@ -130,32 +121,23 @@ export default class Settings implements OnInit, OnDestroy {
   protected onToggleChange(field: 'roll' | 'pitch', value: boolean): void {
     const update = field === 'roll' ? { invert_roll: value } : { invert_pitch: value };
     const signal = field === 'roll' ? this.invertRoll : this.invertPitch;
-    const label = field === 'roll' ? 'Balanceo invertido' : 'Inclinacion invertida';
+    const label = field === 'roll' ? 'Balanceo invertido' : 'Inclinación invertida';
 
     this.mouseConfigService.updateConfig(update)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (config: MouseConfig) => {
           signal.set(field === 'roll' ? config.invert_roll : config.invert_pitch);
-          this.messageService.add({
-            severity: 'success', summary: 'Guardado',
-            detail: `${label}: ${value ? 'SÍ' : 'NO'}`, life: 2000,
-          });
+          this.toast.success('Guardado', `${label}: ${value ? 'SÍ' : 'NO'}`, 2000);
         },
-        error: () => this.messageService.add({
-          severity: 'error', summary: 'Error',
-          detail: 'No se pudo guardar la configuracion', life: 4000,
-        }),
+        error: (err) => this.toast.httpError(err, 'Error', 'No se pudo guardar la configuración'),
       });
   }
 
   onTargetChange(target: PicoTarget): void {
     this.selectedTarget.set(target);
     this.picoTargetService.setTarget(target);
-    this.messageService.add({
-      severity: 'info', summary: 'Target cambiado',
-      detail: `Modo de control: ${this.picoTargetService.targetLabel()}`, life: 2500,
-    });
+    this.toast.info('Target cambiado', `Modo de control: ${this.picoTargetService.targetLabel()}`, 2500);
   }
 
   protected onSoundToggle(value: boolean): void {

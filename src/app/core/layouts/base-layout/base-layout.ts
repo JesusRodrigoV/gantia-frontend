@@ -17,12 +17,12 @@ import {
   NavigationError,
 } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 import { ConfirmPopup } from 'primeng/confirmpopup';
 import { Header } from '@components/header';
 import { SensorSocket } from '@core/services/sensor-socket';
 import { SoundService } from '@core/services/sound.service';
+import { ToastService } from '@core/services/toast.service';
 
 @Component({
   selector: 'app-base-layout',
@@ -33,7 +33,7 @@ import { SoundService } from '@core/services/sound.service';
 })
 export default class BaseLayout implements OnInit, OnDestroy {
   private readonly sensorSocket = inject(SensorSocket);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly soundService = inject(SoundService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -66,32 +66,17 @@ export default class BaseLayout implements OnInit, OnDestroy {
       switch (status) {
         case 'connected':
           this.soundService.play('bloom');
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Conectado',
-            detail: 'Conexión establecida con el servidor',
-            life: 3000,
-          });
+          this.toast.success('Conectado', 'Conexión establecida con el servidor');
           break;
         case 'disconnected':
           this.disconnectDebounce = setTimeout(() => {
-            this.messageService.add({
-              severity: 'warn',
-              summary: 'Desconectado',
-              detail: 'Sin conexión al servidor',
-              life: 4000,
-            });
+            this.toast.warn('Desconectado', 'Sin conexión al servidor');
           }, 3000);
           break;
         case 'reconnecting':
           break;
         case 'error':
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'No se pudo conectar al servidor',
-            life: 5000,
-          });
+          this.toast.error('Error', 'No se pudo conectar al servidor');
           break;
       }
     });

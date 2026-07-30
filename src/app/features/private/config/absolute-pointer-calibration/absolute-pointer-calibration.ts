@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { SensorSocket } from '@core/services/sensor-socket';
+import { ToastService } from '@core/services/toast.service';
 import { env } from '../../../../../environments/environment';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -25,6 +26,7 @@ const CORNER_STEPS: CornerStep[] = [
 export class AbsolutePointerCalibration {
   private readonly sensorSocket = inject(SensorSocket);
   private readonly http = inject(HttpClient);
+  private readonly toast = inject(ToastService);
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -151,7 +153,7 @@ export class AbsolutePointerCalibration {
         status: 'draft' as const,
       };
       this.http.put(`${env.apiUrl}/config/absolute-pointer/calibration`, payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        error: () => console.warn('Failed to save draft calibration'),
+        error: () => this.toast.warn('Calibración', 'No se pudo guardar el borrador de la calibración'),
       });
     }
     this.cleanup();

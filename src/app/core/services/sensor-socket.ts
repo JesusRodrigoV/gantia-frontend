@@ -232,6 +232,7 @@ export class SensorSocket implements OnDestroy {
 
     if (evt.action === 'mouse_mode') {
       const newVal = data.action_value;
+      console.log('[mouse_mode] data:', JSON.stringify(data), 'evt:', evt, 'newVal:', newVal, 'lastVal:', this.lastMouseModeValue);
       if (newVal !== this.lastMouseModeValue) {
         this.lastMouseModeValue = newVal;
         this.mouseModeActive.set(newVal === true || newVal === 'ON');

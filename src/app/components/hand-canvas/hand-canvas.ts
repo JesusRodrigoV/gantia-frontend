@@ -13,11 +13,11 @@ import {
 import { DecimalPipe, DOCUMENT } from '@angular/common';
 import { Tooltip } from 'primeng/tooltip';
 import { Toast } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { fromEvent } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WINDOW } from '@core/tokens/window.token';
 import { SensorSocket } from '@core/services/sensor-socket';
+import { ToastService } from '@core/services/toast.service';
 import { ThemeHandler } from '@core/utils/theme-handler';
 import { getActionLabel } from '@core/models/glove-telemetry.model';
 import { FLEX_STATE_LABELS } from '@core/models/gesture-config.model';
@@ -29,7 +29,6 @@ import { HandRenderer } from './hand-renderer';
   imports: [DecimalPipe, Tooltip, Toast],
   templateUrl: './hand-canvas.html',
   styleUrl: './hand-canvas.scss',
-  providers: [MessageService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class HandCanvas {
@@ -39,7 +38,7 @@ export default class HandCanvas {
   protected sensorSocket = inject(SensorSocket);
   protected FLEX_STATE_LABELS = FLEX_STATE_LABELS;
   private themeHandler = inject(ThemeHandler);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastService);
   private scene3d: HandScene | null = null;
   private renderer = new HandRenderer();
 
@@ -84,14 +83,7 @@ export default class HandCanvas {
         const label = getActionLabel(latest.action);
         this.lastGestureLabel.set(label);
         if (latest.action !== 'mouse_mode') {
-          this.messageService.add({
-            severity: 'info',
-            summary: 'Gesto detectado',
-            detail: label,
-            life: 2000,
-            icon: 'bx bx-flash',
-            key: 'hand-toast',
-          });
+          this.toast.info('Gesto detectado', label, 2000, 'hand-toast', 'bx bx-flash');
         }
         this.effectPrevActionCount = actions.length;
       }

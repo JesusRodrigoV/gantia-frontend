@@ -1,7 +1,8 @@
 import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core';
 import { GestureConfigService } from '@core/services/gesture-config.service';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { SoundService } from '@core/services/sound.service';
+import { ToastService } from '@core/services/toast.service';
 import { MacroRecordingService } from '@core/services/macro-recording.service';
 import {
   GestureConfig, GestureConfigForm, MacroStep,
@@ -15,7 +16,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class GestureCrudService {
   private readonly gestureService = inject(GestureConfigService);
   private readonly confirmationService = inject(ConfirmationService);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly soundService = inject(SoundService);
   private readonly macroRecordingService = inject(MacroRecordingService);
   private readonly destroyRef = inject(DestroyRef);
@@ -203,20 +204,10 @@ export class GestureCrudService {
         this.closeDialog();
         this.loadGestureConfigs();
         this.soundService.play('sparkle');
-        this.messageService.add({
-          severity: 'success',
-          summary: this.editingId() ? 'Gesto actualizado' : 'Gesto creado',
-          detail: `${getMovementLabel(saved.movement)} → ${getActionLabel(saved.action_key)}`,
-          life: 3000,
-        });
+        this.toast.success(this.editingId() ? 'Gesto actualizado' : 'Gesto creado', `${getMovementLabel(saved.movement)} → ${getActionLabel(saved.action_key)}`);
       },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo guardar la configuración del gesto',
-          life: 4000,
-        });
+      error: (err) => {
+        this.toast.httpError(err, 'Error', 'No se pudo guardar la configuración del gesto');
       },
     });
   }
@@ -233,14 +224,10 @@ export class GestureCrudService {
         this.gestureService.delete(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: () => {
             this.gestureConfigs.update(prev => prev.filter(g => g.id !== id));
-            this.messageService.add({
-              severity: 'success', summary: 'Eliminado', detail: 'Gesto eliminado', life: 3000,
-            });
+            this.toast.success('Eliminado', 'Gesto eliminado');
           },
-          error: () => {
-            this.messageService.add({
-              severity: 'error', summary: 'Error', detail: 'No se pudo eliminar el gesto', life: 4000,
-            });
+          error: (err) => {
+            this.toast.httpError(err, 'Error', 'No se pudo eliminar el gesto');
           },
         });
       },
@@ -345,10 +332,7 @@ export class GestureCrudService {
         a.click();
         URL.revokeObjectURL(url);
         this.soundService.play('sparkle');
-        this.messageService.add({
-          severity: 'success', summary: 'Exportado',
-          detail: 'Configuraciones exportadas como JSON', life: 3000,
-        });
+        this.toast.success('Exportado', 'Configuraciones exportadas como JSON');
       },
     });
   }
@@ -368,17 +352,14 @@ export class GestureCrudService {
           next: () => {
             this.loadGestureConfigs();
             this.soundService.play('sparkle');
-            this.messageService.add({
-              severity: 'success', summary: 'Importado',
-              detail: `${configs.length} configuraciones importadas`, life: 3000,
-            });
+            this.toast.success('Importado', `${configs.length} configuraciones importadas`);
+          },
+          error: (err) => {
+            this.toast.httpError(err, 'Error', 'No se pudieron importar las configuraciones');
           },
         });
       } catch {
-        this.messageService.add({
-          severity: 'error', summary: 'Error',
-          detail: 'Archivo JSON inválido', life: 4000,
-        });
+        this.toast.error('Error', 'Archivo JSON inválido');
       } finally {
         this.importing.set(false);
       }

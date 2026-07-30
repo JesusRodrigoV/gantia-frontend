@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ToastService } from '@core/services/toast.service';
 import { env } from '../../../environments/environment';
-import { catchError, of, tap } from 'rxjs';
+import { catchError, of } from 'rxjs';
 
 import { PicoTarget, PicoTargetResponse } from '@core/models/pico-target.model';
 
@@ -13,6 +14,7 @@ export type { PicoTarget, PicoTargetResponse };
 })
 export class PicoTargetService {
   private readonly http = inject(HttpClient);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly baseUrl = env.apiUrl;
 
@@ -21,11 +23,7 @@ export class PicoTargetService {
 
   load(): void {
     this.http.get<PicoTargetResponse>(`${this.baseUrl}/pico/target`)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        tap({ error: (err) => console.error('Failed to load pico target', err) }),
-        catchError(() => of(null)),
-      )
+      .pipe(takeUntilDestroyed(this.destroyRef), catchError(() => of(null)))
       .subscribe((res) => {
         if (res) {
           this.target.set(res.target);
@@ -36,15 +34,13 @@ export class PicoTargetService {
 
   setTarget(target: PicoTarget): void {
     this.http.post<PicoTargetResponse>(`${this.baseUrl}/pico/target`, { target })
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        tap({ error: (err) => console.error('Failed to set pico target', err) }),
-        catchError(() => of(null)),
-      )
+      .pipe(takeUntilDestroyed(this.destroyRef), catchError(() => of(null)))
       .subscribe((res) => {
         if (res) {
           this.target.set(res.target);
           this.connected.set(res.connected.usb);
+        } else {
+          this.toast.error('Error', 'No se pudo cambiar el target del Pico');
         }
       });
   }

@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, DestroyRef, Injector, effect, runInInjectionContext, EffectRef } from '@angular/core';
 import { CalibrationService } from '@core/services/calibration.service';
-import { MessageService } from 'primeng/api';
 import { SensorSocket } from '@core/services/sensor-socket';
+import { ToastService } from '@core/services/toast.service';
 import { CalibrationEntry } from '@core/models/calibration.model';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -9,7 +9,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Injectable({ providedIn: 'root' })
 export class CalibrationCrudService {
   private readonly calibrationService = inject(CalibrationService);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly sensorSocket = inject(SensorSocket);
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
@@ -45,10 +45,7 @@ export class CalibrationCrudService {
   openCalibWizard(sensorName: string): void {
     const status = this.sensorSocket.connectionStatus();
     if (status !== 'connected') {
-      this.messageService.add({
-        severity: 'warn', summary: 'Guante no conectado',
-        detail: 'Conecta el guante antes de iniciar la calibracion', life: 3000,
-      });
+      this.toast.warn('Guante no conectado', 'Conectá el guante antes de iniciar la calibración');
       return;
     }
     const sensor = (sensorName === 'index_finger' ? 'index_finger' : 'middle_finger') as 'index_finger' | 'middle_finger';
@@ -96,16 +93,10 @@ export class CalibrationCrudService {
           this.calibEffectCleanup = null;
           this.sensorSocket.disconnect();
           this.loadCalibration();
-          this.messageService.add({
-            severity: 'success', summary: 'Calibración guardada',
-            detail: `${sensorName === 'index_finger' ? 'Índice' : 'Medio'} calibrado: ${min} – ${max}`, life: 3000,
-          });
+          this.toast.success('Calibración guardada', `${sensorName === 'index_finger' ? 'Índice' : 'Medio'} calibrado: ${min} – ${max}`);
         },
-        error: () => {
-          this.messageService.add({
-            severity: 'error', summary: 'Error',
-            detail: `No se pudo guardar la calibración de ${sensorName}`, life: 4000,
-          });
+        error: (err) => {
+          this.toast.httpError(err, 'Error', `No se pudo guardar la calibración de ${sensorName === 'index_finger' ? 'índice' : 'medio'}`);
         },
       });
   }
@@ -125,10 +116,7 @@ export class CalibrationCrudService {
     this.debounceTimers.set(key, setTimeout(() => {
       this.debounceTimers.delete(key);
       if (min >= max) {
-        this.messageService.add({
-          severity: 'warn', summary: 'Calibración inválida',
-          detail: 'El mínimo debe ser menor al máximo', life: 3000,
-        });
+        this.toast.warn('Calibración inválida', 'El mínimo debe ser menor al máximo');
         return;
       }
       this.calibrationService.update(sensorName, { min_value: min, max_value: max })
@@ -136,16 +124,10 @@ export class CalibrationCrudService {
         .subscribe({
           next: () => {
             this.loadCalibration();
-            this.messageService.add({
-              severity: 'success', summary: 'Calibración actualizada',
-              detail: `${sensorName} → ${min} – ${max}`, life: 2000,
-            });
+            this.toast.success('Calibración actualizada', `${sensorName} → ${min} – ${max}`, 2000);
           },
-          error: () => {
-            this.messageService.add({
-              severity: 'error', summary: 'Error',
-              detail: 'No se pudo actualizar la calibración', life: 4000,
-            });
+          error: (err) => {
+            this.toast.httpError(err, 'Error', 'No se pudo actualizar la calibración');
           },
         });
     }, 400));
