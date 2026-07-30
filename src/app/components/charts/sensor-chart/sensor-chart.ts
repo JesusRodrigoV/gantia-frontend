@@ -23,7 +23,6 @@ export type { SensorChartConfig };
   imports: [NgClass, DecimalPipe],
   templateUrl: './sensor-chart.html',
   styleUrl: '../chart.styles.scss',
-  host: { '(window:resize)': 'onResize()' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SensorChart implements OnDestroy {
@@ -43,7 +42,7 @@ export class SensorChart implements OnDestroy {
   private rafId: number | null = null;
   protected paused = signal(false);
 
-  private resizeTimer: ReturnType<typeof setTimeout> | null = null;
+  private resizeObserver: ResizeObserver | null = null;
   private lastDisplayUpdate = 0;
 
   constructor() {
@@ -72,23 +71,8 @@ export class SensorChart implements OnDestroy {
     }
   }
 
-  private readonly RESIZE_DEBOUNCE_MS = 100;
-
   protected togglePause(): void {
     this.paused.update((v) => !v);
-  }
-
-  onResize(): void {
-    if (this.resizeTimer !== null) clearTimeout(this.resizeTimer);
-    this.resizeTimer = setTimeout(() => {
-      if (this.uplotInstance) {
-        const container = this.uplotContainer().nativeElement;
-        this.uplotInstance.setSize({
-          width: container.offsetWidth,
-          height: container.offsetHeight,
-        });
-      }
-    }, this.RESIZE_DEBOUNCE_MS);
   }
 
   private initializeChart(): void {
@@ -99,6 +83,15 @@ export class SensorChart implements OnDestroy {
 
     const opts = buildChartOptions(container, cfg);
     this.uplotInstance = new uPlot(opts, this.plotData, container);
+
+    this.resizeObserver = new ResizeObserver(() => {
+      if (!this.uplotInstance) return;
+      this.uplotInstance.setSize({
+        width: container.offsetWidth,
+        height: container.offsetHeight,
+      });
+    });
+    this.resizeObserver.observe(container);
   }
 
   private ingestSocketData(timestamp: number, x: number, y: number, z: number): void {
@@ -140,9 +133,7 @@ export class SensorChart implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.resizeTimer !== null) {
-      clearTimeout(this.resizeTimer);
-    }
+    this.resizeObserver?.disconnect();
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
     }
