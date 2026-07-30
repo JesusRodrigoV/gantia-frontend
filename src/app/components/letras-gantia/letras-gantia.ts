@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { gsap } from 'gsap';
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
 
@@ -9,32 +9,23 @@ gsap.registerPlugin(ScrambleTextPlugin);
   imports: [],
   templateUrl: './letras-gantia.html',
   styleUrl: './letras-gantia.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LetrasGantia implements OnInit, OnDestroy {
+export class LetrasGantia implements OnInit {
   griego = "γαντια";
   normal = "Gantia"
   letrasGriegas = "γαντιαμπωψχφυυ";
   isvisible = signal(false);
-  private animEl: HTMLElement | null = null;
 
   ngOnInit(): void {
     this.startSystem();
-  }
-
-  ngOnDestroy(): void {
-    if (this.animEl) {
-      gsap.killTweensOf(this.animEl);
-    }
   }
 
   private startSystem(): void {
     this.isvisible.set(true);
   }
 
-  onEnter(event: MouseEvent): void {
-    const el = event.target as HTMLElement;
-    this.animEl = el;
+  onEnter(event: any): void {
+    const el = event.target;
 
     gsap.fromTo(
       el,
@@ -48,17 +39,19 @@ export class LetrasGantia implements OnInit, OnDestroy {
           revealDelay: 0.2,
           speed: 0.75,
         },
+        onComplete: () => event.animationComplete(),
       },
     );
   }
 
-  onLeave(event: MouseEvent): void {
-    const el = event.target as HTMLElement;
+  onLeave(event: any): void {
+    const el = event.target;
 
     gsap.to(el, {
       duration: 0.8,
       opacity: 0,
       x: -20,
+      onComplete: () => event.animationComplete(),
     });
   }
 }
