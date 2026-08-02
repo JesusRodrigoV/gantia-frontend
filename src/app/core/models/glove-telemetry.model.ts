@@ -14,6 +14,12 @@ export interface GloveTelemetry {
   rssi?: number;
   temp_mpu?: number;
   uptime_ms?: number;
+  /** Fused orientation from the backend (radians, Madgwick) */
+  pitch?: number;
+  roll?: number;
+  yaw?: number;
+  /** Fused quaternion [w, x, y, z] from the backend */
+  quaternion?: [number, number, number, number];
 }
 
 

@@ -42,6 +42,12 @@ export default class Sensores implements OnDestroy {
   protected orientation = computed(() => {
     const t = this.sensorSocket.telemetry();
     if (!t) return null;
+    if (t.pitch !== undefined && t.roll !== undefined) {
+      return {
+        pitch: t.pitch * (180 / Math.PI),
+        roll: t.roll * (180 / Math.PI),
+      };
+    }
     const pitch =
       Math.atan2(t.accel_x, Math.sqrt(t.accel_y ** 2 + t.accel_z ** 2)) * (180 / Math.PI);
     const roll = Math.atan2(t.accel_y, t.accel_z) * (180 / Math.PI);

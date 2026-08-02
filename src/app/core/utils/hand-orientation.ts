@@ -15,6 +15,14 @@ export class HandOrientationTracker {
   update(telemetry: GloveTelemetry, dt: number): HandOrientation | null {
     if (!telemetry.button_pressed) return null;
 
+    // Backend-fused orientation (Madgwick) is the single source of truth when present.
+    if (telemetry.pitch !== undefined && telemetry.roll !== undefined) {
+      this.pitch = telemetry.pitch;
+      this.roll = telemetry.roll;
+      this.yaw = telemetry.yaw ?? this.yaw;
+      return { pitch: this.pitch, roll: this.roll, yaw: this.yaw };
+    }
+
     const accelPitch = Math.atan2(
       telemetry.accel_y,
       Math.sqrt(telemetry.accel_x ** 2 + telemetry.accel_z ** 2),
